@@ -11,6 +11,7 @@ mod cli;
 mod client;
 mod config;
 mod engine;
+mod rencode;
 mod torrent;
 mod tracing_setup;
 
@@ -80,49 +81,52 @@ async fn process_host(host: &HostConfig, rules: &config::Rules, dry_run: bool) {
     let password = match host.resolve_password() {
         Ok(pw) => pw,
         Err(err) => {
-            error!(url = %host.url, error = %err, "failed to resolve password for host `{}`: {err}", host.url);
+            error!(host = %host.host, port = host.port, error = %err, "failed to resolve password for host `{}:{}`: {err}", host.host, host.port);
             return;
         }
     };
 
-    let client = DelugeClient::new(host.url.clone(), password);
+    // TODO(task-3): replace with daemon RPC client construction.
+    let client = DelugeClient::new(format!("http://{}:{}/json", host.host, host.port), password);
 
     if let Err(err) = client.login().await {
-        error!(url = %host.url, error = %err, "login failed for host `{}`: {err}", host.url);
+        error!(host = %host.host, port = host.port, error = %err, "login failed for host `{}:{}`: {err}", host.host, host.port);
         return;
     }
 
     let free_space = match client.get_free_space().await {
         Ok(bytes) => bytes,
         Err(err) => {
-            error!(url = %host.url, error = %err, "free space query failed for host `{}`: {err}", host.url);
+            error!(host = %host.host, port = host.port, error = %err, "free space query failed for host `{}:{}`: {err}", host.host, host.port);
             return;
         }
     };
 
     info!(
-        url = %host.url,
+        host = %host.host,
+        port = host.port,
         free = %ByteSize(free_space),
         low = %rules.low_water_mark,
         high = %rules.high_water_mark,
-        "host {}: free space {} (low: {}, high: {})",
-        host.url,
+        "host {}:{}: free space {} (low: {}, high: {})",
+        host.host,
+        host.port,
         ByteSize(free_space),
         rules.low_water_mark,
         rules.high_water_mark,
     );
 
     if free_space >= rules.low_water_mark.as_u64() {
-        info!(url = %host.url, "host {}: OK", host.url);
+        info!(host = %host.host, port = host.port, "host {}:{}: OK", host.host, host.port);
         return;
     }
 
-    warn!(url = %host.url, "host {}: below low water mark, calculating deletion plan", host.url);
+    warn!(host = %host.host, port = host.port, "host {}:{}: below low water mark, calculating deletion plan", host.host, host.port);
 
     let torrents = match client.get_torrents().await {
         Ok(list) => list,
         Err(err) => {
-            error!(url = %host.url, error = %err, "torrent list query failed for host `{}`: {err}", host.url);
+            error!(host = %host.host, port = host.port, error = %err, "torrent list query failed for host `{}:{}`: {err}", host.host, host.port);
             return;
         }
     };
@@ -138,13 +142,14 @@ async fn process_host(host: &HostConfig, rules: &config::Rules, dry_run: bool) {
     );
 
     if plan.is_empty() {
-        warn!(url = %host.url, "host {}: no eligible torrents", host.url);
+        warn!(host = %host.host, port = host.port, "host {}:{}: no eligible torrents", host.host, host.port);
         return;
     }
 
     let total_freed: u64 = plan.iter().map(|t| t.total_done).sum();
     info!(
-        url = %host.url,
+        host = %host.host,
+        port = host.port,
         count = plan.len(),
         freed = %ByteSize(total_freed),
         dry_run,
@@ -156,24 +161,28 @@ async fn process_host(host: &HostConfig, rules: &config::Rules, dry_run: bool) {
 
     let throttle = Duration::from_secs(rules.delete_throttle_secs);
     if let Err(err) = execute_deletion_plan(&client, &plan, throttle, dry_run).await {
-        error!(url = %host.url, error = %err, "deletion plan execution failed for host `{}`: {err}", host.url);
+        error!(host = %host.host, port = host.port, error = %err, "deletion plan execution failed for host `{}:{}`: {err}", host.host, host.port);
         return;
     }
 
     if !dry_run {
         match client.get_free_space().await {
             Ok(new_free) => info!(
-                url = %host.url,
+                host = %host.host,
+                port = host.port,
                 free = %ByteSize(new_free),
-                "host {}: free space after deletion: {}",
-                host.url,
+                "host {}:{}: free space after deletion: {}",
+                host.host,
+                host.port,
                 ByteSize(new_free),
             ),
             Err(err) => error!(
-                url = %host.url,
+                host = %host.host,
+                port = host.port,
                 error = %err,
-                "post-deletion free space recheck failed for host `{}`: {err}",
-                host.url,
+                "post-deletion free space recheck failed for host `{}:{}`: {err}",
+                host.host,
+                host.port,
             ),
         }
     }
@@ -231,18 +240,26 @@ mod tests {
         }
     }
 
-    fn host(url: String) -> HostConfig {
+    fn host(host_addr: String, port: u16) -> HostConfig {
         HostConfig {
-            url,
+            host: host_addr,
+            port,
+            username: String::from("localclient"),
             password: Some(String::from("secret")),
             password_env: None,
         }
     }
 
     fn config_with(server_uri: &str, rules: Rules) -> Config {
+        // server_uri looks like "http://127.0.0.1:12345"
+        let no_scheme = server_uri.strip_prefix("http://").unwrap_or(server_uri);
+        let (host_addr, port_str) = no_scheme
+            .split_once(':')
+            .expect("mock server uri has host:port");
+        let port: u16 = port_str.parse().expect("mock server port is u16");
         Config {
             poll_interval: Duration::from_secs(60),
-            hosts: vec![host(format!("{server_uri}/json"))],
+            hosts: vec![host(host_addr.to_owned(), port)],
             rules,
         }
     }
