@@ -5,11 +5,6 @@ use base64::Engine;
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
-#[allow(
-    dead_code,
-    clippy::allow_attributes,
-    reason = "public API used by external consumers and tests"
-)]
 pub fn to_json(value: &RencodeValue) -> JsonValue {
     match value {
         RencodeValue::None => {
@@ -82,11 +77,6 @@ pub fn to_json(value: &RencodeValue) -> JsonValue {
     }
 }
 
-#[allow(
-    dead_code,
-    clippy::allow_attributes,
-    reason = "public API used by external consumers and tests"
-)]
 pub fn from_json(json: &JsonValue) -> Result<RencodeValue, RencodeError> {
     let obj = json
         .as_object()
