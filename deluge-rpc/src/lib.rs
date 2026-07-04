@@ -1,15 +1,13 @@
-mod deluge_rpc_client;
-mod parse;
+mod client;
+pub mod models;
 mod rencode;
 mod rpc;
-mod torrent;
 mod transport;
 mod wire;
 
-pub use deluge_rpc_client::DelugeRpcClient;
+pub use client::DelugeRpcClient;
 pub use rencode::RencodeValue;
 pub use rpc::DelugeRpc;
-pub use torrent::TorrentInfo;
 pub use transport::{DelugeTransport, TransportError};
 
 #[cfg(any(test, feature = "mock"))]

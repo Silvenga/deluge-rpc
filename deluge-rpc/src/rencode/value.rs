@@ -4,13 +4,6 @@ use crate::rencode::error::RencodeError;
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
 
-/// A rencode value covering all types needed for Deluge daemon RPC.
-///
-/// `Ord` is implemented so that [`RencodeValue`] can be used as a `BTreeMap`
-/// key, giving deterministic dict encoding order. Floats are ordered by their
-/// bit patterns (via `to_bits`), which is total and deterministic even though
-/// it is not numerical order — acceptable since floats are never used as dict
-/// keys in Deluge RPC.
 #[derive(Debug, Clone)]
 pub enum RencodeValue {
     None,
@@ -30,6 +23,75 @@ impl RencodeValue {
 
     pub fn encode(&self) -> Vec<u8> {
         encode(self)
+    }
+
+    pub fn as_dict(&self) -> Result<&BTreeMap<RencodeValue, RencodeValue>, RencodeError> {
+        match self {
+            RencodeValue::Dict(map) => Ok(map),
+            other => Err(RencodeError::WrongType {
+                field: String::new(),
+                expected: "dict",
+                got: variant_name(other),
+            }),
+        }
+    }
+
+    pub fn get_str(&self, key: &str) -> Result<&str, RencodeError> {
+        let field_key = RencodeValue::Str(String::from(key));
+        let map = self.as_dict()?;
+        match map.get(&field_key) {
+            Some(RencodeValue::Str(s)) => Ok(s.as_str()),
+            Some(other) => Err(RencodeError::WrongType {
+                field: key.to_owned(),
+                expected: "str",
+                got: variant_name(other),
+            }),
+            None => Err(RencodeError::MissingField(key.to_owned())),
+        }
+    }
+
+    pub fn get_int(&self, key: &str) -> Result<i64, RencodeError> {
+        let field_key = RencodeValue::Str(String::from(key));
+        let map = self.as_dict()?;
+        match map.get(&field_key) {
+            Some(RencodeValue::Int(i)) => Ok(*i),
+            Some(RencodeValue::Float(f)) => Ok(*f as i64),
+            Some(other) => Err(RencodeError::WrongType {
+                field: key.to_owned(),
+                expected: "int",
+                got: variant_name(other),
+            }),
+            None => Err(RencodeError::MissingField(key.to_owned())),
+        }
+    }
+
+    pub fn get_num(&self, key: &str) -> Result<f64, RencodeError> {
+        let field_key = RencodeValue::Str(String::from(key));
+        let map = self.as_dict()?;
+        match map.get(&field_key) {
+            Some(RencodeValue::Float(f)) => Ok(*f),
+            Some(RencodeValue::Int(i)) => Ok(*i as f64),
+            Some(other) => Err(RencodeError::WrongType {
+                field: key.to_owned(),
+                expected: "number",
+                got: variant_name(other),
+            }),
+            None => Err(RencodeError::MissingField(key.to_owned())),
+        }
+    }
+
+    pub fn get_bool(&self, key: &str) -> Result<bool, RencodeError> {
+        let field_key = RencodeValue::Str(String::from(key));
+        let map = self.as_dict()?;
+        match map.get(&field_key) {
+            Some(RencodeValue::Bool(b)) => Ok(*b),
+            Some(other) => Err(RencodeError::WrongType {
+                field: key.to_owned(),
+                expected: "bool",
+                got: variant_name(other),
+            }),
+            None => Err(RencodeError::MissingField(key.to_owned())),
+        }
     }
 }
 
@@ -55,7 +117,7 @@ impl Ord for RencodeValue {
     }
 }
 
-pub fn discriminant_tag(v: &RencodeValue) -> u8 {
+fn discriminant_tag(v: &RencodeValue) -> u8 {
     match v {
         RencodeValue::None => 0,
         RencodeValue::Bool(_) => 1,
@@ -68,7 +130,7 @@ pub fn discriminant_tag(v: &RencodeValue) -> u8 {
     }
 }
 
-pub fn compare_payload(a: &RencodeValue, b: &RencodeValue) -> Ordering {
+fn compare_payload(a: &RencodeValue, b: &RencodeValue) -> Ordering {
     match (a, b) {
         (RencodeValue::Bool(x), RencodeValue::Bool(y)) => x.cmp(y),
         (RencodeValue::Int(x), RencodeValue::Int(y)) => x.cmp(y),
@@ -77,7 +139,19 @@ pub fn compare_payload(a: &RencodeValue, b: &RencodeValue) -> Ordering {
         (RencodeValue::List(x), RencodeValue::List(y)) => x.cmp(y),
         (RencodeValue::Dict(x), RencodeValue::Dict(y)) => x.cmp(y),
         (RencodeValue::Float(x), RencodeValue::Float(y)) => x.to_bits().cmp(&y.to_bits()),
-        // Different variants are already disambiguated by discriminant_tag.
         _ => Ordering::Equal,
+    }
+}
+
+fn variant_name(v: &RencodeValue) -> &'static str {
+    match v {
+        RencodeValue::None => "none",
+        RencodeValue::Bool(_) => "bool",
+        RencodeValue::Int(_) => "int",
+        RencodeValue::Str(_) => "str",
+        RencodeValue::Bytes(_) => "bytes",
+        RencodeValue::List(_) => "list",
+        RencodeValue::Dict(_) => "dict",
+        RencodeValue::Float(_) => "float",
     }
 }

@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use deluge_rpc::TorrentInfo;
+use deluge_rpc::models::TorrentInfo;
 
 fn time_added_to_datetime(time_added: i64) -> Option<DateTime<Utc>> {
     DateTime::<Utc>::from_timestamp(time_added, 0)

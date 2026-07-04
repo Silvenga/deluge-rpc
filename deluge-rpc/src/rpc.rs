@@ -1,4 +1,4 @@
-use crate::torrent::TorrentInfo;
+use crate::models::TorrentInfo;
 use async_trait::async_trait;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]

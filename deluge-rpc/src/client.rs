@@ -1,7 +1,6 @@
-use crate::parse::parse_torrent;
+use crate::models::TorrentInfo;
 use crate::rencode::RencodeValue;
 use crate::rpc::DelugeRpc;
-use crate::torrent::TorrentInfo;
 use crate::transport::DelugeTransport;
 use crate::wire::{
     ResponseOutcome, build_request, extract_single, extract_single_dict, extract_single_int,
@@ -21,7 +20,7 @@ pub struct DelugeRpcClient {
     username: String,
     password: String,
     transport: Mutex<Option<DelugeTransport>>,
-    request_id: AtomicU32,
+    next_request_id: AtomicU32,
 }
 
 impl DelugeRpcClient {
@@ -32,12 +31,12 @@ impl DelugeRpcClient {
             username,
             password,
             transport: Mutex::new(None),
-            request_id: AtomicU32::new(1),
+            next_request_id: AtomicU32::new(1),
         }
     }
 
     fn next_id(&self) -> u32 {
-        self.request_id.fetch_add(1, Ordering::Relaxed)
+        self.next_request_id.fetch_add(1, Ordering::Relaxed)
     }
 
     async fn rpc_call(
@@ -47,8 +46,7 @@ impl DelugeRpcClient {
         kwargs: BTreeMap<RencodeValue, RencodeValue>,
     ) -> anyhow::Result<RencodeValue> {
         let id = self.next_id();
-        let request = build_request(id, method, args, kwargs);
-        let encoded = RencodeValue::encode(&request);
+        let encoded = build_request(id, method, args, kwargs).encode();
 
         let mut guard = self.transport.lock().await;
         let transport = guard
@@ -139,21 +137,21 @@ impl DelugeRpc for DelugeRpcClient {
 
         // NOTE: filter_dict is FIRST, keys is SECOND — reversed from web.update_ui.
         let args = vec![
-            RencodeValue::Dict(BTreeMap::new()),
+            RencodeValue::Dict(BTreeMap::default()),
             RencodeValue::List(keys),
         ];
 
         let result = self
-            .rpc_call("core.get_torrents_status", args, BTreeMap::new())
+            .rpc_call("core.get_torrents_status", args, BTreeMap::default())
             .await
             .context("core.get_torrents_status RPC failed")?;
 
         let result_dict = extract_single_dict(&result, "core.get_torrents_status")?;
 
-        let mut entries: Vec<(String, &BTreeMap<RencodeValue, RencodeValue>)> = result_dict
+        let mut entries: Vec<(String, &RencodeValue)> = result_dict
             .iter()
             .filter_map(|(k, v)| match (k, v) {
-                (RencodeValue::Str(id), RencodeValue::Dict(fields)) => Some((id.clone(), fields)),
+                (RencodeValue::Str(id), fields) => Some((id.clone(), fields)),
                 _ => None,
             })
             .collect();
@@ -161,7 +159,7 @@ impl DelugeRpc for DelugeRpcClient {
 
         let mut out = Vec::with_capacity(entries.len());
         for (info_hash, fields) in entries {
-            let info = parse_torrent(&info_hash, fields)
+            let info = TorrentInfo::from(&info_hash, fields)
                 .with_context(|| format!("parsing torrent `{info_hash}`"))?;
             out.push(info);
         }
@@ -170,12 +168,12 @@ impl DelugeRpc for DelugeRpcClient {
 
     async fn remove_torrent(&self, id: &str) -> anyhow::Result<bool> {
         let args = vec![
-            RencodeValue::Str(String::from(id)),
+            RencodeValue::Str(id.to_owned()),
             RencodeValue::Bool(true),
         ];
 
         let result = self
-            .rpc_call("core.remove_torrent", args, BTreeMap::new())
+            .rpc_call("core.remove_torrent", args, BTreeMap::default())
             .await
             .context("core.remove_torrent RPC failed")?;
 

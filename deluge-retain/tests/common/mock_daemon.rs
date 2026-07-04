@@ -365,15 +365,12 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, String> {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Tests.
-// ---------------------------------------------------------------------------
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_retain::{DelugeRpc, DelugeRpcClient, TorrentInfo};
+    use deluge_retain::{DelugeRpc, DelugeRpcClient};
 
+    use deluge_rpc::models::TorrentInfo;
     use std::string::ToString;
 
     const GB: u64 = 1_073_741_824;
