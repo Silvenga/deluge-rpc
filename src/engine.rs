@@ -282,8 +282,12 @@ mod tests {
 
     #[tokio::test]
     async fn when_dry_run_then_no_api_calls_and_returns_ok_should_log_only() {
-        let server = wiremock::MockServer::start().await;
-        let client = DelugeClient::new(format!("{}/json", server.uri()), String::from("p"));
+        let client = DelugeClient::new(
+            String::from("127.0.0.1"),
+            1,
+            String::from("localclient"),
+            String::from("p"),
+        );
 
         let plan = vec![
             make_torrent("aaa", "first", 3.0, 1 * GB),
@@ -293,23 +297,20 @@ mod tests {
         let result = execute_deletion_plan(&client, &plan, Duration::from_millis(0), true).await;
 
         assert!(result.is_ok());
-        let received = server.received_requests().await.expect("read requests");
-        assert!(
-            received.is_empty(),
-            "dry run must not make any HTTP requests"
-        );
     }
 
     #[tokio::test]
     async fn when_empty_plan_then_returns_ok_and_makes_no_calls_should_short_circuit() {
-        let server = wiremock::MockServer::start().await;
-        let client = DelugeClient::new(format!("{}/json", server.uri()), String::from("p"));
+        let client = DelugeClient::new(
+            String::from("127.0.0.1"),
+            1,
+            String::from("localclient"),
+            String::from("p"),
+        );
 
         let result = execute_deletion_plan(&client, &[], Duration::from_millis(0), false).await;
 
         assert!(result.is_ok());
-        let received = server.received_requests().await.expect("read requests");
-        assert!(received.is_empty());
     }
 
     #[test]

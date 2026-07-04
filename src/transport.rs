@@ -14,11 +14,6 @@
 //! uses self-signed certificates, so certificate verification is always
 //! skipped (a hard requirement, not a configurable option).
 
-#![expect(
-    dead_code,
-    reason = "transport is consumed by the daemon RPC client in tasks 3 and 7"
-)]
-
 use std::io::{Error as IoError, ErrorKind as IoErrorKind, Read, Write};
 use std::net::IpAddr;
 use std::sync::Arc;

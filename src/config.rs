@@ -46,7 +46,6 @@ pub struct HostConfig {
     pub port: u16,
 
     /// Username for daemon authentication. Defaults to `localclient`.
-    #[expect(dead_code, reason = "consumed by daemon RPC client in task 3")]
     #[serde(default = "default_username")]
     pub username: String,
 
