@@ -183,6 +183,9 @@ impl HostConfig {
         if self.port == 0 {
             bail!("port must be > 0, got 0");
         }
+        if self.username.is_empty() {
+            bail!("username must not be empty");
+        }
         match (&self.password, &self.password_env) {
             (Some(_), Some(_)) => {
                 bail!("only one of password or password_env may be set");
@@ -353,6 +356,18 @@ high_water_mark = "100 GiB"
             .expect_err("zero port should error");
         assert!(
             err_chain(&err).contains("port must be > 0, got 0"),
+            "got: {err}"
+        );
+    }
+
+    #[test]
+    fn when_username_empty_then_error() {
+        let contents = VALID_CONFIG.replacen(r#"username = "localclient""#, r#"username = """#, 1);
+        let file = write_config(&contents);
+        let err = Config::load(file.to_str().expect("path is utf-8"))
+            .expect_err("empty username should error");
+        assert!(
+            err_chain(&err).contains("username must not be empty"),
             "got: {err}"
         );
     }

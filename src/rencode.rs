@@ -109,7 +109,7 @@ pub enum RencodeError {
 /// bit patterns (via `to_bits`), which is total and deterministic even though
 /// it is not numerical order — acceptable since floats are never used as dict
 /// keys in Deluge RPC.
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub enum RencodeValue {
     None,
     Bool(bool),
@@ -124,6 +124,12 @@ pub enum RencodeValue {
 impl PartialOrd for RencodeValue {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for RencodeValue {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == Ordering::Equal
     }
 }
 

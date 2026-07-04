@@ -8,10 +8,12 @@
 
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::time::Duration;
 
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use tokio::sync::Mutex;
+use tokio::time::timeout;
 
 use crate::rencode::{decode, encode, RencodeValue};
 use crate::torrent::TorrentInfo;
@@ -105,9 +107,9 @@ impl DelugeClient {
             .with_context(|| format!("failed to send RPC request `{method}`"))?;
 
         loop {
-            let raw = transport
-                .recv()
+            let raw = timeout(Duration::from_secs(30), transport.recv())
                 .await
+                .map_err(|_| anyhow!("timed out waiting for RPC response `{method}`"))?
                 .with_context(|| format!("failed to recv RPC response for `{method}`"))?;
             let decoded = decode(&raw)
                 .with_context(|| format!("failed to decode RPC response for `{method}`"))?;
@@ -494,6 +496,17 @@ fn get_int(
 ) -> anyhow::Result<i64> {
     match fields.get(&RencodeValue::Str(String::from(key))) {
         Some(RencodeValue::Int(i)) => Ok(*i),
+        Some(RencodeValue::Float(f)) => {
+            #[expect(
+                clippy::cast_possible_truncation,
+                reason = "Deluge may send an int field as a float; truncating to i64 is the intended coercion"
+            )]
+            #[expect(
+                clippy::as_conversions,
+                reason = "f64 to i64 truncation is the intended coercion for int fields sent as floats"
+            )]
+            Ok(*f as i64)
+        }
         Some(other) => Err(anyhow!("field `{key}` is not an int: {other:?}")),
         None => Err(anyhow!("missing field `{key}`")),
     }

@@ -17,6 +17,7 @@
 use std::io::{Error as IoError, ErrorKind as IoErrorKind, Read, Write};
 use std::net::IpAddr;
 use std::sync::Arc;
+use std::time::Duration;
 
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
@@ -28,6 +29,7 @@ use rustls::{ClientConfig, DigitallySignedStruct, SignatureScheme};
 use thiserror::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
+use tokio::time::timeout;
 use tokio_rustls::client::TlsStream;
 use tokio_rustls::TlsConnector;
 
@@ -35,6 +37,8 @@ use tokio_rustls::TlsConnector;
 const PROTOCOL_VERSION: u8 = 1;
 /// Fixed header size: 1 byte version + 4 bytes big-endian body length.
 const HEADER_LEN: usize = 5;
+/// Maximum allowed frame body size to prevent OOM from malicious daemons.
+const MAX_FRAME_SIZE: usize = 16 * 1024 * 1024; // 16 MiB
 
 /// Errors produced by [`DelugeTransport`].
 #[derive(Debug, Error)]
@@ -122,7 +126,9 @@ fn ensure_crypto_provider() {
     use std::sync::Once;
     static INSTALL: Once = Once::new();
     INSTALL.call_once(|| {
-        let _ = crypto::ring::default_provider().install_default();
+        if let Err(e) = crypto::ring::default_provider().install_default() {
+            tracing::warn!(error = ?e, "failed to install ring crypto provider; TLS may use an unexpected backend");
+        }
     });
 }
 
@@ -144,8 +150,12 @@ impl DelugeTransport {
         let config = client_config();
         let connector = TlsConnector::from(Arc::new(config));
         let domain = server_name(host)?;
-        let tcp = TcpStream::connect((host, port)).await?;
-        let stream = connector.connect(domain, tcp).await?;
+        let tcp = timeout(Duration::from_secs(10), TcpStream::connect((host, port)))
+            .await
+            .map_err(|_| IoError::new(IoErrorKind::TimedOut, "TCP connect timed out"))??;
+        let stream = timeout(Duration::from_secs(10), connector.connect(domain, tcp))
+            .await
+            .map_err(|_| IoError::new(IoErrorKind::TimedOut, "TLS handshake timed out"))??;
         Ok(Self { stream })
     }
 
@@ -174,9 +184,17 @@ impl DelugeTransport {
             return Err(TransportError::ProtocolVersion(header[0]));
         }
         let body_len = u32::from_be_bytes([header[1], header[2], header[3], header[4]]);
-        let mut body = vec![0u8; usize::try_from(body_len).map_err(|_| {
+        let body_len = usize::try_from(body_len).map_err(|_| {
             IoError::new(IoErrorKind::InvalidInput, "body length overflow")
-        })?];
+        })?;
+        if body_len > MAX_FRAME_SIZE {
+            return Err(IoError::new(
+                IoErrorKind::InvalidInput,
+                format!("frame too large: {body_len} bytes (max {MAX_FRAME_SIZE})"),
+            )
+            .into());
+        }
+        let mut body = vec![0u8; body_len];
         self.stream.read_exact(&mut body).await?;
         zlib_decompress(&body)
     }

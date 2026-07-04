@@ -279,9 +279,11 @@ async fn read_frame(tls: &mut TlsStream<TcpStream>) -> Result<Vec<u8>, ReadFrame
             "body length overflow",
         ))
     })?];
-    tls.read_exact(&mut body)
-        .await
-        .map_err(ReadFrameError::Io)?;
+    match tls.read_exact(&mut body).await {
+        Ok(_) => {}
+        Err(e) if e.kind() == ErrorKind::UnexpectedEof => return Err(ReadFrameError::Eof),
+        Err(e) => return Err(ReadFrameError::Io(e)),
+    }
     zlib_decompress(&body)
         .map_err(|e| ReadFrameError::Io(io::Error::new(ErrorKind::InvalidData, e)))
 }
