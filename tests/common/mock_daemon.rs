@@ -5,12 +5,10 @@
 //! accepts a single connection, decodes each framed request, records the
 //! method name, and replies with a pre-configured canned response.
 //!
-//! Only the four methods used by [`crate::client::DelugeClient`] are
+//! Only the four methods used by [`deluge_retain::client::DelugeClient`] are
 //! supported: `daemon.login`, `core.get_free_space`,
 //! `core.get_torrents_status`, and `core.remove_torrent`. Any other
 //! method receives an `RPC_ERROR` reply.
-
-#![cfg(test)]
 
 use std::collections::BTreeMap;
 use std::io::{self, ErrorKind, Read, Write as _};
@@ -29,7 +27,7 @@ use tokio::task::JoinHandle;
 use tokio_rustls::server::TlsStream;
 use tokio_rustls::TlsAcceptor;
 
-use crate::rencode::{decode, encode, RencodeValue};
+use deluge_retain::rencode::{decode, encode, RencodeValue};
 
 /// Wire protocol version (Deluge 2.x) — matches [`crate::transport`].
 const PROTOCOL_VERSION: u8 = 1;
@@ -69,11 +67,14 @@ pub enum MockResponse {
 }
 
 impl MockResponse {
-    fn success(value: RencodeValue) -> Self {
+    /// Respond with `[1, id, [value]]` — a successful RPC response whose
+    /// return list contains `value`.
+    pub fn success(value: RencodeValue) -> Self {
         Self::Success(value)
     }
 
-    fn error(exc_type: &str, exc_msg: &str) -> Self {
+    /// Respond with `[2, id, exc_type, exc_msg, ""]` — an RPC error.
+    pub fn error(exc_type: &str, exc_msg: &str) -> Self {
         Self::Error {
             exc_type: String::from(exc_type),
             exc_msg: String::from(exc_msg),
@@ -405,8 +406,8 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, String> {
 )]
 mod tests {
     use super::*;
-    use crate::client::{DelugeClient, DelugeRpc};
-    use crate::torrent::TorrentInfo;
+    use deluge_retain::client::{DelugeClient, DelugeRpc};
+    use deluge_retain::torrent::TorrentInfo;
 
     use std::string::ToString;
 

@@ -7,18 +7,6 @@
 //! - **watch mode** (default): poll every host on `config.poll_interval`,
 //!   handling `SIGINT`/`SIGTERM` for graceful shutdown between cycles.
 
-mod cli;
-mod client;
-mod config;
-mod engine;
-mod rencode;
-mod torrent;
-mod tracing_setup;
-mod transport;
-
-#[cfg(test)]
-mod mock_daemon;
-
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -32,11 +20,11 @@ use tokio::signal::{ctrl_c, unix};
 use tokio::time::sleep;
 use tracing::{error, info, warn};
 
-use crate::cli::Cli;
-use crate::client::{DelugeClient, DelugeRpc};
-use crate::config::{Config, HostConfig};
-use crate::engine::{compute_deletion_plan, execute_deletion_plan};
-use crate::tracing_setup::init_tracing;
+use deluge_retain::cli::Cli;
+use deluge_retain::client::{DelugeClient, DelugeRpc};
+use deluge_retain::config::{Config, HostConfig, Rules};
+use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
+use deluge_retain::tracing_setup::init_tracing;
 
 /// Entry point for the deluge-retain binary.
 #[tokio::main]
@@ -85,7 +73,7 @@ pub(crate) async fn run_once(config: &Config, dry_run: bool) -> Result<()> {
     clippy::too_many_lines,
     reason = "linear host-processing pipeline; splitting would obscure the sequential flow"
 )]
-async fn process_host(host: &HostConfig, rules: &config::Rules, dry_run: bool) {
+async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
     let password = match host.resolve_password() {
         Ok(pw) => pw,
         Err(err) => {
@@ -229,20 +217,21 @@ async fn shutdown_signal() {
 }
 
 #[cfg(test)]
+#[path = "../tests/common/mock_daemon.rs"]
+mod mock_daemon;
+
+#[cfg(test)]
 #[expect(
-    clippy::expect_used,
-    reason = "integration tests panic on unexpected shapes via expect for clarity"
+    clippy::unwrap_used,
+    reason = "integration tests use unwrap for clarity on known-good values"
 )]
 mod tests {
-    // TODO(task-8): these integration tests use wiremock HTTP mocks for
-    // the old Web UI JSON-RPC client. They are ignored until task 8
-    // rewrites them against a daemon RPC mock server.
     use super::*;
-    use serde_json::{Value, json};
-    use wiremock::matchers::{body_partial_json, method, path};
-    use wiremock::{Mock, MockServer, ResponseTemplate};
+    use std::collections::BTreeMap;
 
-    use crate::config::Rules;
+    use deluge_retain::rencode::RencodeValue;
+
+    use mock_daemon::{MockDaemonConfig, MockDelugeDaemon, MockResponse};
 
     const GB: u64 = 1_073_741_824;
 
@@ -266,293 +255,150 @@ mod tests {
         }
     }
 
-    fn config_with(server_uri: &str, rules: Rules) -> Config {
-        // server_uri looks like "http://127.0.0.1:12345"
-        let no_scheme = server_uri.strip_prefix("http://").unwrap_or(server_uri);
-        let (host_addr, port_str) = no_scheme
-            .split_once(':')
-            .expect("mock server uri has host:port");
-        let port: u16 = port_str.parse().expect("mock server port is u16");
+    fn config_with(mock: &MockDelugeDaemon, rules: Rules) -> Config {
         Config {
             poll_interval: Duration::from_secs(60),
-            hosts: vec![host(host_addr.to_owned(), port)],
+            hosts: vec![host(mock.host(), mock.port())],
             rules,
         }
     }
 
-    fn torrent_entry(name: &str, ratio: f64, total_done: u64, time_added: f64) -> Value {
-        json!({
-            "name": name,
-            "state": "Seeding",
-            "progress": 100.0,
-            "ratio": ratio,
-            "total_seeds": 50,
-            "num_seeds": 5,
-            "time_added": time_added,
-            "total_done": total_done,
-            "total_uploaded": 0,
-            "is_finished": true,
-            "download_location": "/data"
-        })
+    fn old_timestamp() -> i64 {
+        Utc::now().timestamp() - 60 * 60 * 24 * 30
     }
 
-    /// Mount a mock for `auth.login` returning success.
-    async fn mount_login(server: &MockServer) {
-        Mock::given(method("POST"))
-            .and(path("/json"))
-            .and(body_partial_json(json!({
-                "method": "auth.login",
-                "params": ["secret"],
-            })))
-            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
-                "result": true,
-                "error": null,
-                "id": 1,
-            })))
-            .mount(server)
-            .await;
-    }
+    fn torrents_dict(info_hash: &str, name: &str, ratio: f64, total_done: u64, time_added: i64) -> RencodeValue {
+        let mut fields = BTreeMap::new();
+        fields.insert(RencodeValue::Str(String::from("name")), RencodeValue::Str(String::from(name)));
+        fields.insert(RencodeValue::Str(String::from("state")), RencodeValue::Str(String::from("Seeding")));
+        fields.insert(RencodeValue::Str(String::from("progress")), RencodeValue::Float(100.0));
+        fields.insert(RencodeValue::Str(String::from("ratio")), RencodeValue::Float(ratio));
+        fields.insert(RencodeValue::Str(String::from("total_seeds")), RencodeValue::Int(50));
+        fields.insert(RencodeValue::Str(String::from("num_seeds")), RencodeValue::Int(5));
+        fields.insert(RencodeValue::Str(String::from("time_added")), RencodeValue::Int(time_added));
+        fields.insert(
+            RencodeValue::Str(String::from("total_done")),
+            RencodeValue::Int(i64::try_from(total_done).unwrap()),
+        );
+        fields.insert(RencodeValue::Str(String::from("total_uploaded")), RencodeValue::Int(0));
+        fields.insert(RencodeValue::Str(String::from("is_finished")), RencodeValue::Bool(true));
+        fields.insert(
+            RencodeValue::Str(String::from("download_location")),
+            RencodeValue::Str(String::from("/data")),
+        );
 
-    async fn mount_free_space(server: &MockServer, bytes: u64) {
-        Mock::given(method("POST"))
-            .and(path("/json"))
-            .and(body_partial_json(json!({
-                "method": "core.get_free_space",
-            })))
-            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
-                "result": bytes,
-                "error": null,
-                "id": 1,
-            })))
-            .mount(server)
-            .await;
-    }
-
-    async fn mount_torrents(server: &MockServer, torrents: Value) {
-        Mock::given(method("POST"))
-            .and(path("/json"))
-            .and(body_partial_json(json!({
-                "method": "web.update_ui",
-            })))
-            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
-                "result": { "torrents": torrents },
-                "error": null,
-                "id": 1,
-            })))
-            .mount(server)
-            .await;
-    }
-
-    async fn mount_remove(server: &MockServer, info_hash: &str) {
-        Mock::given(method("POST"))
-            .and(path("/json"))
-            .and(body_partial_json(json!({
-                "method": "core.remove_torrent",
-                "params": [info_hash, true],
-            })))
-            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
-                "result": true,
-                "error": null,
-                "id": 1,
-            })))
-            .mount(server)
-            .await;
-    }
-
-    /// A timestamp far enough in the past to satisfy `min_age_days = 1`.
-    fn old_timestamp() -> f64 {
-        let now = Utc::now().timestamp();
-        i64_to_f64(now - 60 * 60 * 24 * 30)
-    }
-
-    #[expect(
-        clippy::as_conversions,
-        reason = "i64 to f64 for the Deluge time_added field is intentional"
-    )]
-    #[expect(
-        clippy::cast_precision_loss,
-        reason = "epoch seconds fit exactly in f64 mantissa for realistic timestamps"
-    )]
-    fn i64_to_f64(secs: i64) -> f64 {
-        secs as f64
+        let mut dict = BTreeMap::new();
+        dict.insert(RencodeValue::Str(String::from(info_hash)), RencodeValue::Dict(fields));
+        RencodeValue::Dict(dict)
     }
 
     #[tokio::test]
-    #[ignore = "task-8: rewrite against daemon RPC mock"]
-    async fn when_dry_run_then_logs_plan_and_makes_no_remove_calls_should_skip_deletion() {
-        let server = MockServer::start().await;
-        mount_login(&server).await;
-        // free space below low water mark (10 GB low, 20 GB high)
-        mount_free_space(&server, 5 * GB).await;
-        let torrents = json!({
-            "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111": torrent_entry(
+    async fn when_dry_run_then_logs_plan_and_makes_no_remove_calls() {
+        let config_mock = MockDaemonConfig {
+            login: MockResponse::success(RencodeValue::Int(5)),
+            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(5 * GB).unwrap())),
+            torrents: MockResponse::success(torrents_dict(
+                "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111",
                 "old-torrent",
                 3.0,
                 2 * GB,
                 old_timestamp(),
-            ),
-        });
-        mount_torrents(&server, torrents).await;
-
-        let config = config_with(&server.uri(), rules(10 * GB, 20 * GB));
+            )),
+            remove: MockResponse::success(RencodeValue::Bool(true)),
+        };
+        let mock = MockDelugeDaemon::start(config_mock).await;
+        let config = config_with(&mock, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, true).await;
 
         assert!(result.is_ok());
 
-        let received = server.received_requests().await.expect("read requests");
-        let remove_calls = received
-            .iter()
-            .filter(|r| {
-                let body: Value = serde_json::from_slice(&r.body).expect("body is json");
-                body.get("method").and_then(|m| m.as_str()) == Some("core.remove_torrent")
-            })
-            .count();
-        assert_eq!(
-            remove_calls, 0,
-            "dry run must not issue any core.remove_torrent calls"
-        );
+        let methods = mock.received_methods();
+        let remove_calls = methods.iter().filter(|m| *m == "core.remove_torrent").count();
+        assert_eq!(remove_calls, 0, "dry run must not issue any core.remove_torrent calls, got {methods:?}");
     }
 
     #[tokio::test]
-    #[ignore = "task-8: rewrite against daemon RPC mock"]
-    async fn when_not_dry_run_then_calls_remove_torrent_for_planned_torrents_should_delete() {
-        let server = MockServer::start().await;
-        mount_login(&server).await;
-        mount_free_space(&server, 5 * GB).await;
+    async fn when_not_dry_run_then_calls_remove_torrent() {
         let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
-        let torrents = json!({
-            info_hash: torrent_entry("old-torrent", 3.0, 2 * GB, old_timestamp()),
-        });
-        mount_torrents(&server, torrents).await;
-        mount_remove(&server, info_hash).await;
-        // Second free-space call (post-deletion recheck) — same mock matches.
-
-        let config = config_with(&server.uri(), rules(10 * GB, 20 * GB));
-
-        let result = run_once(&config, false).await;
-
-        assert!(result.is_ok());
-
-        let received = server.received_requests().await.expect("read requests");
-        let remove_calls = received
-            .iter()
-            .filter(|r| {
-                let body: Value = serde_json::from_slice(&r.body).expect("body is json");
-                body.get("method").and_then(|m| m.as_str()) == Some("core.remove_torrent")
-            })
-            .count();
-        assert_eq!(
-            remove_calls, 1,
-            "exactly one core.remove_torrent call expected for the planned torrent"
-        );
-    }
-
-    #[tokio::test]
-    #[ignore = "task-8: rewrite against daemon RPC mock"]
-    async fn when_free_space_above_low_water_mark_then_no_plan_should_be_computed() {
-        let server = MockServer::start().await;
-        mount_login(&server).await;
-        // free space above low water mark
-        mount_free_space(&server, 30 * GB).await;
-
-        let config = config_with(&server.uri(), rules(10 * GB, 20 * GB));
+        let config_mock = MockDaemonConfig {
+            login: MockResponse::success(RencodeValue::Int(5)),
+            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(5 * GB).unwrap())),
+            torrents: MockResponse::success(torrents_dict(info_hash, "old-torrent", 3.0, 2 * GB, old_timestamp())),
+            remove: MockResponse::success(RencodeValue::Bool(true)),
+        };
+        let mock = MockDelugeDaemon::start(config_mock).await;
+        let config = config_with(&mock, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
 
         assert!(result.is_ok());
 
-        let received = server.received_requests().await.expect("read requests");
-        let update_ui_calls = received
-            .iter()
-            .filter(|r| {
-                let body: Value = serde_json::from_slice(&r.body).expect("body is json");
-                body.get("method").and_then(|m| m.as_str()) == Some("web.update_ui")
-            })
-            .count();
-        assert_eq!(
-            update_ui_calls, 0,
-            "no torrent list query when free space is above the low water mark"
-        );
+        let methods = mock.received_methods();
+        let remove_calls = methods.iter().filter(|m| *m == "core.remove_torrent").count();
+        assert_eq!(remove_calls, 1, "exactly one core.remove_torrent call expected, got {methods:?}");
     }
 
     #[tokio::test]
-    #[ignore = "task-8: rewrite against daemon RPC mock"]
-    async fn when_login_fails_then_skips_host_and_cycle_succeeds_should_log_error() {
-        let server = MockServer::start().await;
-        Mock::given(method("POST"))
-            .and(path("/json"))
-            .and(body_partial_json(json!({
-                "method": "auth.login",
-            })))
-            .respond_with(ResponseTemplate::new(200).set_body_json(json!({
-                "result": false,
-                "error": null,
-                "id": 1,
-            })))
-            .mount(&server)
-            .await;
-
-        let config = config_with(&server.uri(), rules(10 * GB, 20 * GB));
+    async fn when_free_space_above_low_water_mark_then_no_torrent_query() {
+        let config_mock = MockDaemonConfig {
+            login: MockResponse::success(RencodeValue::Int(5)),
+            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(30 * GB).unwrap())),
+            torrents: MockResponse::NotConfigured,
+            remove: MockResponse::NotConfigured,
+        };
+        let mock = MockDelugeDaemon::start(config_mock).await;
+        let config = config_with(&mock, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
 
+        assert!(result.is_ok());
+
+        let methods = mock.received_methods();
         assert!(
-            result.is_ok(),
-            "cycle must succeed even when a host fails to log in"
-        );
-
-        let received = server.received_requests().await.expect("read requests");
-        let post_login_calls = received
-            .iter()
-            .filter(|r| {
-                let body: Value = serde_json::from_slice(&r.body).expect("body is json");
-                let method = body.get("method").and_then(|m| m.as_str());
-                method != Some("auth.login")
-            })
-            .count();
-        assert_eq!(
-            post_login_calls, 0,
-            "no further API calls after a login failure"
+            !methods.iter().any(|m| m == "core.get_torrents_status"),
+            "no torrent list query when free space is above the low water mark, got {methods:?}"
         );
     }
 
     #[tokio::test]
-    #[ignore = "task-8: rewrite against daemon RPC mock"]
-    async fn when_no_eligible_torrents_then_plan_is_empty_should_log_no_eligible() {
-        let server = MockServer::start().await;
-        mount_login(&server).await;
-        mount_free_space(&server, 5 * GB).await;
-        // A young torrent (added now) — filtered out by min_age_days = 1.
+    async fn when_login_fails_then_skips_host() {
+        let mock = MockDelugeDaemon::start(MockDaemonConfig::login_bad()).await;
+        let config = config_with(&mock, rules(10 * GB, 20 * GB));
+
+        let result = run_once(&config, false).await;
+
+        assert!(result.is_ok(), "cycle must succeed even when a host fails to log in");
+
+        let methods = mock.received_methods();
+        let post_login_calls = methods.iter().filter(|m| *m != "daemon.login").count();
+        assert_eq!(post_login_calls, 0, "no further API calls after a login failure, got {methods:?}");
+    }
+
+    #[tokio::test]
+    async fn when_no_eligible_torrents_then_plan_is_empty() {
         let now_secs = Utc::now().timestamp();
-        let young = i64_to_f64(now_secs);
-        let torrents = json!({
-            "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222": torrent_entry(
+        let config_mock = MockDaemonConfig {
+            login: MockResponse::success(RencodeValue::Int(5)),
+            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(5 * GB).unwrap())),
+            torrents: MockResponse::success(torrents_dict(
+                "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
                 "young-torrent",
                 3.0,
                 2 * GB,
-                young,
-            ),
-        });
-        mount_torrents(&server, torrents).await;
-
-        let config = config_with(&server.uri(), rules(10 * GB, 20 * GB));
+                now_secs,
+            )),
+            remove: MockResponse::success(RencodeValue::Bool(true)),
+        };
+        let mock = MockDelugeDaemon::start(config_mock).await;
+        let config = config_with(&mock, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, true).await;
 
         assert!(result.is_ok());
 
-        let received = server.received_requests().await.expect("read requests");
-        let remove_calls = received
-            .iter()
-            .filter(|r| {
-                let body: Value = serde_json::from_slice(&r.body).expect("body is json");
-                body.get("method").and_then(|m| m.as_str()) == Some("core.remove_torrent")
-            })
-            .count();
-        assert_eq!(
-            remove_calls, 0,
-            "no deletions when no torrents are eligible"
-        );
+        let methods = mock.received_methods();
+        let remove_calls = methods.iter().filter(|m| *m == "core.remove_torrent").count();
+        assert_eq!(remove_calls, 0, "no deletions when no torrents are eligible, got {methods:?}");
     }
 }
