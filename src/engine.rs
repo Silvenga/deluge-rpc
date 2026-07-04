@@ -181,7 +181,7 @@ mod tests {
             ratio,
             total_seeds: 50,
             num_seeds: 5,
-            time_added: 1_700_000_000.0_f64,
+            time_added: 1_700_000_000,
             total_done,
             total_uploaded: 0,
             is_finished: true,
@@ -351,5 +351,18 @@ mod tests {
         );
         assert_eq!(plan[0].info_hash, "a");
         assert_eq!(plan[1].info_hash, "b");
+    }
+
+    #[test]
+    fn when_ratio_is_negative_one_then_sorts_last_should_be_lowest_priority() {
+        let torrents = vec![
+            make_torrent("normal", "normal", 1.0, 1 * GB),
+            make_torrent("infinite", "infinite", -1.0, 1 * GB),
+            make_torrent("high", "high", 3.0, 1 * GB),
+        ];
+        let plan = compute_deletion_plan(&torrents, 1, 1, 0, 2 * GB, now());
+        assert_eq!(plan.len(), 2);
+        assert_eq!(plan[0].info_hash, "high");
+        assert_eq!(plan[1].info_hash, "normal");
     }
 }

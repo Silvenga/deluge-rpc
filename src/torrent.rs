@@ -20,62 +20,48 @@ use serde::Deserialize;
 /// safely deleted locally even if the daemon happens to be connected to
 /// few peers right now.
 #[derive(Debug, Clone, Deserialize)]
-#[cfg_attr(
-    not(test),
-    expect(
-        dead_code,
-        reason = "populated by the client (todo 3) and consumed by the engine (todo 5); not yet wired into main"
-    )
-)]
 pub struct TorrentInfo {
     #[serde(skip)]
     pub info_hash: String,
     pub name: String,
+    #[expect(
+        dead_code,
+        reason = "populated by the client; not yet read by the engine or main"
+    )]
     pub state: String,
     pub progress: f64,
+    /// Deluge returns -1.0 when `total_done` == 0 (ratio is infinite). The
+    /// descending-ratio sort in `compute_deletion_plan` naturally places
+    /// these last (lowest deletion priority).
     pub ratio: f64,
     pub total_seeds: u32,
     #[expect(
         dead_code,
-        reason = "exposed for the engine's logging/output in todo 5; not read by the filter"
+        reason = "populated by the client; not yet read by the engine or main"
     )]
     pub num_seeds: u32,
-    pub time_added: f64,
+    pub time_added: i64,
     pub total_done: u64,
     #[expect(
         dead_code,
-        reason = "exposed for the engine's logging/output in todo 5; not read by the filter"
+        reason = "populated by the client; not yet read by the engine or main"
     )]
     pub total_uploaded: u64,
     pub is_finished: bool,
     #[expect(
         dead_code,
-        reason = "exposed for the engine's logging/output in todo 5; not read by the filter"
+        reason = "populated by the client; not yet read by the engine or main"
     )]
     pub download_location: String,
 }
 
-/// Convert a Deluge `time_added` epoch-seconds float into a UTC `DateTime`.
+/// Convert a Deluge `time_added` epoch-seconds value into a UTC `DateTime`.
 ///
-/// Returns `None` when the value is out of range or not finite, so
-/// callers can fall back to a sensible default (typically treating the
-/// torrent as ineligible rather than crashing).
-fn time_added_to_datetime(time_added: f64) -> Option<DateTime<Utc>> {
-    if !time_added.is_finite() {
-        return None;
-    }
-    // Truncation toward zero drops the sub-second fraction; Deluge reports
-    // whole-second epoch timestamps.
-    #[expect(
-        clippy::as_conversions,
-        reason = "f64 to i64 truncation of an epoch-seconds float is the intended operation"
-    )]
-    #[expect(
-        clippy::cast_possible_truncation,
-        reason = "epoch seconds fit in i64 for all realistic timestamps"
-    )]
-    let secs = time_added.trunc() as i64;
-    DateTime::<Utc>::from_timestamp(secs, 0)
+/// Returns `None` when the value is out of range, so callers can fall
+/// back to a sensible default (typically treating the torrent as
+/// ineligible rather than crashing).
+fn time_added_to_datetime(time_added: i64) -> Option<DateTime<Utc>> {
+    DateTime::<Utc>::from_timestamp(time_added, 0)
 }
 
 /// Filter `torrents` down to those eligible for deletion under the
@@ -139,15 +125,7 @@ mod tests {
             ratio: 1.0,
             total_seeds,
             num_seeds: 0,
-            #[expect(
-                clippy::as_conversions,
-                reason = "i64 timestamp to f64 for the Deluge time_added field is lossless and intentional"
-            )]
-            #[expect(
-                clippy::cast_precision_loss,
-                reason = "test timestamps are small and fit exactly in f64 mantissa"
-            )]
-            time_added: time_added.timestamp() as f64,
+            time_added: time_added.timestamp(),
             total_done: 0,
             total_uploaded: 0,
             is_finished,
@@ -275,10 +253,10 @@ mod tests {
     }
 
     #[test]
-    fn when_time_added_unparseable_then_filtered_out_should_be_excluded() {
+    fn when_time_added_out_of_range_then_filtered_out_should_be_excluded() {
         let now = Utc::now();
         let mut t = make_torrent(100.0, 15, now - Duration::days(30), false);
-        t.time_added = f64::NAN;
+        t.time_added = i64::MIN;
         let torrents = [t];
 
         let result = filter_eligible(&torrents, 10, 28, now);

@@ -447,7 +447,17 @@ fn get_float(
 ) -> anyhow::Result<f64> {
     match fields.get(&RencodeValue::Str(String::from(key))) {
         Some(RencodeValue::Float(f)) => Ok(*f),
-        Some(RencodeValue::Int(i)) => Ok(int_to_f64(*i)),
+        Some(RencodeValue::Int(i)) => {
+            #[expect(
+                clippy::cast_precision_loss,
+                reason = "Deluge may send a float field as an int; widening to f64 is the intended coercion"
+            )]
+            #[expect(
+                clippy::as_conversions,
+                reason = "i64 to f64 is the intended widening conversion for numeric field coercion"
+            )]
+            Ok(*i as f64)
+        }
         Some(other) => Err(anyhow!("field `{key}` is not a number: {other:?}")),
         None => Err(anyhow!("missing field `{key}`")),
     }
@@ -492,25 +502,10 @@ fn get_u64(
     u64::try_from(raw).map_err(|_| anyhow!("field `{key}` is negative: {raw}"))
 }
 
-/// Convert a daemon `time_added` int (POSIX seconds) to the f64 that
-/// [`TorrentInfo`] currently expects. Task 5 changes the field to i64.
-#[expect(
-    clippy::cast_precision_loss,
-    reason = "i64 to f64 for the current TorrentInfo.time_added type; task 5 changes this to i64"
-)]
-#[expect(
-    clippy::as_conversions,
-    reason = "i64 to f64 is the intended widening conversion for the current field type"
-)]
-fn int_to_f64(i: i64) -> f64 {
-    i as f64
-}
-
 fn get_time_added(
     fields: &BTreeMap<RencodeValue, RencodeValue>,
-) -> anyhow::Result<f64> {
-    let raw = get_int(fields, "time_added")?;
-    Ok(int_to_f64(raw))
+) -> anyhow::Result<i64> {
+    get_int(fields, "time_added")
 }
 
 #[cfg(test)]
@@ -767,7 +762,7 @@ mod tests {
         assert!((info.ratio - 2.5).abs() < f64::EPSILON);
         assert_eq!(info.total_seeds, 10);
         assert_eq!(info.num_seeds, 5);
-        assert_eq!(info.time_added, 1_700_000_000.0);
+        assert_eq!(info.time_added, 1_700_000_000);
         assert_eq!(info.total_done, 1_048_576);
         assert_eq!(info.total_uploaded, 2_097_152);
         assert!(info.is_finished);
