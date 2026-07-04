@@ -29,5 +29,5 @@ pub mod transport;
 
 pub use client::{DelugeClient, DelugeRpc};
 pub use config::{Config, HostConfig, Rules};
-pub use rencode::{decode, encode, RencodeValue};
+pub use rencode::{RencodeValue, decode, encode};
 pub use torrent::TorrentInfo;

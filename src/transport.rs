@@ -14,24 +14,23 @@
 //! uses self-signed certificates, so certificate verification is always
 //! skipped (a hard requirement, not a configurable option).
 
-use std::io::{Error as IoError, ErrorKind as IoErrorKind, Read, Write};
-use std::net::IpAddr;
-use std::sync::Arc;
-use std::time::Duration;
-
+use flate2::Compression;
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
-use flate2::Compression;
 use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
 use rustls::crypto;
 use rustls::pki_types::{CertificateDer, ServerName, UnixTime};
 use rustls::{ClientConfig, DigitallySignedStruct, SignatureScheme};
+use std::io::{Error as IoError, ErrorKind as IoErrorKind, Read, Write};
+use std::net::IpAddr;
+use std::sync::Arc;
+use std::time::Duration;
 use thiserror::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use tokio::time::timeout;
-use tokio_rustls::client::TlsStream;
 use tokio_rustls::TlsConnector;
+use tokio_rustls::client::TlsStream;
 
 /// Wire protocol version (Deluge 2.x).
 const PROTOCOL_VERSION: u8 = 1;
@@ -184,9 +183,8 @@ impl DelugeTransport {
             return Err(TransportError::ProtocolVersion(header[0]));
         }
         let body_len = u32::from_be_bytes([header[1], header[2], header[3], header[4]]);
-        let body_len = usize::try_from(body_len).map_err(|_| {
-            IoError::new(IoErrorKind::InvalidInput, "body length overflow")
-        })?;
+        let body_len = usize::try_from(body_len)
+            .map_err(|_| IoError::new(IoErrorKind::InvalidInput, "body length overflow"))?;
         if body_len > MAX_FRAME_SIZE {
             return Err(IoError::new(
                 IoErrorKind::InvalidInput,
@@ -204,7 +202,9 @@ impl DelugeTransport {
 fn zlib_compress(data: &[u8]) -> Result<Vec<u8>, TransportError> {
     let mut encoder = ZlibEncoder::new(Vec::new(), Compression::default());
     encoder.write_all(data)?;
-    encoder.finish().map_err(|e| TransportError::Zlib(e.to_string()))
+    encoder
+        .finish()
+        .map_err(|e| TransportError::Zlib(e.to_string()))
 }
 
 /// zlib-decompress `data`.
@@ -213,22 +213,14 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, TransportError> {
     let mut out = Vec::new();
     match decoder.read_to_end(&mut out) {
         Ok(_) => Ok(out),
-        Err(e) if e.kind() == IoErrorKind::UnexpectedEof => {
-            Err(TransportError::UnexpectedEof)
-        }
+        Err(e) if e.kind() == IoErrorKind::UnexpectedEof => Err(TransportError::UnexpectedEof),
         Err(e) => Err(TransportError::Zlib(e.to_string())),
     }
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::expect_used,
-    reason = "test setup uses expect for clarity"
-)]
-#[expect(
-    clippy::unwrap_used,
-    reason = "test assertions use unwrap for clarity"
-)]
+#[expect(clippy::expect_used, reason = "test setup uses expect for clarity")]
+#[expect(clippy::unwrap_used, reason = "test assertions use unwrap for clarity")]
 #[expect(
     clippy::as_conversions,
     reason = "test helpers use as-casts for byte conversions"
@@ -239,9 +231,7 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, TransportError> {
 )]
 mod tests {
     use super::*;
-    use rustls::pki_types::{
-        CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer,
-    };
+    use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;
     use std::sync::Arc;
     use tokio::io::AsyncReadExt;
@@ -253,10 +243,11 @@ mod tests {
         let key_pair = rcgen::KeyPair::generate().expect("generate key pair");
         let cert_params =
             rcgen::CertificateParams::new(vec!["localhost".to_owned()]).expect("cert params");
-        let cert = cert_params.self_signed(&key_pair).expect("self-signed cert");
+        let cert = cert_params
+            .self_signed(&key_pair)
+            .expect("self-signed cert");
         let cert_der = CertificateDer::from(cert.der().to_vec());
-        let key_der: PrivateKeyDer =
-            PrivatePkcs8KeyDer::from(key_pair.serialize_der()).into();
+        let key_der: PrivateKeyDer = PrivatePkcs8KeyDer::from(key_pair.serialize_der()).into();
         let server_config = ServerConfig::builder()
             .with_no_client_auth()
             .with_single_cert(vec![cert_der], key_der)
@@ -269,9 +260,7 @@ mod tests {
     /// Returns the bound address. The server reads one framed payload,
     /// decompresses it, then writes it back framed. For the truncated-header
     /// test, `truncate_header` controls how many header bytes are sent.
-    async fn spawn_echo_server(
-        behavior: ServerBehavior,
-    ) -> std::net::SocketAddr {
+    async fn spawn_echo_server(behavior: ServerBehavior) -> std::net::SocketAddr {
         let listener = TcpListener::bind("127.0.0.1:0").await.expect("bind");
         let addr = listener.local_addr().expect("local addr");
         let server_config = self_signed_server_config();

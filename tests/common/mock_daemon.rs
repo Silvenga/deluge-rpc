@@ -10,24 +10,22 @@
 //! `core.get_torrents_status`, and `core.remove_torrent`. Any other
 //! method receives an `RPC_ERROR` reply.
 
+use deluge_retain::rencode::{RencodeValue, decode, encode};
+use flate2::Compression;
+use flate2::read::ZlibDecoder;
+use flate2::write::ZlibEncoder;
+use rustls::crypto;
+use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
+use rustls::server::ServerConfig;
 use std::collections::BTreeMap;
 use std::io::{self, ErrorKind, Read, Write as _};
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex, Once};
-
-use flate2::read::ZlibDecoder;
-use flate2::write::ZlibEncoder;
-use flate2::Compression;
-use rustls::crypto;
-use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
-use rustls::server::ServerConfig;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::task::JoinHandle;
-use tokio_rustls::server::TlsStream;
 use tokio_rustls::TlsAcceptor;
-
-use deluge_retain::rencode::{decode, encode, RencodeValue};
+use tokio_rustls::server::TlsStream;
 
 /// Wire protocol version (Deluge 2.x) — matches [`crate::transport`].
 const PROTOCOL_VERSION: u8 = 1;
@@ -57,10 +55,7 @@ pub enum MockResponse {
     /// return list contains `value`.
     Success(RencodeValue),
     /// Respond with `[2, id, exc_type, exc_msg, ""]` — an RPC error.
-    Error {
-        exc_type: String,
-        exc_msg: String,
-    },
+    Error { exc_type: String, exc_msg: String },
     /// No canned response configured; reply with a generic RPC error.
     #[default]
     NotConfigured,
@@ -214,8 +209,7 @@ fn self_signed_server_config() -> Arc<ServerConfig> {
         .self_signed(&key_pair)
         .expect("mock daemon: self-signed cert");
     let cert_der = CertificateDer::from(cert.der().to_vec());
-    let key_der: PrivateKeyDer =
-        PrivatePkcs8KeyDer::from(key_pair.serialize_der()).into();
+    let key_der: PrivateKeyDer = PrivatePkcs8KeyDer::from(key_pair.serialize_der()).into();
     let server_config = ServerConfig::builder()
         .with_no_client_auth()
         .with_single_cert(vec![cert_der], key_der)
@@ -273,12 +267,15 @@ async fn read_frame(tls: &mut TlsStream<TcpStream>) -> Result<Vec<u8>, ReadFrame
         )));
     }
     let body_len = u32::from_be_bytes([header[1], header[2], header[3], header[4]]);
-    let mut body = vec![0u8; usize::try_from(body_len).map_err(|_| {
-        ReadFrameError::Io(io::Error::new(
-            ErrorKind::InvalidData,
-            "body length overflow",
-        ))
-    })?];
+    let mut body = vec![
+        0u8;
+        usize::try_from(body_len).map_err(|_| {
+            ReadFrameError::Io(io::Error::new(
+                ErrorKind::InvalidData,
+                "body length overflow",
+            ))
+        })?
+    ];
     match tls.read_exact(&mut body).await {
         Ok(_) => {}
         Err(e) if e.kind() == ErrorKind::UnexpectedEof => return Err(ReadFrameError::Eof),
@@ -297,9 +294,8 @@ enum ReadFrameError {
 /// Write one framed payload (zlib-compress + 5-byte header).
 async fn write_frame(tls: &mut TlsStream<TcpStream>, data: &[u8]) -> io::Result<()> {
     let compressed = zlib_compress(data)?;
-    let len = u32::try_from(compressed.len()).map_err(|_| {
-        io::Error::new(ErrorKind::InvalidInput, "payload too large for u32 len")
-    })?;
+    let len = u32::try_from(compressed.len())
+        .map_err(|_| io::Error::new(ErrorKind::InvalidInput, "payload too large for u32 len"))?;
     let mut frame = Vec::with_capacity(HEADER_LEN + compressed.len());
     frame.push(PROTOCOL_VERSION);
     frame.extend_from_slice(&len.to_be_bytes());
@@ -504,9 +500,7 @@ mod tests {
             "received_methods should contain daemon.login, got {methods:?}"
         );
         assert!(
-            methods
-                .iter()
-                .any(|m| m == "core.get_free_space"),
+            methods.iter().any(|m| m == "core.get_free_space"),
             "received_methods should contain core.get_free_space, got {methods:?}"
         );
     }

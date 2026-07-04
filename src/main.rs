@@ -7,24 +7,22 @@
 //! - **watch mode** (default): poll every host on `config.poll_interval`,
 //!   handling `SIGINT`/`SIGTERM` for graceful shutdown between cycles.
 
-use std::error::Error;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::time::Duration;
-
 use anyhow::Result;
 use bytesize::ByteSize;
 use chrono::Utc;
 use clap::Parser;
-use tokio::signal::unix::SignalKind;
-use tokio::signal::{ctrl_c, unix};
-use tokio::time::sleep;
-use tracing::{error, info, warn};
-
 use deluge_retain::cli::Cli;
 use deluge_retain::client::{DelugeClient, DelugeRpc};
 use deluge_retain::config::{Config, HostConfig, Rules};
 use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
 use deluge_retain::tracing_setup::init_tracing;
+use std::error::Error;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
+use tokio::signal::unix::SignalKind;
+use tokio::signal::{ctrl_c, unix};
+use tokio::time::sleep;
+use tracing::{error, info, warn};
 
 /// Entry point for the deluge-retain binary.
 #[tokio::main]
@@ -267,28 +265,64 @@ mod tests {
         Utc::now().timestamp() - 60 * 60 * 24 * 30
     }
 
-    fn torrents_dict(info_hash: &str, name: &str, ratio: f64, total_done: u64, time_added: i64) -> RencodeValue {
+    fn torrents_dict(
+        info_hash: &str,
+        name: &str,
+        ratio: f64,
+        total_done: u64,
+        time_added: i64,
+    ) -> RencodeValue {
         let mut fields = BTreeMap::new();
-        fields.insert(RencodeValue::Str(String::from("name")), RencodeValue::Str(String::from(name)));
-        fields.insert(RencodeValue::Str(String::from("state")), RencodeValue::Str(String::from("Seeding")));
-        fields.insert(RencodeValue::Str(String::from("progress")), RencodeValue::Float(100.0));
-        fields.insert(RencodeValue::Str(String::from("ratio")), RencodeValue::Float(ratio));
-        fields.insert(RencodeValue::Str(String::from("total_seeds")), RencodeValue::Int(50));
-        fields.insert(RencodeValue::Str(String::from("num_seeds")), RencodeValue::Int(5));
-        fields.insert(RencodeValue::Str(String::from("time_added")), RencodeValue::Int(time_added));
+        fields.insert(
+            RencodeValue::Str(String::from("name")),
+            RencodeValue::Str(String::from(name)),
+        );
+        fields.insert(
+            RencodeValue::Str(String::from("state")),
+            RencodeValue::Str(String::from("Seeding")),
+        );
+        fields.insert(
+            RencodeValue::Str(String::from("progress")),
+            RencodeValue::Float(100.0),
+        );
+        fields.insert(
+            RencodeValue::Str(String::from("ratio")),
+            RencodeValue::Float(ratio),
+        );
+        fields.insert(
+            RencodeValue::Str(String::from("total_seeds")),
+            RencodeValue::Int(50),
+        );
+        fields.insert(
+            RencodeValue::Str(String::from("num_seeds")),
+            RencodeValue::Int(5),
+        );
+        fields.insert(
+            RencodeValue::Str(String::from("time_added")),
+            RencodeValue::Int(time_added),
+        );
         fields.insert(
             RencodeValue::Str(String::from("total_done")),
             RencodeValue::Int(i64::try_from(total_done).unwrap()),
         );
-        fields.insert(RencodeValue::Str(String::from("total_uploaded")), RencodeValue::Int(0));
-        fields.insert(RencodeValue::Str(String::from("is_finished")), RencodeValue::Bool(true));
+        fields.insert(
+            RencodeValue::Str(String::from("total_uploaded")),
+            RencodeValue::Int(0),
+        );
+        fields.insert(
+            RencodeValue::Str(String::from("is_finished")),
+            RencodeValue::Bool(true),
+        );
         fields.insert(
             RencodeValue::Str(String::from("download_location")),
             RencodeValue::Str(String::from("/data")),
         );
 
         let mut dict = BTreeMap::new();
-        dict.insert(RencodeValue::Str(String::from(info_hash)), RencodeValue::Dict(fields));
+        dict.insert(
+            RencodeValue::Str(String::from(info_hash)),
+            RencodeValue::Dict(fields),
+        );
         RencodeValue::Dict(dict)
     }
 
@@ -314,8 +348,14 @@ mod tests {
         assert!(result.is_ok());
 
         let methods = mock.received_methods();
-        let remove_calls = methods.iter().filter(|m| *m == "core.remove_torrent").count();
-        assert_eq!(remove_calls, 0, "dry run must not issue any core.remove_torrent calls, got {methods:?}");
+        let remove_calls = methods
+            .iter()
+            .filter(|m| *m == "core.remove_torrent")
+            .count();
+        assert_eq!(
+            remove_calls, 0,
+            "dry run must not issue any core.remove_torrent calls, got {methods:?}"
+        );
     }
 
     #[tokio::test]
@@ -324,7 +364,13 @@ mod tests {
         let config_mock = MockDaemonConfig {
             login: MockResponse::success(RencodeValue::Int(5)),
             free_space: MockResponse::success(RencodeValue::Int(i64::try_from(5 * GB).unwrap())),
-            torrents: MockResponse::success(torrents_dict(info_hash, "old-torrent", 3.0, 2 * GB, old_timestamp())),
+            torrents: MockResponse::success(torrents_dict(
+                info_hash,
+                "old-torrent",
+                3.0,
+                2 * GB,
+                old_timestamp(),
+            )),
             remove: MockResponse::success(RencodeValue::Bool(true)),
         };
         let mock = MockDelugeDaemon::start(config_mock).await;
@@ -335,8 +381,14 @@ mod tests {
         assert!(result.is_ok());
 
         let methods = mock.received_methods();
-        let remove_calls = methods.iter().filter(|m| *m == "core.remove_torrent").count();
-        assert_eq!(remove_calls, 1, "exactly one core.remove_torrent call expected, got {methods:?}");
+        let remove_calls = methods
+            .iter()
+            .filter(|m| *m == "core.remove_torrent")
+            .count();
+        assert_eq!(
+            remove_calls, 1,
+            "exactly one core.remove_torrent call expected, got {methods:?}"
+        );
     }
 
     #[tokio::test]
@@ -368,11 +420,17 @@ mod tests {
 
         let result = run_once(&config, false).await;
 
-        assert!(result.is_ok(), "cycle must succeed even when a host fails to log in");
+        assert!(
+            result.is_ok(),
+            "cycle must succeed even when a host fails to log in"
+        );
 
         let methods = mock.received_methods();
         let post_login_calls = methods.iter().filter(|m| *m != "daemon.login").count();
-        assert_eq!(post_login_calls, 0, "no further API calls after a login failure, got {methods:?}");
+        assert_eq!(
+            post_login_calls, 0,
+            "no further API calls after a login failure, got {methods:?}"
+        );
     }
 
     #[tokio::test]
@@ -398,7 +456,13 @@ mod tests {
         assert!(result.is_ok());
 
         let methods = mock.received_methods();
-        let remove_calls = methods.iter().filter(|m| *m == "core.remove_torrent").count();
-        assert_eq!(remove_calls, 0, "no deletions when no torrents are eligible, got {methods:?}");
+        let remove_calls = methods
+            .iter()
+            .filter(|m| *m == "core.remove_torrent")
+            .count();
+        assert_eq!(
+            remove_calls, 0,
+            "no deletions when no torrents are eligible, got {methods:?}"
+        );
     }
 }

@@ -5,17 +5,15 @@
 //! Planning is deterministic and side-effect free so it can be unit-tested
 //! without a live client; execution is async and throttled.
 
-use std::cmp::Ordering;
-use std::time::Duration;
-
+use crate::client::DelugeRpc;
+use crate::torrent::{TorrentInfo, filter_eligible};
 use anyhow::Result;
 use bytesize::ByteSize;
 use chrono::{DateTime, Utc};
+use std::cmp::Ordering;
+use std::time::Duration;
 use tokio::time::sleep;
 use tracing::{error, info, warn};
-
-use crate::client::DelugeRpc;
-use crate::torrent::{TorrentInfo, filter_eligible};
 
 /// Compute the ordered list of torrents to delete in order to bring
 /// `free_space` up to `high_water_mark`.

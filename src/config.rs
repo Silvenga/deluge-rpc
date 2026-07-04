@@ -4,14 +4,13 @@
 //! the top-level shape, and the [`Rules`] / [`HostConfig`] structs for the
 //! nested sections.
 
+use anyhow::{Context, bail};
+use bytesize::ByteSize;
+use serde::Deserialize;
 use std::env;
 use std::fs;
 use std::path::Path;
 use std::time::Duration;
-
-use anyhow::{bail, Context};
-use bytesize::ByteSize;
-use serde::Deserialize;
 
 /// Top-level configuration loaded from the TOML file.
 ///
@@ -225,8 +224,8 @@ impl Rules {
 )]
 mod tests {
     use super::*;
-    use assert_fs::fixture::FileWriteBin;
     use assert_fs::NamedTempFile;
+    use assert_fs::fixture::FileWriteBin;
 
     fn write_config(contents: &str) -> NamedTempFile {
         let file = NamedTempFile::new(".toml").expect("create tempfile");

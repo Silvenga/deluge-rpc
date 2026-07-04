@@ -6,18 +6,16 @@
 //! and dropped when the [`DelugeClient`] is dropped — one connection per
 //! retain cycle, no persistence.
 
+use crate::rencode::{RencodeValue, decode, encode};
+use crate::torrent::TorrentInfo;
+use crate::transport::DelugeTransport;
+use anyhow::{Context, anyhow};
+use async_trait::async_trait;
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::time::Duration;
-
-use anyhow::{anyhow, Context};
-use async_trait::async_trait;
 use tokio::sync::Mutex;
 use tokio::time::timeout;
-
-use crate::rencode::{decode, encode, RencodeValue};
-use crate::torrent::TorrentInfo;
-use crate::transport::DelugeTransport;
 
 /// RPC response message type tag (Deluge daemon protocol).
 const RPC_RESPONSE: i64 = 1;
@@ -284,7 +282,8 @@ fn handle_response(
     method: &str,
 ) -> anyhow::Result<ResponseOutcome> {
     let outer = match decoded {
-        RencodeValue::List(items) if items.len() == 1 => {
+        RencodeValue::List(items) if items.len() == 1 =>
+        {
             #[expect(
                 clippy::expect_used,
                 reason = "len == 1 is checked by the guard; first() cannot be None"
@@ -294,7 +293,7 @@ fn handle_response(
         other => {
             return Err(anyhow!(
                 "unexpected RPC envelope shape (not a 1-element list): {other:?}"
-            ))
+            ));
         }
     };
 
@@ -303,7 +302,7 @@ fn handle_response(
         other => {
             return Err(anyhow!(
                 "unexpected RPC message shape (not a list): {other:?}"
-            ))
+            ));
         }
     };
 
@@ -313,9 +312,7 @@ fn handle_response(
 
     let msg_type = match inner.first() {
         Some(RencodeValue::Int(t)) => *t,
-        Some(other) => {
-            return Err(anyhow!("RPC message type tag is not an int: {other:?}"))
-        }
+        Some(other) => return Err(anyhow!("RPC message type tag is not an int: {other:?}")),
         None => return Err(anyhow!("RPC message missing type tag")),
     };
 
@@ -323,8 +320,7 @@ fn handle_response(
         RPC_RESPONSE => extract_response_value(inner, expected_id, method),
         RPC_ERROR => Err(rpc_error(inner)),
         RPC_EVENT => {
-            let event_name =
-                field_as_str(inner.get(1)).unwrap_or_else(|| "<unknown>".to_owned());
+            let event_name = field_as_str(inner.get(1)).unwrap_or_else(|| "<unknown>".to_owned());
             tracing::trace!(event = %event_name, "daemon RPC event");
             Ok(ResponseOutcome::Continue)
         }
@@ -342,9 +338,7 @@ fn extract_response_value(
 ) -> anyhow::Result<ResponseOutcome> {
     let resp_id = match inner.get(1) {
         Some(RencodeValue::Int(i)) => *i,
-        Some(other) => {
-            return Err(anyhow!("RPC response id is not an int: {other:?}"))
-        }
+        Some(other) => return Err(anyhow!("RPC response id is not an int: {other:?}")),
         None => return Err(anyhow!("RPC response missing id")),
     };
     if resp_id != i64::from(expected_id) {
@@ -375,7 +369,8 @@ fn rpc_error(inner: &[RencodeValue]) -> anyhow::Error {
 /// The daemon wraps the return value in a one-element list: `[value]`.
 fn extract_single(value: &RencodeValue, method: &str) -> anyhow::Result<RencodeValue> {
     match value {
-        RencodeValue::List(items) if items.len() == 1 => {
+        RencodeValue::List(items) if items.len() == 1 =>
+        {
             #[expect(
                 clippy::expect_used,
                 reason = "len == 1 is checked by the guard; first() cannot be None"
@@ -468,13 +463,11 @@ fn get_str<'a>(
     }
 }
 
-fn get_float(
-    fields: &BTreeMap<RencodeValue, RencodeValue>,
-    key: &str,
-) -> anyhow::Result<f64> {
+fn get_float(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::Result<f64> {
     match fields.get(&RencodeValue::Str(String::from(key))) {
         Some(RencodeValue::Float(f)) => Ok(*f),
-        Some(RencodeValue::Int(i)) => {
+        Some(RencodeValue::Int(i)) =>
+        {
             #[expect(
                 clippy::cast_precision_loss,
                 reason = "Deluge may send a float field as an int; widening to f64 is the intended coercion"
@@ -490,13 +483,11 @@ fn get_float(
     }
 }
 
-fn get_int(
-    fields: &BTreeMap<RencodeValue, RencodeValue>,
-    key: &str,
-) -> anyhow::Result<i64> {
+fn get_int(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::Result<i64> {
     match fields.get(&RencodeValue::Str(String::from(key))) {
         Some(RencodeValue::Int(i)) => Ok(*i),
-        Some(RencodeValue::Float(f)) => {
+        Some(RencodeValue::Float(f)) =>
+        {
             #[expect(
                 clippy::cast_possible_truncation,
                 reason = "Deluge may send an int field as a float; truncating to i64 is the intended coercion"
@@ -512,10 +503,7 @@ fn get_int(
     }
 }
 
-fn get_bool(
-    fields: &BTreeMap<RencodeValue, RencodeValue>,
-    key: &str,
-) -> anyhow::Result<bool> {
+fn get_bool(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::Result<bool> {
     match fields.get(&RencodeValue::Str(String::from(key))) {
         Some(RencodeValue::Bool(b)) => Ok(*b),
         Some(other) => Err(anyhow!("field `{key}` is not a bool: {other:?}")),
@@ -523,34 +511,22 @@ fn get_bool(
     }
 }
 
-fn get_u32(
-    fields: &BTreeMap<RencodeValue, RencodeValue>,
-    key: &str,
-) -> anyhow::Result<u32> {
+fn get_u32(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::Result<u32> {
     let raw = get_int(fields, key)?;
-    u32::try_from(raw)
-        .map_err(|_| anyhow!("field `{key}` out of u32 range: {raw}"))
+    u32::try_from(raw).map_err(|_| anyhow!("field `{key}` out of u32 range: {raw}"))
 }
 
-fn get_u64(
-    fields: &BTreeMap<RencodeValue, RencodeValue>,
-    key: &str,
-) -> anyhow::Result<u64> {
+fn get_u64(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::Result<u64> {
     let raw = get_int(fields, key)?;
     u64::try_from(raw).map_err(|_| anyhow!("field `{key}` is negative: {raw}"))
 }
 
-fn get_time_added(
-    fields: &BTreeMap<RencodeValue, RencodeValue>,
-) -> anyhow::Result<i64> {
+fn get_time_added(fields: &BTreeMap<RencodeValue, RencodeValue>) -> anyhow::Result<i64> {
     get_int(fields, "time_added")
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::expect_used,
-    reason = "test assertions use expect for clarity"
-)]
+#[expect(clippy::expect_used, reason = "test assertions use expect for clarity")]
 #[expect(
     clippy::unwrap_used,
     reason = "test helpers use unwrap for clarity on known-good values"
@@ -559,10 +535,7 @@ fn get_time_added(
     clippy::indexing_slicing,
     reason = "tests index known-length encoded buffers"
 )]
-#[expect(
-    clippy::as_conversions,
-    reason = "tests cast small known values"
-)]
+#[expect(clippy::as_conversions, reason = "tests cast small known values")]
 #[expect(
     clippy::cast_possible_truncation,
     reason = "test values fit target widths"
@@ -601,7 +574,10 @@ mod tests {
         match &parts[2] {
             RencodeValue::List(args_inner) => {
                 assert_eq!(args_inner.len(), 2);
-                assert_eq!(args_inner[0], RencodeValue::Str(String::from("localclient")));
+                assert_eq!(
+                    args_inner[0],
+                    RencodeValue::Str(String::from("localclient"))
+                );
                 assert_eq!(args_inner[1], RencodeValue::Str(String::from("secret")));
             }
             _ => panic!("args is not a list"),
@@ -789,11 +765,8 @@ mod tests {
             RencodeValue::Dict(f) => f,
             _ => panic!("entry is not a dict"),
         };
-        let info = parse_torrent(
-            "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111",
-            fields,
-        )
-        .expect("parse");
+        let info =
+            parse_torrent("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111", fields).expect("parse");
         assert_eq!(info.name, "torrent-one");
         assert_eq!(info.state, "Seeding");
         assert!((info.progress - 100.0).abs() < f64::EPSILON);
