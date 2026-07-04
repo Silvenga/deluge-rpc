@@ -1,4 +1,4 @@
-//! Retention engine — decides which torrents to remove and executes the plan.
+//! Retention engine - decides which torrents to remove and executes the plan.
 //!
 //! The engine is a pure planner ([`compute_deletion_plan`]) plus a thin
 //! executor ([`execute_deletion_plan`]) that talks to the Deluge daemon.
@@ -23,7 +23,7 @@ use tracing::{error, info, warn};
 ///
 /// 1. Filter `torrents` down to those eligible for deletion via
 ///    [`filter_eligible`] (completed, healthy swarm, old enough).
-/// 2. Sort the eligible torrents by `ratio` **descending** — the torrent
+/// 2. Sort the eligible torrents by `ratio` **descending** - the torrent
 ///    that has already given the most back to the swarm is deleted first.
 /// 3. Greedily walk the sorted list, accumulating `total_done` (bytes on
 ///    disk). Stop as soon as `free_space + accumulated >= high_water_mark`.
@@ -82,11 +82,11 @@ pub fn compute_deletion_plan(
 ///
 /// When `dry_run` is `true`, each torrent that *would* be deleted is logged
 /// via `tracing::info!` (name, ratio, on-disk size) and no API calls are
-/// made — this is the safe preview path.
+/// made - this is the safe preview path.
 ///
 /// When `dry_run` is `false`, each torrent is removed via
 /// [`DelugeRpc::remove_torrent`]. A failure on one torrent is logged via
-/// `tracing::error!` and the loop continues with the next torrent — a single
+/// `tracing::error!` and the loop continues with the next torrent - a single
 /// failure does not abort the whole plan. Between deletions (except after
 /// the last one) the coroutine sleeps for `throttle` to avoid hammering the
 /// daemon.
@@ -103,7 +103,7 @@ pub async fn execute_deletion_plan(
     dry_run: bool,
 ) -> Result<()> {
     if plan.is_empty() {
-        info!("no torrents to delete — plan is empty");
+        info!("no torrents to delete - plan is empty");
         return Ok(());
     }
 

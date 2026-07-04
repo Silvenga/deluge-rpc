@@ -1,111 +1,101 @@
 use crate::models::TorrentInfo;
+use crate::protocol::DelugeRpcMessage;
 use crate::protocol::DelugeRpcRequest;
+use crate::protocol::{extract_single, extract_single_dict, extract_single_int};
 use crate::rencode::RencodeValue;
 use crate::rpc::DelugeRpc;
-use crate::transport::DelugeTransport;
-use crate::wire::{
-    ResponseOutcome, extract_single, extract_single_dict, extract_single_int, handle_response,
-};
+use crate::shared::Shared;
+use crate::transport::DelugeWriter;
 use anyhow::{Context, anyhow};
 use async_trait::async_trait;
 use std::collections::BTreeMap;
-use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
+use std::sync::atomic::Ordering;
 use std::time::Duration;
-use tokio::sync::Mutex;
+use tokio::sync::broadcast::error::RecvError;
+use tokio::sync::{Mutex, broadcast};
 use tokio::time::timeout;
 
+const RPC_TIMEOUT: Duration = Duration::from_secs(30);
+
 pub struct DelugeRpcClient {
-    host: String,
-    port: u16,
-    username: String,
-    password: String,
-    transport: Mutex<Option<DelugeTransport>>,
-    next_request_id: AtomicU32,
+    shared: Arc<Shared>,
+    writer: Arc<Mutex<DelugeWriter>>,
 }
 
 impl DelugeRpcClient {
-    pub fn new(host: String, port: u16, username: String, password: String) -> Self {
-        Self {
-            host,
-            port,
-            username,
-            password,
-            transport: Mutex::new(None),
-            next_request_id: AtomicU32::new(1),
-        }
+    pub(crate) fn new(shared: Arc<Shared>, writer: Arc<Mutex<DelugeWriter>>) -> Self {
+        Self { shared, writer }
+    }
+
+    pub fn subscribe_events(&self) -> broadcast::Receiver<DelugeRpcMessage> {
+        self.shared.message_tx.subscribe()
     }
 
     fn next_id(&self) -> u32 {
-        self.next_request_id.fetch_add(1, Ordering::Relaxed)
+        self.shared.next_id.fetch_add(1, Ordering::Relaxed)
     }
 
-    async fn rpc_call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+    pub async fn rpc_call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
         let id = self.next_id();
-
-        let method = request.method.to_owned();
+        let method = request.method.clone();
         let encoded = request.encode(id);
 
-        let mut guard = self.transport.lock().await;
-        let transport = guard
-            .as_mut()
-            .ok_or_else(|| anyhow!("not connected — call login() first"))?;
-        transport
-            .send(&encoded)
-            .await
-            .with_context(|| format!("failed to send RPC request `{method}`"))?;
+        let mut rx = self.shared.message_tx.subscribe();
 
-        loop {
-            let raw = timeout(Duration::from_secs(30), transport.recv())
+        {
+            let mut writer = self.writer.lock().await;
+            writer
+                .send(&encoded)
                 .await
-                .map_err(|_| anyhow!("timed out waiting for RPC response `{method}`"))?
-                .with_context(|| format!("failed to recv RPC response for `{method}`"))?;
-            let decoded = RencodeValue::decode(&raw)
-                .with_context(|| format!("failed to decode RPC response for `{method}`"))?;
+                .with_context(|| format!("failed to send RPC request `{method}`"))?;
+        }
 
-            match handle_response(&decoded, id, &method)? {
-                ResponseOutcome::Return(value) => return Ok(value),
-                ResponseOutcome::Continue => {}
+        let deadline = timeout(RPC_TIMEOUT, async {
+            loop {
+                match rx.recv().await {
+                    Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
+                        return Ok(value);
+                    }
+                    Ok(DelugeRpcMessage::Error {
+                        exc_type,
+                        exc_msg,
+                        traceback,
+                    }) => {
+                        return Err(anyhow!(
+                            "daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}"
+                        ));
+                    }
+                    Ok(_) => continue,
+                    Err(RecvError::Lagged(n)) => {
+                        tracing::warn!(n, "RPC subscriber lagged, missed messages");
+                        continue;
+                    }
+                    Err(RecvError::Closed) => {
+                        return Err(anyhow!(
+                            "connection closed while waiting for RPC response `{method}`"
+                        ));
+                    }
+                }
             }
+        })
+        .await;
+
+        deadline.unwrap_or_else(|_| Err(anyhow!("timed out waiting for RPC response `{method}`")))
+    }
+}
+
+impl Clone for DelugeRpcClient {
+    fn clone(&self) -> Self {
+        Self {
+            shared: Arc::clone(&self.shared),
+            writer: Arc::clone(&self.writer),
         }
     }
 }
 
 #[async_trait]
 impl DelugeRpc for DelugeRpcClient {
-    async fn login(&self) -> anyhow::Result<()> {
-        let transport = DelugeTransport::connect(&self.host, self.port)
-            .await
-            .context("failed to connect to Deluge daemon")?;
-        *self.transport.lock().await = Some(transport);
-
-        let mut kwargs = BTreeMap::new();
-        kwargs.insert(
-            RencodeValue::Str(String::from("client_version")),
-            RencodeValue::Str(String::from(concat!(
-                "deluge-retain/",
-                env!("CARGO_PKG_VERSION")
-            ))),
-        );
-
-        let args = vec![
-            RencodeValue::Str(self.username.clone()),
-            RencodeValue::Str(self.password.clone()),
-        ];
-
-        let request = DelugeRpcRequest::new("daemon.login")
-            .with_args(args)
-            .with_kwargs(kwargs);
-
-        let result = self
-            .rpc_call(request)
-            .await
-            .context("daemon.login RPC failed")?;
-
-        let auth_level = extract_single_int(&result, "daemon.login")?;
-        tracing::debug!(auth_level, "daemon.login succeeded");
-        Ok(())
-    }
-
     async fn get_free_space(&self) -> anyhow::Result<u64> {
         let result = self
             .rpc_call(DelugeRpcRequest::new("core.get_free_space"))
@@ -132,7 +122,6 @@ impl DelugeRpc for DelugeRpcClient {
             RencodeValue::Str(String::from("download_location")),
         ];
 
-        // NOTE: filter_dict is FIRST, keys is SECOND — reversed from web.update_ui.
         let args = vec![
             RencodeValue::Dict(BTreeMap::default()),
             RencodeValue::List(keys),

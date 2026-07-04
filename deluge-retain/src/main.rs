@@ -15,7 +15,7 @@ use deluge_retain::cli::Cli;
 use deluge_retain::config::{Config, HostConfig, Rules};
 use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
 use deluge_retain::tracing_setup::init_tracing;
-use deluge_retain::{DelugeRpc, DelugeRpcClient};
+use deluge_rpc::{DelugeConnection, DelugeRpc, DelugeRpcClient};
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -55,7 +55,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 ///
 /// Hosts are processed sequentially in config order. A failure on one host
 /// (password resolution, login, free-space query, torrent fetch) is logged
-/// and the cycle continues with the next host — a single host failure does
+/// and the cycle continues with the next host - a single host failure does
 /// not abort the whole cycle.
 pub(crate) async fn run_once(config: &Config, dry_run: bool) -> Result<()> {
     for host in &config.hosts {
@@ -76,17 +76,19 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
         }
     };
 
-    let client = DelugeRpcClient::new(
-        host.host.clone(),
-        host.port,
-        host.username.clone(),
-        password,
-    );
-
-    if let Err(err) = client.login().await {
-        error!(host = %host.host, port = host.port, error = %err, "login failed for host `{}:{}`: {err}", host.host, host.port);
-        return;
-    }
+    let client: DelugeRpcClient = match DelugeConnection::connect(&host.host, host.port).await {
+        Ok(conn) => match conn.login(&host.username, &password).await {
+            Ok(client) => client,
+            Err(err) => {
+                error!(host = %host.host, port = host.port, error = %err, "login failed for host `{}:{}`: {err}", host.host, host.port);
+                return;
+            }
+        },
+        Err(err) => {
+            error!(host = %host.host, port = host.port, error = %err, "connection failed for host `{}:{}`: {err}", host.host, host.port);
+            return;
+        }
+    };
 
     let free_space = match client.get_free_space().await {
         Ok(bytes) => bytes,
@@ -318,7 +320,7 @@ mod tests {
         RencodeValue::Dict(dict)
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_dry_run_then_logs_plan_and_makes_no_remove_calls() {
         let config_mock = MockDaemonConfig {
             login: MockResponse::success(RencodeValue::Int(5)),
@@ -350,7 +352,7 @@ mod tests {
         );
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_not_dry_run_then_calls_remove_torrent() {
         let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
         let config_mock = MockDaemonConfig {
@@ -383,7 +385,7 @@ mod tests {
         );
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_free_space_above_low_water_mark_then_no_torrent_query() {
         let config_mock = MockDaemonConfig {
             login: MockResponse::success(RencodeValue::Int(5)),
@@ -405,7 +407,7 @@ mod tests {
         );
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_login_fails_then_skips_host() {
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_bad()).await;
         let config = config_with(&mock, rules(10 * GB, 20 * GB));
@@ -425,7 +427,7 @@ mod tests {
         );
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_no_eligible_torrents_then_plan_is_empty() {
         let now_secs = Utc::now().timestamp();
         let config_mock = MockDaemonConfig {

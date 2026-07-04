@@ -7,7 +7,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 
 /// Initialise the global tracing subscriber.
 ///
-/// Uses `try_init` internally so repeated calls do not panic — the second call
+/// Uses `try_init` internally so repeated calls do not panic - the second call
 /// simply returns `Err` which we ignore, leaving the first subscriber in place.
 pub fn init_tracing(verbose: bool) {
     let level = if verbose {

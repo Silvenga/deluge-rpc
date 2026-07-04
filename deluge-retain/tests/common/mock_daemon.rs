@@ -27,7 +27,7 @@ use tokio::task::JoinHandle;
 use tokio_rustls::TlsAcceptor;
 use tokio_rustls::server::TlsStream;
 
-/// Wire protocol version (Deluge 2.x) — matches [`crate::transport`].
+/// Wire protocol version (Deluge 2.x) - matches [`crate::transport`].
 const PROTOCOL_VERSION: u8 = 1;
 /// Fixed header size: 1 byte version + 4 bytes big-endian body length.
 const HEADER_LEN: usize = 5;
@@ -40,7 +40,7 @@ const RPC_ERROR: i64 = 2;
 /// Install the `ring` crypto provider as the process default once.
 ///
 /// Mirrors the guard in [`crate::transport`]; the `Once` is local to this
-/// module so the two do not race — `install_default` is idempotent.
+/// module so the two do not race - `install_default` is idempotent.
 fn ensure_crypto_provider() {
     static INSTALL: Once = Once::new();
     INSTALL.call_once(|| {
@@ -51,10 +51,10 @@ fn ensure_crypto_provider() {
 /// Canned response for a single RPC method.
 #[derive(Debug, Clone, Default)]
 pub enum MockResponse {
-    /// Respond with `[1, id, [value]]` — a successful RPC response whose
+    /// Respond with `[1, id, [value]]` - a successful RPC response whose
     /// return list contains `value`.
     Success(RencodeValue),
-    /// Respond with `[2, id, exc_type, exc_msg, ""]` — an RPC error.
+    /// Respond with `[2, id, exc_type, exc_msg, ""]` - an RPC error.
     Error { exc_type: String, exc_msg: String },
     /// No canned response configured; reply with a generic RPC error.
     #[default]
@@ -62,13 +62,13 @@ pub enum MockResponse {
 }
 
 impl MockResponse {
-    /// Respond with `[1, id, [value]]` — a successful RPC response whose
+    /// Respond with `[1, id, [value]]` - a successful RPC response whose
     /// return list contains `value`.
     pub fn success(value: RencodeValue) -> Self {
         Self::Success(value)
     }
 
-    /// Respond with `[2, id, exc_type, exc_msg, ""]` — an RPC error.
+    /// Respond with `[2, id, exc_type, exc_msg, ""]` - an RPC error.
     pub fn error(exc_type: &str, exc_msg: &str) -> Self {
         Self::Error {
             exc_type: String::from(exc_type),
@@ -368,7 +368,7 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_retain::{DelugeRpc, DelugeRpcClient};
+    use deluge_rpc::{DelugeConnection, DelugeRpc};
 
     use deluge_rpc::models::TorrentInfo;
     use std::string::ToString;
@@ -431,7 +431,7 @@ mod tests {
         RencodeValue::Dict(dict)
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_login_and_get_free_space_then_roundtrip_succeeds() {
         let config = MockDaemonConfig {
             login: MockResponse::success(RencodeValue::Int(5)),
@@ -440,15 +440,10 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeRpcClient::new(
-            mock.host(),
-            mock.port(),
-            String::from("localclient"),
-            String::from("password"),
-        );
-
-        client
-            .login()
+        let client = DelugeConnection::connect(&mock.host(), mock.port())
+            .await
+            .expect("connect to mock daemon succeeds")
+            .login("localclient", "password")
             .await
             .expect("login against mock daemon succeeds");
 
@@ -469,24 +464,22 @@ mod tests {
         );
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_login_fails_then_client_returns_error() {
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_bad()).await;
 
-        let client = DelugeRpcClient::new(
-            mock.host(),
-            mock.port(),
-            String::from("localclient"),
-            String::from("wrong"),
-        );
-
-        let result = client.login().await;
+        let result = DelugeConnection::connect(&mock.host(), mock.port())
+            .await
+            .expect("connect to mock daemon succeeds")
+            .login("localclient", "wrong")
+            .await;
         assert!(
             result.is_err(),
             "login with a BadLoginError response must fail"
         );
         let chain = result
-            .unwrap_err()
+            .err()
+            .unwrap()
             .chain()
             .map(ToString::to_string)
             .collect::<Vec<_>>()
@@ -494,7 +487,7 @@ mod tests {
         assert!(chain.contains("BadLoginError"), "got: {chain}");
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_get_torrents_then_mock_returns_configured_dict() {
         let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
         let config = MockDaemonConfig {
@@ -504,13 +497,12 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeRpcClient::new(
-            mock.host(),
-            mock.port(),
-            String::from("localclient"),
-            String::from("password"),
-        );
-        client.login().await.expect("login");
+        let client = DelugeConnection::connect(&mock.host(), mock.port())
+            .await
+            .expect("connect to mock daemon succeeds")
+            .login("localclient", "password")
+            .await
+            .expect("login");
 
         let torrents: Vec<TorrentInfo> = client
             .get_torrents()
@@ -522,7 +514,7 @@ mod tests {
         assert_eq!(torrents[0].total_done, 2 * GB);
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_remove_torrent_then_mock_returns_true_and_records_method() {
         let info_hash = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
         let config = MockDaemonConfig {
@@ -532,13 +524,12 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeRpcClient::new(
-            mock.host(),
-            mock.port(),
-            String::from("localclient"),
-            String::from("password"),
-        );
-        client.login().await.expect("login");
+        let client = DelugeConnection::connect(&mock.host(), mock.port())
+            .await
+            .expect("connect to mock daemon succeeds")
+            .login("localclient", "password")
+            .await
+            .expect("login");
 
         let removed = client
             .remove_torrent(info_hash)
@@ -553,18 +544,17 @@ mod tests {
         );
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn when_method_not_configured_then_client_receives_error() {
         // Login configured, but free_space left as NotConfigured.
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_ok()).await;
 
-        let client = DelugeRpcClient::new(
-            mock.host(),
-            mock.port(),
-            String::from("localclient"),
-            String::from("password"),
-        );
-        client.login().await.expect("login");
+        let client = DelugeConnection::connect(&mock.host(), mock.port())
+            .await
+            .expect("connect to mock daemon succeeds")
+            .login("localclient", "password")
+            .await
+            .expect("login");
 
         let result = client.get_free_space().await;
         assert!(result.is_err(), "NotConfigured method must error");
