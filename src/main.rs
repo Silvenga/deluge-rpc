@@ -16,6 +16,9 @@ mod torrent;
 mod tracing_setup;
 mod transport;
 
+#[cfg(test)]
+mod mock_daemon;
+
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
