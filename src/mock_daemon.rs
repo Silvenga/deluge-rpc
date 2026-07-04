@@ -405,7 +405,7 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, String> {
 )]
 mod tests {
     use super::*;
-    use crate::client::DelugeClient;
+    use crate::client::{DelugeClient, DelugeRpc};
     use crate::torrent::TorrentInfo;
 
     use std::string::ToString;

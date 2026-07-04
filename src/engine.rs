@@ -14,7 +14,7 @@ use chrono::{DateTime, Utc};
 use tokio::time::sleep;
 use tracing::{error, info, warn};
 
-use crate::client::DelugeClient;
+use crate::client::DelugeRpc;
 use crate::torrent::{TorrentInfo, filter_eligible};
 
 /// Compute the ordered list of torrents to delete in order to bring
@@ -86,7 +86,7 @@ pub fn compute_deletion_plan(
 /// made — this is the safe preview path.
 ///
 /// When `dry_run` is `false`, each torrent is removed via
-/// [`DelugeClient::remove_torrent`]. A failure on one torrent is logged via
+/// [`DelugeRpc::remove_torrent`]. A failure on one torrent is logged via
 /// `tracing::error!` and the loop continues with the next torrent — a single
 /// failure does not abort the whole plan. Between deletions (except after
 /// the last one) the coroutine sleeps for `throttle` to avoid hammering the
@@ -98,7 +98,7 @@ pub fn compute_deletion_plan(
 /// cannot be recovered per-torrent; per-torrent removal failures are logged
 /// and swallowed so the plan completes.
 pub async fn execute_deletion_plan(
-    client: &DelugeClient,
+    client: &dyn DelugeRpc,
     plan: &[TorrentInfo],
     throttle: Duration,
     dry_run: bool,
@@ -168,6 +168,7 @@ pub async fn execute_deletion_plan(
 )]
 mod tests {
     use super::*;
+    use crate::client::MockDelugeRpc;
     use chrono::Utc;
 
     const GB: u64 = 1_073_741_824;
@@ -282,12 +283,8 @@ mod tests {
 
     #[tokio::test]
     async fn when_dry_run_then_no_api_calls_and_returns_ok_should_log_only() {
-        let client = DelugeClient::new(
-            String::from("127.0.0.1"),
-            1,
-            String::from("localclient"),
-            String::from("p"),
-        );
+        let mut client = MockDelugeRpc::new();
+        client.expect_remove_torrent().never();
 
         let plan = vec![
             make_torrent("aaa", "first", 3.0, 1 * GB),
@@ -301,12 +298,8 @@ mod tests {
 
     #[tokio::test]
     async fn when_empty_plan_then_returns_ok_and_makes_no_calls_should_short_circuit() {
-        let client = DelugeClient::new(
-            String::from("127.0.0.1"),
-            1,
-            String::from("localclient"),
-            String::from("p"),
-        );
+        let mut client = MockDelugeRpc::new();
+        client.expect_remove_torrent().never();
 
         let result = execute_deletion_plan(&client, &[], Duration::from_millis(0), false).await;
 

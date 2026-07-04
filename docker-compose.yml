@@ -1,7 +1,7 @@
 services:
   deluge:
     image: linuxserver/deluge:latest
-    # User configures Deluge here — ports, volumes, environment, etc.
+    # User configures Deluge here — expose daemon RPC port 58846.
 
   deluge-retain:
     build: .

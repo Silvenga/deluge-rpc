@@ -33,7 +33,7 @@ use tokio::time::sleep;
 use tracing::{error, info, warn};
 
 use crate::cli::Cli;
-use crate::client::DelugeClient;
+use crate::client::{DelugeClient, DelugeRpc};
 use crate::config::{Config, HostConfig};
 use crate::engine::{compute_deletion_plan, execute_deletion_plan};
 use crate::tracing_setup::init_tracing;
@@ -172,7 +172,8 @@ async fn process_host(host: &HostConfig, rules: &config::Rules, dry_run: bool) {
     );
 
     let throttle = Duration::from_secs(rules.delete_throttle_secs);
-    if let Err(err) = execute_deletion_plan(&client, &plan, throttle, dry_run).await {
+    let client_dyn: &dyn DelugeRpc = &client;
+    if let Err(err) = execute_deletion_plan(client_dyn, &plan, throttle, dry_run).await {
         error!(host = %host.host, port = host.port, error = %err, "deletion plan execution failed for host `{}:{}`: {err}", host.host, host.port);
         return;
     }

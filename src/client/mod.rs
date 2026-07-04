@@ -10,6 +10,7 @@ use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU32, Ordering};
 
 use anyhow::{anyhow, Context};
+use async_trait::async_trait;
 use tokio::sync::Mutex;
 
 use crate::rencode::{decode, encode, RencodeValue};
@@ -23,9 +24,30 @@ const RPC_ERROR: i64 = 2;
 /// RPC event message type tag (Deluge daemon protocol).
 const RPC_EVENT: i64 = 3;
 
+/// Deluge daemon RPC surface used by the engine and main.
+///
+/// Extracted from [`DelugeClient`] so callers can be tested against a
+/// mockall-generated `MockDelugeRpc` instead of a live daemon connection.
+/// The concrete [`DelugeClient`] is the only production implementation.
+#[cfg_attr(test, mockall::automock)]
+#[async_trait]
+pub trait DelugeRpc: Send + Sync {
+    /// Authenticate against the daemon via `daemon.login`.
+    async fn login(&self) -> anyhow::Result<()>;
+
+    /// Query free disk space in bytes at the daemon's download location.
+    async fn get_free_space(&self) -> anyhow::Result<u64>;
+
+    /// Fetch the current status of all torrents.
+    async fn get_torrents(&self) -> anyhow::Result<Vec<TorrentInfo>>;
+
+    /// Remove a torrent by info hash (with `remove_data = true`).
+    async fn remove_torrent(&self, id: &str) -> anyhow::Result<bool>;
+}
+
 /// Async client for the Deluge daemon RPC protocol.
 ///
-/// The transport is `None` until [`login`](Self::login) connects; all
+/// The transport is `None` until [`DelugeRpc::login`] connects; all
 /// subsequent method calls reuse the established connection. Interior
 /// mutability via a [`tokio::sync::Mutex`] guards the `Option` slot —
 /// the async transport calls happen outside the lock.
@@ -41,7 +63,7 @@ pub struct DelugeClient {
 impl DelugeClient {
     /// Create a new client targeting `host:port` that authenticates with
     /// `username` / `password`. No connection is opened until
-    /// [`login`](Self::login) is called.
+    /// [`DelugeRpc::login`] is called.
     pub fn new(host: String, port: u16, username: String, password: String) -> Self {
         Self {
             host,
@@ -57,12 +79,55 @@ impl DelugeClient {
         self.request_id.fetch_add(1, Ordering::Relaxed)
     }
 
+    /// Core RPC dispatcher.
+    ///
+    /// Builds the request `[[request_id, method, [args], {kwargs}]]`,
+    /// encodes it via rencode, sends it over the transport, and reads
+    /// responses until one with the matching `request_id` arrives. RPC
+    /// events (type 3) are logged at trace level and skipped.
+    async fn rpc_call(
+        &self,
+        method: &str,
+        args: Vec<RencodeValue>,
+        kwargs: BTreeMap<RencodeValue, RencodeValue>,
+    ) -> anyhow::Result<RencodeValue> {
+        let id = self.next_id();
+        let request = build_request(id, method, args, kwargs);
+        let encoded = encode(&request);
+
+        let mut guard = self.transport.lock().await;
+        let transport = guard
+            .as_mut()
+            .ok_or_else(|| anyhow!("not connected — call login() first"))?;
+        transport
+            .send(&encoded)
+            .await
+            .with_context(|| format!("failed to send RPC request `{method}`"))?;
+
+        loop {
+            let raw = transport
+                .recv()
+                .await
+                .with_context(|| format!("failed to recv RPC response for `{method}`"))?;
+            let decoded = decode(&raw)
+                .with_context(|| format!("failed to decode RPC response for `{method}`"))?;
+
+            match handle_response(&decoded, id, method)? {
+                ResponseOutcome::Return(value) => return Ok(value),
+                ResponseOutcome::Continue => {}
+            }
+        }
+    }
+}
+
+#[async_trait]
+impl DelugeRpc for DelugeClient {
     /// Authenticate against the daemon via `daemon.login`.
     ///
     /// Establishes the TLS transport on first call. Subsequent method
     /// calls reuse the connection. The returned auth level is logged at
     /// debug level and otherwise ignored.
-    pub async fn login(&self) -> anyhow::Result<()> {
+    async fn login(&self) -> anyhow::Result<()> {
         let transport = DelugeTransport::connect(&self.host, self.port)
             .await
             .context("failed to connect to Deluge daemon")?;
@@ -94,7 +159,7 @@ impl DelugeClient {
 
     /// Query free disk space in bytes at the daemon's default download
     /// location via `core.get_free_space`.
-    pub async fn get_free_space(&self) -> anyhow::Result<u64> {
+    async fn get_free_space(&self) -> anyhow::Result<u64> {
         let result = self
             .rpc_call(
                 "core.get_free_space",
@@ -116,7 +181,7 @@ impl DelugeClient {
     /// [`TorrentInfo`]. The daemon returns a dict keyed by info hash,
     /// which is flattened into a [`Vec<TorrentInfo>`] sorted by info
     /// hash for deterministic output.
-    pub async fn get_torrents(&self) -> anyhow::Result<Vec<TorrentInfo>> {
+    async fn get_torrents(&self) -> anyhow::Result<Vec<TorrentInfo>> {
         let keys = vec![
             RencodeValue::Str(String::from("name")),
             RencodeValue::Str(String::from("state")),
@@ -165,7 +230,7 @@ impl DelugeClient {
 
     /// Remove a torrent by info hash. `remove_data = true` deletes the
     /// downloaded files as well.
-    pub async fn remove_torrent(&self, id: &str) -> anyhow::Result<bool> {
+    async fn remove_torrent(&self, id: &str) -> anyhow::Result<bool> {
         let args = vec![
             RencodeValue::Str(String::from(id)),
             RencodeValue::Bool(true),
@@ -182,46 +247,6 @@ impl DelugeClient {
             other => Err(anyhow!(
                 "core.remove_torrent returned non-bool value: {other:?}"
             )),
-        }
-    }
-
-    /// Core RPC dispatcher.
-    ///
-    /// Builds the request `[[request_id, method, [args], {kwargs}]]`,
-    /// encodes it via rencode, sends it over the transport, and reads
-    /// responses until one with the matching `request_id` arrives. RPC
-    /// events (type 3) are logged at trace level and skipped.
-    async fn rpc_call(
-        &self,
-        method: &str,
-        args: Vec<RencodeValue>,
-        kwargs: BTreeMap<RencodeValue, RencodeValue>,
-    ) -> anyhow::Result<RencodeValue> {
-        let id = self.next_id();
-        let request = build_request(id, method, args, kwargs);
-        let encoded = encode(&request);
-
-        let mut guard = self.transport.lock().await;
-        let transport = guard
-            .as_mut()
-            .ok_or_else(|| anyhow!("not connected — call login() first"))?;
-        transport
-            .send(&encoded)
-            .await
-            .with_context(|| format!("failed to send RPC request `{method}`"))?;
-
-        loop {
-            let raw = transport
-                .recv()
-                .await
-                .with_context(|| format!("failed to recv RPC response for `{method}`"))?;
-            let decoded = decode(&raw)
-                .with_context(|| format!("failed to decode RPC response for `{method}`"))?;
-
-            match handle_response(&decoded, id, method)? {
-                ResponseOutcome::Return(value) => return Ok(value),
-                ResponseOutcome::Continue => {}
-            }
         }
     }
 }
