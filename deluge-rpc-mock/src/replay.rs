@@ -56,16 +56,17 @@ fn self_signed_server_config() -> Arc<ServerConfig> {
 pub struct ReplayServer {
     addr: SocketAddr,
     handle: JoinHandle<()>,
+    matcher: Arc<Matcher>,
 }
 
 impl ReplayServer {
-    pub async fn start(matcher: Matcher) -> Result<Self, ReplayError> {
+    pub async fn start(matcher: Arc<Matcher>) -> Result<Self, ReplayError> {
         ensure_crypto_provider();
         let listener = TcpListener::bind("127.0.0.1:0").await?;
         let addr = listener.local_addr()?;
         let server_config = self_signed_server_config();
         let acceptor = TlsAcceptor::from(server_config);
-        let matcher = Arc::new(matcher);
+        let matcher_clone = Arc::clone(&matcher);
 
         let handle = tokio::spawn(async move {
             loop {
@@ -77,14 +78,18 @@ impl ReplayServer {
                     Ok(tls) => tls,
                     Err(_) => continue,
                 };
-                let m = Arc::clone(&matcher);
+                let m = Arc::clone(&matcher_clone);
                 tokio::spawn(async move {
                     serve_connection(tls, &m).await;
                 });
             }
         });
 
-        Ok(ReplayServer { addr, handle })
+        Ok(ReplayServer {
+            addr,
+            handle,
+            matcher,
+        })
     }
 
     pub fn host(&self) -> String {
@@ -93,6 +98,10 @@ impl ReplayServer {
 
     pub fn port(&self) -> u16 {
         self.addr.port()
+    }
+
+    pub fn consumed_methods(&self) -> Vec<String> {
+        self.matcher.consumed_methods()
     }
 }
 
@@ -301,7 +310,7 @@ mod tests {
                 RencodeValue::Str("2.1.1".into()),
             ),
         ]);
-        let matcher = Matcher::new(cassette.interactions);
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
         let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
@@ -327,7 +336,7 @@ mod tests {
                 RencodeValue::Str("version-two".into()),
             ),
         ]);
-        let matcher = Matcher::new(cassette.interactions);
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
         let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
@@ -352,7 +361,7 @@ mod tests {
                 RencodeValue::Str("only-one".into()),
             ),
         ]);
-        let matcher = Matcher::new(cassette.interactions);
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
         let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
@@ -386,7 +395,7 @@ mod tests {
                 },
             },
         ]);
-        let matcher = Matcher::new(cassette.interactions);
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
         let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
@@ -405,7 +414,7 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn when_login_in_cassette_then_replay_serves_it() {
         let cassette = make_cassette(vec![login_interaction()]);
-        let matcher = Matcher::new(cassette.interactions);
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
         let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
@@ -427,7 +436,7 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn when_unknown_method_then_error_or_skip() {
         let cassette = make_cassette(vec![login_interaction()]);
-        let matcher = Matcher::new(cassette.interactions);
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
         let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")

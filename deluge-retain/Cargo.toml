@@ -32,11 +32,8 @@ tracing-subscriber = { workspace = true }
 
 [dev-dependencies]
 deluge-rpc = { path = "../deluge-rpc", features = ["mock"] }
+deluge-rpc-mock = { path = "../deluge-rpc-mock" }
 assert_cmd = { workspace = true }
 assert_fs = { workspace = true }
 assert_matches = { workspace = true }
-flate2 = { workspace = true }
-rcgen = { workspace = true }
-rustls = { workspace = true }
 tokio = { workspace = true }
-tokio-rustls = { workspace = true }

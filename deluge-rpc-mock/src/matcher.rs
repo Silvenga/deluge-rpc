@@ -34,6 +34,15 @@ impl Matcher {
 
         None
     }
+
+    pub fn consumed_methods(&self) -> Vec<String> {
+        let entries = self.entries.lock().expect("matcher mutex poisoned");
+        entries
+            .iter()
+            .filter(|(_, consumed)| *consumed)
+            .map(|(e, _)| e.request.method.clone())
+            .collect()
+    }
 }
 
 #[cfg(test)]

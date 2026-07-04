@@ -235,17 +235,15 @@ async fn shutdown_signal() {
 }
 
 #[cfg(test)]
-#[path = "../tests/common/mock_daemon.rs"]
-mod mock_daemon;
+#[path = "../tests/common/cassettes.rs"]
+mod cassettes;
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::BTreeMap;
-
-    use deluge_retain::RencodeValue;
-
-    use mock_daemon::{MockDaemonConfig, MockDelugeDaemon, MockResponse};
+    use deluge_rpc_mock::Matcher;
+    use deluge_rpc_mock::ReplayServer;
+    use std::sync::Arc;
 
     const GB: u64 = 1_073_741_824;
 
@@ -269,10 +267,10 @@ mod tests {
         }
     }
 
-    fn config_with(mock: &MockDelugeDaemon, rules: Rules) -> Config {
+    fn config_with(server: &ReplayServer, rules: Rules) -> Config {
         Config {
             poll_interval: Duration::from_secs(60),
-            hosts: vec![host(mock.host(), mock.port())],
+            hosts: vec![host(server.host(), server.port())],
             rules,
         }
     }
@@ -281,89 +279,22 @@ mod tests {
         Utc::now().timestamp() - 60 * 60 * 24 * 30
     }
 
-    fn torrents_dict(
-        info_hash: &str,
-        name: &str,
-        ratio: f64,
-        total_done: u64,
-        time_added: i64,
-    ) -> RencodeValue {
-        let mut fields = BTreeMap::new();
-        fields.insert(
-            RencodeValue::Str(String::from("name")),
-            RencodeValue::Str(String::from(name)),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("state")),
-            RencodeValue::Str(String::from("Seeding")),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("progress")),
-            RencodeValue::Float(100.0),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("ratio")),
-            RencodeValue::Float(ratio),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("total_seeds")),
-            RencodeValue::Int(50),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("num_seeds")),
-            RencodeValue::Int(5),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("time_added")),
-            RencodeValue::Int(time_added),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("total_done")),
-            RencodeValue::Int(i64::try_from(total_done).unwrap()),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("total_uploaded")),
-            RencodeValue::Int(0),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("is_finished")),
-            RencodeValue::Bool(true),
-        );
-        fields.insert(
-            RencodeValue::Str(String::from("download_location")),
-            RencodeValue::Str(String::from("/data")),
-        );
-
-        let mut dict = BTreeMap::new();
-        dict.insert(
-            RencodeValue::Str(String::from(info_hash)),
-            RencodeValue::Dict(fields),
-        );
-        RencodeValue::Dict(dict)
-    }
-
     #[tokio::test(flavor = "multi_thread")]
     async fn when_dry_run_then_logs_plan_and_makes_no_remove_calls() {
-        let config_mock = MockDaemonConfig {
-            login: MockResponse::success(RencodeValue::Int(5)),
-            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(5 * GB).unwrap())),
-            torrents: MockResponse::success(torrents_dict(
-                "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111",
-                "old-torrent",
-                3.0,
-                2 * GB,
-                old_timestamp(),
-            )),
-            remove: MockResponse::success(RencodeValue::Bool(true)),
-        };
-        let mock = MockDelugeDaemon::start(config_mock).await;
-        let config = config_with(&mock, rules(10 * GB, 20 * GB));
+        let cassette = cassettes::torrents_list(
+            "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111",
+            "old-torrent",
+            old_timestamp(),
+        );
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, true).await;
 
         assert!(result.is_ok());
 
-        let methods = mock.received_methods();
+        let methods = server.consumed_methods();
         let remove_calls = methods
             .iter()
             .filter(|m| *m == "core.remove_torrent")
@@ -377,26 +308,16 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn when_not_dry_run_then_calls_remove_torrent() {
         let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
-        let config_mock = MockDaemonConfig {
-            login: MockResponse::success(RencodeValue::Int(5)),
-            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(5 * GB).unwrap())),
-            torrents: MockResponse::success(torrents_dict(
-                info_hash,
-                "old-torrent",
-                3.0,
-                2 * GB,
-                old_timestamp(),
-            )),
-            remove: MockResponse::success(RencodeValue::Bool(true)),
-        };
-        let mock = MockDelugeDaemon::start(config_mock).await;
-        let config = config_with(&mock, rules(10 * GB, 20 * GB));
+        let cassette = cassettes::remove_torrent(info_hash, old_timestamp());
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
 
         assert!(result.is_ok());
 
-        let methods = mock.received_methods();
+        let methods = server.consumed_methods();
         let remove_calls = methods
             .iter()
             .filter(|m| *m == "core.remove_torrent")
@@ -409,20 +330,16 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_free_space_above_low_water_mark_then_no_torrent_query() {
-        let config_mock = MockDaemonConfig {
-            login: MockResponse::success(RencodeValue::Int(5)),
-            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(30 * GB).unwrap())),
-            torrents: MockResponse::NotConfigured,
-            remove: MockResponse::NotConfigured,
-        };
-        let mock = MockDelugeDaemon::start(config_mock).await;
-        let config = config_with(&mock, rules(10 * GB, 20 * GB));
+        let cassette = cassettes::free_space_high();
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
 
         assert!(result.is_ok());
 
-        let methods = mock.received_methods();
+        let methods = server.consumed_methods();
         assert!(
             !methods.iter().any(|m| m == "core.get_torrents_status"),
             "no torrent list query when free space is above the low water mark, got {methods:?}"
@@ -431,8 +348,10 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_login_fails_then_skips_host() {
-        let mock = MockDelugeDaemon::start(MockDaemonConfig::login_bad()).await;
-        let config = config_with(&mock, rules(10 * GB, 20 * GB));
+        let cassette = cassettes::login_bad();
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
 
@@ -441,7 +360,7 @@ mod tests {
             "cycle must succeed even when a host fails to log in"
         );
 
-        let methods = mock.received_methods();
+        let methods = server.consumed_methods();
         let post_login_calls = methods.iter().filter(|m| *m != "daemon.login").count();
         assert_eq!(
             post_login_calls, 0,
@@ -452,26 +371,20 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn when_no_eligible_torrents_then_plan_is_empty() {
         let now_secs = Utc::now().timestamp();
-        let config_mock = MockDaemonConfig {
-            login: MockResponse::success(RencodeValue::Int(5)),
-            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(5 * GB).unwrap())),
-            torrents: MockResponse::success(torrents_dict(
-                "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
-                "young-torrent",
-                3.0,
-                2 * GB,
-                now_secs,
-            )),
-            remove: MockResponse::success(RencodeValue::Bool(true)),
-        };
-        let mock = MockDelugeDaemon::start(config_mock).await;
-        let config = config_with(&mock, rules(10 * GB, 20 * GB));
+        let cassette = cassettes::torrents_list(
+            "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
+            "young-torrent",
+            now_secs,
+        );
+        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, true).await;
 
         assert!(result.is_ok());
 
-        let methods = mock.received_methods();
+        let methods = server.consumed_methods();
         let remove_calls = methods
             .iter()
             .filter(|m| *m == "core.remove_torrent")
