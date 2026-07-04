@@ -59,12 +59,20 @@ fn torrent_entry(name: &str, ratio: f64, total_done: u64, time_added: f64) -> Va
 
 /// Write a TOML config file pointing a single host at `server_uri/json`.
 fn write_config(server_uri: &str, low: &str, high: &str) -> NamedTempFile {
+    // server_uri looks like "http://127.0.0.1:12345"
+    let no_scheme = server_uri.strip_prefix("http://").unwrap_or(server_uri);
+    let (host_addr, port_str) = no_scheme
+        .split_once(':')
+        .expect("mock server uri has host:port");
+    let port: u16 = port_str.parse().expect("mock server port is u16");
     let contents = format!(
         r#"
 poll_interval = "60s"
 
 [[hosts]]
-url = "{server_uri}/json"
+host = "{host_addr}"
+port = {port}
+username = "localclient"
 password = "secret"
 
 [rules]

@@ -4,13 +4,19 @@ poll_interval = "5m"
 
 # Deluge hosts to manage. At least one host is required.
 [[hosts]]
-# Full JSON-RPC endpoint URL.
-url = "http://deluge:8112/json"
+# Daemon hostname or IP address.
+host = "deluge"
+# Daemon TCP port. Defaults to 58846.
+port = 58846
+# Username for daemon authentication. Defaults to localclient.
+username = "localclient"
 # Plaintext password. Mutually exclusive with password_env.
 password = "change-me"
 
 [[hosts]]
-url = "http://deluge-2:8112/json"
+host = "deluge-2"
+port = 58846
+username = "localclient"
 # Name of the environment variable holding the password.
 # Mutually exclusive with password.
 password_env = "DELUGE_PASSWORD_2"

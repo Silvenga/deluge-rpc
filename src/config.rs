@@ -9,7 +9,7 @@ use std::fs;
 use std::path::Path;
 use std::time::Duration;
 
-use anyhow::{Context, bail};
+use anyhow::{bail, Context};
 use bytesize::ByteSize;
 use serde::Deserialize;
 
@@ -35,11 +35,20 @@ pub struct Config {
     pub rules: Rules,
 }
 
-/// A single Deluge Web UI endpoint to manage.
+/// A single Deluge daemon endpoint to manage.
 #[derive(Debug, Clone, Deserialize)]
 pub struct HostConfig {
-    /// Full JSON-RPC endpoint URL, e.g. `http://deluge:8112/json`.
-    pub url: String,
+    /// Daemon hostname or IP address.
+    pub host: String,
+
+    /// Daemon TCP port. Defaults to `58846`.
+    #[serde(default = "default_port")]
+    pub port: u16,
+
+    /// Username for daemon authentication. Defaults to `localclient`.
+    #[expect(dead_code, reason = "consumed by daemon RPC client in task 3")]
+    #[serde(default = "default_username")]
+    pub username: String,
 
     /// Plaintext password. Mutually exclusive with [`HostConfig::password_env`].
     #[serde(default)]
@@ -49,6 +58,14 @@ pub struct HostConfig {
     /// exclusive with [`HostConfig::password`].
     #[serde(default)]
     pub password_env: Option<String>,
+}
+
+fn default_port() -> u16 {
+    58846
+}
+
+fn default_username() -> String {
+    String::from("localclient")
 }
 
 /// Retention rules shared by all hosts.
@@ -127,7 +144,7 @@ impl Config {
 
         for (idx, host) in self.hosts.iter().enumerate() {
             host.validate()
-                .with_context(|| format!("host[{idx}] ({})", host.url))?;
+                .with_context(|| format!("host[{idx}] ({}:{})", host.host, host.port))?;
         }
 
         self.rules.validate()?;
@@ -161,6 +178,12 @@ impl HostConfig {
     }
 
     fn validate(&self) -> anyhow::Result<()> {
+        if self.host.is_empty() {
+            bail!("host must not be empty");
+        }
+        if self.port == 0 {
+            bail!("port must be > 0, got 0");
+        }
         match (&self.password, &self.password_env) {
             (Some(_), Some(_)) => {
                 bail!("only one of password or password_env may be set");
@@ -200,8 +223,8 @@ impl Rules {
 )]
 mod tests {
     use super::*;
-    use assert_fs::NamedTempFile;
     use assert_fs::fixture::FileWriteBin;
+    use assert_fs::NamedTempFile;
 
     fn write_config(contents: &str) -> NamedTempFile {
         let file = NamedTempFile::new(".toml").expect("create tempfile");
@@ -223,11 +246,15 @@ mod tests {
 poll_interval = "5m"
 
 [[hosts]]
-url = "http://deluge-1:8112/json"
+host = "deluge-1"
+port = 58846
+username = "localclient"
 password = "secret-1"
 
 [[hosts]]
-url = "http://deluge-2:8112/json"
+host = "deluge-2"
+port = 58846
+username = "localclient"
 password_env = "DELUGE_PASSWORD_2"
 
 [rules]
@@ -248,7 +275,9 @@ delete_throttle_secs = 30
         let config = valid_config();
         assert_eq!(config.poll_interval, Duration::from_secs(300));
         assert_eq!(config.hosts.len(), 2);
-        assert_eq!(config.hosts[0].url, "http://deluge-1:8112/json");
+        assert_eq!(config.hosts[0].host, "deluge-1");
+        assert_eq!(config.hosts[0].port, 58846);
+        assert_eq!(config.hosts[0].username, "localclient");
         assert_eq!(config.hosts[0].password.as_deref(), Some("secret-1"));
         assert_eq!(
             config.hosts[1].password_env.as_deref(),
@@ -259,6 +288,74 @@ delete_throttle_secs = 30
         assert_eq!(config.rules.low_water_mark, ByteSize::gib(50));
         assert_eq!(config.rules.high_water_mark, ByteSize::gib(100));
         assert_eq!(config.rules.delete_throttle_secs, 30);
+    }
+
+    #[test]
+    fn when_port_not_set_then_defaults_to_58846() {
+        let contents = r#"
+poll_interval = "5m"
+
+[[hosts]]
+host = "deluge-1"
+username = "localclient"
+password = "secret-1"
+
+[rules]
+min_seeders = 3
+min_age_days = 7
+low_water_mark = "50 GiB"
+high_water_mark = "100 GiB"
+"#;
+        let file = write_config(contents);
+        let config =
+            Config::load(file.to_str().expect("path is utf-8")).expect("valid config should parse");
+        assert_eq!(config.hosts[0].port, 58846);
+    }
+
+    #[test]
+    fn when_username_not_set_then_defaults_to_localclient() {
+        let contents = r#"
+poll_interval = "5m"
+
+[[hosts]]
+host = "deluge-1"
+port = 58846
+password = "secret-1"
+
+[rules]
+min_seeders = 3
+min_age_days = 7
+low_water_mark = "50 GiB"
+high_water_mark = "100 GiB"
+"#;
+        let file = write_config(contents);
+        let config =
+            Config::load(file.to_str().expect("path is utf-8")).expect("valid config should parse");
+        assert_eq!(config.hosts[0].username, "localclient");
+    }
+
+    #[test]
+    fn when_host_empty_then_error() {
+        let contents = VALID_CONFIG.replacen(r#"host = "deluge-1""#, r#"host = """#, 1);
+        let file = write_config(&contents);
+        let err = Config::load(file.to_str().expect("path is utf-8"))
+            .expect_err("empty host should error");
+        assert!(
+            err_chain(&err).contains("host must not be empty"),
+            "got: {err}"
+        );
+    }
+
+    #[test]
+    fn when_port_zero_then_error() {
+        let contents = VALID_CONFIG.replacen("port = 58846", "port = 0", 1);
+        let file = write_config(&contents);
+        let err = Config::load(file.to_str().expect("path is utf-8"))
+            .expect_err("zero port should error");
+        assert!(
+            err_chain(&err).contains("port must be > 0, got 0"),
+            "got: {err}"
+        );
     }
 
     #[test]
@@ -394,7 +491,9 @@ password_env = "DELUGE_PASSWORD_1""#,
         let contents = r#"
 poll_interval = "5m"
 [[hosts]]
-url = "http://deluge:8112/json"
+host = "deluge"
+port = 58846
+username = "localclient"
 password = "secret"
 "#;
         let file = write_config(contents);
@@ -410,7 +509,9 @@ password = "secret"
     fn when_missing_poll_interval_then_error() {
         let contents = r#"
 [[hosts]]
-url = "http://deluge:8112/json"
+host = "deluge"
+port = 58846
+username = "localclient"
 password = "secret"
 [rules]
 min_seeders = 3
@@ -479,7 +580,9 @@ high_water_mark = "100 GiB"
     #[test]
     fn when_resolve_password_on_host_with_neither_then_error() {
         let host = HostConfig {
-            url: String::from("http://x:8112/json"),
+            host: String::from("deluge"),
+            port: 58846,
+            username: String::from("localclient"),
             password: None,
             password_env: None,
         };
@@ -495,7 +598,9 @@ high_water_mark = "100 GiB"
     #[test]
     fn when_resolve_password_on_host_with_both_then_error() {
         let host = HostConfig {
-            url: String::from("http://x:8112/json"),
+            host: String::from("deluge"),
+            port: 58846,
+            username: String::from("localclient"),
             password: Some(String::from("a")),
             password_env: Some(String::from("B")),
         };
