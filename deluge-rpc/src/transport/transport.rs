@@ -1,6 +1,7 @@
 use crate::transport::error::TransportError;
-use crate::transport::reader::{DelugeReader, DelugeWriter};
+use crate::transport::reader::DelugeReader;
 use crate::transport::verifier::NoVerifier;
+use crate::transport::writer::DelugeWriter;
 use rustls::ClientConfig;
 use rustls::crypto;
 use rustls::pki_types::ServerName;

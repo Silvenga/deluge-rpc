@@ -9,11 +9,10 @@ mod transport;
 
 pub use client::DelugeRpcClient;
 pub use connection::DelugeConnection;
-pub use protocol::DelugeRpcMessage;
-pub use protocol::DelugeRpcRequest;
+pub use protocol::{DelugeRpcMessage, DelugeRpcRequest};
 pub use rencode::RencodeValue;
 pub use rpc::DelugeRpc;
-pub use transport::{DelugeTransport, TransportError};
+pub use transport::TransportError;
 
 #[cfg(any(test, feature = "mock"))]
 pub use rpc::MockDelugeRpc;

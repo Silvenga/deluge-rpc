@@ -24,10 +24,9 @@ impl DelugeConnection {
         let transport = DelugeTransport::connect(host, port)
             .await
             .context("failed to connect to Deluge daemon")?;
-        let (mut reader, writer) = transport.split();
+        let (reader, writer) = transport.split();
 
         let shared = Shared::new(BROADCAST_CAPACITY);
-        let reader_shared = Arc::clone(&shared);
 
         // Detach the reader task: it runs for the connection's lifetime and
         // exits naturally when the socket closes (recv returns EOF). We
@@ -35,8 +34,11 @@ impl DelugeConnection {
         // login()/create_client(), and a Drop impl that aborts the task would
         // kill the reader before any RPC call can complete. The task holds no
         // resources beyond the ReadHalf, which is dropped when recv() errors.
-        let _reader_task = tokio::spawn(async move {
-            reader_loop(&mut reader, &reader_shared).await;
+        let _reader_task = tokio::spawn({
+            let reader_shared = shared.clone();
+            async move {
+                reader_loop(reader, reader_shared).await;
+            }
         });
         mem::forget(_reader_task);
 
@@ -76,12 +78,12 @@ impl DelugeConnection {
         Ok(client)
     }
 
-    pub fn create_client(self) -> DelugeRpcClient {
-        DelugeRpcClient::new(Arc::clone(&self.shared), Arc::clone(&self.writer))
+    fn create_client(self) -> DelugeRpcClient {
+        DelugeRpcClient::new(self.shared.clone(), self.writer.clone())
     }
 }
 
-async fn reader_loop(reader: &mut DelugeReader, shared: &Arc<Shared>) {
+async fn reader_loop(mut reader: DelugeReader, shared: Arc<Shared>) {
     loop {
         match reader.recv().await {
             Ok(raw) => match RencodeValue::decode(&raw) {
