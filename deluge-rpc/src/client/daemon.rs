@@ -166,6 +166,7 @@ impl DaemonRpc for DaemonClient {
 mod tests {
     use super::*;
     use crate::rencode::RencodeValue;
+    use tokio::runtime::Runtime;
 
     #[test]
     fn when_daemon_info_then_string() {
@@ -250,7 +251,7 @@ mod tests {
             .times(1)
             .returning(|_| Ok(true));
 
-        let rt = tokio::runtime::Runtime::new().expect("runtime");
+        let rt = Runtime::new().expect("runtime");
         rt.block_on(async {
             assert_eq!(mock.info().await.expect("info"), "2.1.1");
             assert_eq!(

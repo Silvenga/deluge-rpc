@@ -368,12 +368,13 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_rpc::{DelugeConnection, DelugeRpc};
-
-    use deluge_rpc::models::TorrentInfo;
+    use deluge_rpc::CoreSessionRpc;
+    use deluge_rpc::CoreTorrentRpc;
+    use deluge_rpc::DelugeClient;
+    use deluge_rpc::models::torrents::{FilterDict, TorrentEntry};
     use std::string::ToString;
 
-    const GB: u64 = 1_073_741_824;
+    const GB: i64 = 1_073_741_824;
 
     /// Build a single-torrent dict suitable for `core.get_torrents_status`.
     fn torrents_dict(info_hash: &str, name: &str) -> RencodeValue {
@@ -408,11 +409,11 @@ mod tests {
         );
         fields.insert(
             RencodeValue::Str(String::from("total_done")),
-            RencodeValue::Int(i64::try_from(2 * GB).unwrap()),
+            RencodeValue::Int(2 * GB),
         );
         fields.insert(
             RencodeValue::Str(String::from("total_uploaded")),
-            RencodeValue::Int(i64::try_from(4 * GB).unwrap()),
+            RencodeValue::Int(4 * GB),
         );
         fields.insert(
             RencodeValue::Str(String::from("is_finished")),
@@ -435,20 +436,19 @@ mod tests {
     async fn when_login_and_get_free_space_then_roundtrip_succeeds() {
         let config = MockDaemonConfig {
             login: MockResponse::success(RencodeValue::Int(5)),
-            free_space: MockResponse::success(RencodeValue::Int(i64::try_from(GB).unwrap())),
+            free_space: MockResponse::success(RencodeValue::Int(GB)),
             ..MockDaemonConfig::default()
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeConnection::connect(&mock.host(), mock.port())
+        let client = DelugeClient::connect(&mock.host(), mock.port(), "localclient", "password")
             .await
-            .expect("connect to mock daemon succeeds")
-            .login("localclient", "password")
-            .await
-            .expect("login against mock daemon succeeds");
+            .expect("connect to mock daemon succeeds");
 
         let free = client
-            .get_free_space()
+            .core()
+            .session
+            .get_free_space(None)
             .await
             .expect("get_free_space against mock daemon succeeds");
         assert_eq!(free, GB);
@@ -468,11 +468,8 @@ mod tests {
     async fn when_login_fails_then_client_returns_error() {
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_bad()).await;
 
-        let result = DelugeConnection::connect(&mock.host(), mock.port())
-            .await
-            .expect("connect to mock daemon succeeds")
-            .login("localclient", "wrong")
-            .await;
+        let result =
+            DelugeClient::connect(&mock.host(), mock.port(), "localclient", "wrong").await;
         assert!(
             result.is_err(),
             "login with a BadLoginError response must fail"
@@ -497,21 +494,36 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeConnection::connect(&mock.host(), mock.port())
+        let client = DelugeClient::connect(&mock.host(), mock.port(), "localclient", "password")
             .await
-            .expect("connect to mock daemon succeeds")
-            .login("localclient", "password")
-            .await
-            .expect("login");
+            .expect("connect to mock daemon succeeds");
 
-        let torrents: Vec<TorrentInfo> = client
-            .get_torrents()
+        let keys = [
+            "name",
+            "state",
+            "progress",
+            "ratio",
+            "total_seeds",
+            "num_seeds",
+            "time_added",
+            "total_done",
+            "total_uploaded",
+            "is_finished",
+            "download_location",
+        ]
+        .map(String::from)
+        .to_vec();
+
+        let torrents: Vec<TorrentEntry> = client
+            .core()
+            .torrents
+            .get_torrents_status(&FilterDict::default(), &keys, false)
             .await
             .expect("get_torrents against mock daemon succeeds");
         assert_eq!(torrents.len(), 1);
         assert_eq!(torrents[0].info_hash, info_hash);
-        assert_eq!(torrents[0].name, "torrent-one");
-        assert_eq!(torrents[0].total_done, 2 * GB);
+        assert_eq!(torrents[0].status.name, "torrent-one");
+        assert_eq!(torrents[0].status.total_done, 2 * GB);
     }
 
     #[tokio::test(flavor = "multi_thread")]
@@ -524,15 +536,14 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeConnection::connect(&mock.host(), mock.port())
+        let client = DelugeClient::connect(&mock.host(), mock.port(), "localclient", "password")
             .await
-            .expect("connect to mock daemon succeeds")
-            .login("localclient", "password")
-            .await
-            .expect("login");
+            .expect("connect to mock daemon succeeds");
 
         let removed = client
-            .remove_torrent(info_hash)
+            .core()
+            .torrents
+            .remove_torrent(info_hash, true)
             .await
             .expect("remove_torrent against mock daemon succeeds");
         assert!(removed, "mock should report removal succeeded");
@@ -546,17 +557,13 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_method_not_configured_then_client_receives_error() {
-        // Login configured, but free_space left as NotConfigured.
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_ok()).await;
 
-        let client = DelugeConnection::connect(&mock.host(), mock.port())
+        let client = DelugeClient::connect(&mock.host(), mock.port(), "localclient", "password")
             .await
-            .expect("connect to mock daemon succeeds")
-            .login("localclient", "password")
-            .await
-            .expect("login");
+            .expect("connect to mock daemon succeeds");
 
-        let result = client.get_free_space().await;
+        let result = client.core().session.get_free_space(None).await;
         assert!(result.is_err(), "NotConfigured method must error");
         let chain = result
             .unwrap_err()

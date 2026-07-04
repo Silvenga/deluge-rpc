@@ -295,6 +295,9 @@ mod tests {
     use flate2::Compression;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
+    use rustls::crypto::ring;
+    use tokio::time::sleep;
+    use tokio_rustls::server::TlsStream;
     use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;
     use std::io::{Read, Write};
@@ -302,7 +305,7 @@ mod tests {
     use std::sync::Once;
     use std::time::Duration;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
-    use tokio::net::TcpListener;
+    use tokio::net::{TcpListener, TcpStream};
 
     const HEADER_LEN: usize = 5;
     const PROTOCOL_VERSION: u8 = 1;
@@ -310,7 +313,7 @@ mod tests {
     fn ensure_crypto_provider() {
         static INSTALL: Once = Once::new();
         INSTALL.call_once(|| {
-            let _ = rustls::crypto::ring::default_provider().install_default();
+            let _ = ring::default_provider().install_default();
         });
     }
 
@@ -349,6 +352,7 @@ mod tests {
         frame
     }
 
+    #[expect(dead_code, reason = "test helper available for future test scenarios")]
     fn echo_frame(data: &[u8]) -> Vec<u8> {
         let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
         enc.write_all(data).expect("compress");
@@ -412,7 +416,7 @@ mod tests {
     }
 
     async fn handle_connection(
-        mut tls: tokio_rustls::server::TlsStream<tokio::net::TcpStream>,
+        mut tls: TlsStream<TcpStream>,
         drop_after_requests: u32,
     ) {
         let mut header = [0u8; HEADER_LEN];
@@ -533,7 +537,7 @@ mod tests {
         let result = client.daemon().info().await;
         assert!(result.is_ok(), "first call should succeed: {result:?}");
 
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        sleep(Duration::from_millis(100)).await;
 
         let result2 = client.daemon().info().await;
         assert!(result2.is_ok(), "second call after reconnect should succeed: {result2:?}");
@@ -554,7 +558,7 @@ mod tests {
 
         let _ = client.daemon().info().await;
 
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        sleep(Duration::from_millis(100)).await;
 
         let result = client.daemon().get_version().await;
         assert!(result.is_ok(), "call after reconnect should succeed: {result:?}");
@@ -573,7 +577,7 @@ mod tests {
         .await
         .expect("connect");
 
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        sleep(Duration::from_millis(100)).await;
 
         let result = client.daemon().info().await;
         assert!(result.is_err(), "call should fail (connection dropped): {result:?}");
@@ -595,7 +599,7 @@ mod tests {
         for i in 0..5 {
             let result = client.daemon().info().await;
             assert!(result.is_ok(), "call {i} should succeed: {result:?}");
-            tokio::time::sleep(Duration::from_millis(50)).await;
+            sleep(Duration::from_millis(50)).await;
         }
     }
 }

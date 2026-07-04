@@ -175,6 +175,7 @@ mod tests {
     use serde_json::json;
 
     #[test]
+    #[expect(clippy::approx_constant, reason = "test values for float round-trip")]
     fn when_roundtrip_all_variants_then_equal() {
         let values = vec![
             RencodeValue::None,

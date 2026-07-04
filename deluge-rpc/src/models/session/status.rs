@@ -159,9 +159,8 @@ mod tests {
 
         let result: SessionStatus = SessionStatus::deserialize(&value).expect("deserialize");
 
-        let peer_count: i64 =
-            i64::deserialize(result.extra.get("peer.num_peers_connected").unwrap())
-                .expect("deserialize peer count");
+        let peer_count: i64 = i64::deserialize(&result.extra["peer.num_peers_connected"])
+            .expect("deserialize peer count");
         assert_eq!(peer_count, 42);
     }
 }

@@ -15,7 +15,10 @@ use deluge_retain::cli::Cli;
 use deluge_retain::config::{Config, HostConfig, Rules};
 use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
 use deluge_retain::tracing_setup::init_tracing;
-use deluge_rpc::{DelugeConnection, DelugeRpc, DelugeRpcClient};
+use deluge_rpc::CoreSessionRpc;
+use deluge_rpc::CoreTorrentRpc;
+use deluge_rpc::DelugeClient;
+use deluge_rpc::models::torrents::FilterDict;
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -76,22 +79,18 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
         }
     };
 
-    let client: DelugeRpcClient = match DelugeConnection::connect(&host.host, host.port).await {
-        Ok(conn) => match conn.login(&host.username, &password).await {
-            Ok(client) => client,
-            Err(err) => {
-                error!(host = %host.host, port = host.port, error = %err, "login failed for host `{}:{}`: {err}", host.host, host.port);
-                return;
-            }
-        },
+    let client = match DelugeClient::connect(&host.host, host.port, &host.username, &password).await
+    {
+        Ok(client) => client,
         Err(err) => {
-            error!(host = %host.host, port = host.port, error = %err, "connection failed for host `{}:{}`: {err}", host.host, host.port);
+            error!(host = %host.host, port = host.port, error = %err, "connection/login failed for host `{}:{}`: {err}", host.host, host.port);
             return;
         }
     };
 
-    let free_space = match client.get_free_space().await {
-        Ok(bytes) => bytes,
+    let free_space = match client.core().session
+        .get_free_space(None).await {
+        Ok(bytes) => u64::try_from(bytes).unwrap_or(0),
         Err(err) => {
             error!(host = %host.host, port = host.port, error = %err, "free space query failed for host `{}:{}`: {err}", host.host, host.port);
             return;
@@ -119,7 +118,28 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
 
     warn!(host = %host.host, port = host.port, "host {}:{}: below low water mark, calculating deletion plan", host.host, host.port);
 
-    let torrents = match client.get_torrents().await {
+    let keys = [
+        "name",
+        "state",
+        "progress",
+        "ratio",
+        "total_seeds",
+        "num_seeds",
+        "time_added",
+        "total_done",
+        "total_uploaded",
+        "is_finished",
+        "download_location",
+    ]
+    .map(String::from)
+    .to_vec();
+
+    let torrents = match client
+        .core()
+        .torrents
+        .get_torrents_status(&FilterDict::default(), &keys, false)
+        .await
+    {
         Ok(list) => list,
         Err(err) => {
             error!(host = %host.host, port = host.port, error = %err, "torrent list query failed for host `{}:{}`: {err}", host.host, host.port);
@@ -142,7 +162,10 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
         return;
     }
 
-    let total_freed: u64 = plan.iter().map(|t| t.total_done).sum();
+    let total_freed: u64 = plan
+        .iter()
+        .map(|t| u64::try_from(t.status.total_done).unwrap_or(0))
+        .sum();
     info!(
         host = %host.host,
         port = host.port,
@@ -156,22 +179,23 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
     );
 
     let throttle = Duration::from_secs(rules.delete_throttle_secs);
-    let client_dyn: &dyn DelugeRpc = &client;
-    if let Err(err) = execute_deletion_plan(client_dyn, &plan, throttle, dry_run).await {
+    if let Err(err) = execute_deletion_plan(&client.core().torrents, &plan, throttle, dry_run).await
+    {
         error!(host = %host.host, port = host.port, error = %err, "deletion plan execution failed for host `{}:{}`: {err}", host.host, host.port);
         return;
     }
 
     if !dry_run {
-        match client.get_free_space().await {
+        match client.core().session
+        .get_free_space(None).await {
             Ok(new_free) => info!(
                 host = %host.host,
                 port = host.port,
-                free = %ByteSize(new_free),
+                free = %ByteSize(u64::try_from(new_free).unwrap_or(0)),
                 "host {}:{}: free space after deletion: {}",
                 host.host,
                 host.port,
-                ByteSize(new_free),
+                ByteSize(u64::try_from(new_free).unwrap_or(0)),
             ),
             Err(err) => error!(
                 host = %host.host,

@@ -5,12 +5,12 @@
 //! Planning is deterministic and side-effect free so it can be unit-tested
 //! without a live client; execution is async and throttled.
 
-use crate::DelugeRpc;
 use crate::policy::filter_eligible;
 use anyhow::Result;
 use bytesize::ByteSize;
 use chrono::{DateTime, Utc};
-use deluge_rpc::models::TorrentInfo;
+use deluge_rpc::CoreTorrentRpc;
+use deluge_rpc::models::torrents::TorrentEntry;
 use std::cmp::Ordering;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -36,13 +36,13 @@ use tracing::{error, info, warn};
 /// eligible list is returned and the caller warns that deletion was
 /// insufficient.
 pub fn compute_deletion_plan(
-    torrents: &[TorrentInfo],
+    torrents: &[TorrentEntry],
     min_seeders: u32,
     min_age_days: u64,
     free_space: u64,
     high_water_mark: u64,
     now: DateTime<Utc>,
-) -> Vec<TorrentInfo> {
+) -> Vec<TorrentEntry> {
     let eligible = filter_eligible(torrents, min_seeders, min_age_days, now);
     if eligible.is_empty() {
         return Vec::new();
@@ -53,14 +53,20 @@ pub fn compute_deletion_plan(
         return Vec::new();
     }
 
-    let mut sorted: Vec<TorrentInfo> = eligible.into_iter().cloned().collect();
-    sorted.sort_by(|a, b| b.ratio.partial_cmp(&a.ratio).unwrap_or(Ordering::Equal));
+    let mut sorted: Vec<TorrentEntry> = eligible.into_iter().cloned().collect();
+    sorted.sort_by(|a, b| {
+        b.status
+            .ratio
+            .unwrap_or(-1.0)
+            .partial_cmp(&a.status.ratio.unwrap_or(-1.0))
+            .unwrap_or(Ordering::Equal)
+    });
 
     let mut accumulated: u64 = 0;
 
-    let mut plan: Vec<TorrentInfo> = Vec::new();
+    let mut plan: Vec<TorrentEntry> = Vec::new();
     for torrent in sorted {
-        let size = torrent.total_done;
+        let size = u64::try_from(torrent.status.total_done).unwrap_or(0);
         plan.push(torrent);
         accumulated = accumulated.saturating_add(size);
         if accumulated >= needed {
@@ -85,7 +91,7 @@ pub fn compute_deletion_plan(
 /// made - this is the safe preview path.
 ///
 /// When `dry_run` is `false`, each torrent is removed via
-/// [`DelugeRpc::remove_torrent`]. A failure on one torrent is logged via
+/// [`CoreTorrentRpc::remove_torrent`]. A failure on one torrent is logged via
 /// `tracing::error!` and the loop continues with the next torrent - a single
 /// failure does not abort the whole plan. Between deletions (except after
 /// the last one) the coroutine sleeps for `throttle` to avoid hammering the
@@ -97,8 +103,8 @@ pub fn compute_deletion_plan(
 /// cannot be recovered per-torrent; per-torrent removal failures are logged
 /// and swallowed so the plan completes.
 pub async fn execute_deletion_plan(
-    client: &dyn DelugeRpc,
-    plan: &[TorrentInfo],
+    client: &dyn CoreTorrentRpc,
+    plan: &[TorrentEntry],
     throttle: Duration,
     dry_run: bool,
 ) -> Result<()> {
@@ -115,13 +121,13 @@ pub async fn execute_deletion_plan(
         );
         for torrent in plan {
             info!(
-                name = %torrent.name,
-                ratio = torrent.ratio,
-                size = %ByteSize(torrent.total_done),
+                name = %torrent.status.name,
+                ratio = torrent.status.ratio.unwrap_or(-1.0),
+                size = %ByteSize(u64::try_from(torrent.status.total_done).unwrap_or(0)),
                 "would delete torrent `{}` (ratio {}, size {})",
-                torrent.name,
-                torrent.ratio,
-                ByteSize(torrent.total_done),
+                torrent.status.name,
+                torrent.status.ratio.unwrap_or(-1.0),
+                ByteSize(u64::try_from(torrent.status.total_done).unwrap_or(0)),
             );
         }
         return Ok(());
@@ -129,25 +135,25 @@ pub async fn execute_deletion_plan(
 
     let last_idx = plan.len().saturating_sub(1);
     for (idx, torrent) in plan.iter().enumerate() {
-        match client.remove_torrent(&torrent.info_hash).await {
+        match client.remove_torrent(&torrent.info_hash, true).await {
             Ok(true) => info!(
-                name = %torrent.name,
+                name = %torrent.status.name,
                 info_hash = %torrent.info_hash,
                 "deleted torrent `{}`",
-                torrent.name,
+                torrent.status.name,
             ),
             Ok(false) => warn!(
-                name = %torrent.name,
+                name = %torrent.status.name,
                 info_hash = %torrent.info_hash,
                 "daemon reported torrent `{}` not removed (already gone?)",
-                torrent.name,
+                torrent.status.name,
             ),
             Err(err) => error!(
-                name = %torrent.name,
+                name = %torrent.status.name,
                 info_hash = %torrent.info_hash,
                 error = %err,
                 "failed to remove torrent `{}`: {err}",
-                torrent.name,
+                torrent.status.name,
             ),
         }
 
@@ -163,24 +169,33 @@ pub async fn execute_deletion_plan(
 mod tests {
     use super::*;
     use chrono::Utc;
-    use deluge_rpc::MockDelugeRpc;
+    use deluge_rpc::MockCoreTorrentRpc;
+    use deluge_rpc::models::torrents::TorrentStatus;
 
-    const GB: u64 = 1_073_741_824;
+    const GB: i64 = 1_073_741_824;
 
-    fn make_torrent(info_hash: &str, name: &str, ratio: f64, total_done: u64) -> TorrentInfo {
-        TorrentInfo {
+    fn make_torrent(
+        info_hash: &str,
+        name: &str,
+        ratio: Option<f64>,
+        total_done: i64,
+    ) -> TorrentEntry {
+        TorrentEntry {
             info_hash: String::from(info_hash),
-            name: String::from(name),
-            state: String::from("Seeding"),
-            progress: 100.0,
-            ratio,
-            total_seeds: 50,
-            num_seeds: 5,
-            time_added: 1_700_000_000,
-            total_done,
-            total_uploaded: 0,
-            is_finished: true,
-            download_location: String::from("/data"),
+            status: TorrentStatus {
+                name: String::from(name),
+                state: String::from("Seeding"),
+                progress: 100.0,
+                ratio,
+                total_seeds: 50,
+                num_seeds: 5,
+                time_added: 1_700_000_000,
+                total_done,
+                total_uploaded: 0,
+                is_finished: true,
+                download_location: String::from("/data"),
+                ..Default::default()
+            },
         }
     }
 
@@ -192,12 +207,12 @@ mod tests {
     #[test]
     fn when_canonical_fixture_then_plan_stops_at_two_torrents_should_match_spec() {
         let torrents = vec![
-            make_torrent("aaa", "big-low-ratio", 1.0, 5 * GB),
-            make_torrent("bbb", "mid-ratio", 2.0, 2 * GB),
-            make_torrent("ccc", "small-high-ratio", 3.0, 1 * GB),
+            make_torrent("aaa", "big-low-ratio", Some(1.0), 5 * GB),
+            make_torrent("bbb", "mid-ratio", Some(2.0), 2 * GB),
+            make_torrent("ccc", "small-high-ratio", Some(3.0), GB),
         ];
-        let free_space = 10 * GB;
-        let high_water_mark = 13 * GB;
+        let free_space = 10 * GB as u64;
+        let high_water_mark = 13 * GB as u64;
 
         let plan = compute_deletion_plan(&torrents, 1, 1, free_space, high_water_mark, now());
 
@@ -209,9 +224,9 @@ mod tests {
     #[test]
     fn when_ratios_unsorted_then_deletion_order_is_descending_should_sort_by_ratio() {
         let torrents = vec![
-            make_torrent("low", "low", 0.5, 1 * GB),
-            make_torrent("high", "high", 2.0, 1 * GB),
-            make_torrent("mid", "mid", 1.0, 1 * GB),
+            make_torrent("low", "low", Some(0.5), GB),
+            make_torrent("high", "high", Some(2.0), GB),
+            make_torrent("mid", "mid", Some(1.0), GB),
         ];
 
         let plan = compute_deletion_plan(&torrents, 1, 1, 0, u64::MAX, now());
@@ -221,16 +236,23 @@ mod tests {
             3,
             "all selected when high_water_mark unreachable"
         );
-        assert_eq!(plan[0].ratio, 2.0);
-        assert_eq!(plan[1].ratio, 1.0);
-        assert_eq!(plan[2].ratio, 0.5);
+        assert_eq!(plan[0].status.ratio, Some(2.0));
+        assert_eq!(plan[1].status.ratio, Some(1.0));
+        assert_eq!(plan[2].status.ratio, Some(0.5));
     }
 
     #[test]
     fn when_single_oversized_torrent_then_still_selected_should_include_oversized() {
-        let torrents = vec![make_torrent("big", "big", 1.0, 5 * GB)];
+        let torrents = vec![make_torrent("big", "big", Some(1.0), 5 * GB)];
 
-        let plan = compute_deletion_plan(&torrents, 1, 1, 10 * GB, 13 * GB, now());
+        let plan = compute_deletion_plan(
+            &torrents,
+            1,
+            1,
+            10 * GB as u64,
+            13 * GB as u64,
+            now(),
+        );
 
         assert_eq!(plan.len(), 1, "oversized torrent is still selected");
         assert_eq!(plan[0].info_hash, "big");
@@ -238,7 +260,7 @@ mod tests {
 
     #[test]
     fn when_no_eligible_torrents_then_empty_plan_should_be_returned() {
-        let torrents = vec![make_torrent("young", "young", 1.0, 1 * GB)];
+        let torrents = vec![make_torrent("young", "young", Some(1.0), GB)];
 
         let plan = compute_deletion_plan(&torrents, 1, 365, 0, 1, now());
 
@@ -248,13 +270,17 @@ mod tests {
     #[test]
     fn when_all_eligible_selected_but_still_below_high_water_mark_then_returns_all_should_warn() {
         let torrents = vec![
-            make_torrent("a", "a", 1.0, 1 * GB),
-            make_torrent("b", "b", 2.0, 1 * GB),
+            make_torrent("a", "a", Some(1.0), GB),
+            make_torrent("b", "b", Some(2.0), GB),
         ];
 
-        let plan = compute_deletion_plan(&torrents, 1, 1, 0, 100 * GB, now());
+        let plan = compute_deletion_plan(&torrents, 1, 1, 0, 100 * GB as u64, now());
 
-        assert_eq!(plan.len(), 2, "all eligible returned even if insufficient");
+        assert_eq!(
+            plan.len(),
+            2,
+            "all eligible returned even if insufficient"
+        );
     }
 
     #[test]
@@ -265,9 +291,16 @@ mod tests {
 
     #[test]
     fn when_free_space_already_above_high_water_mark_then_empty_plan_should_be_returned() {
-        let torrents = vec![make_torrent("a", "a", 1.0, 1 * GB)];
+        let torrents = vec![make_torrent("a", "a", Some(1.0), GB)];
 
-        let plan = compute_deletion_plan(&torrents, 1, 1, 20 * GB, 10 * GB, now());
+        let plan = compute_deletion_plan(
+            &torrents,
+            1,
+            1,
+            20 * GB as u64,
+            10 * GB as u64,
+            now(),
+        );
 
         assert!(
             plan.is_empty(),
@@ -277,25 +310,27 @@ mod tests {
 
     #[tokio::test]
     async fn when_dry_run_then_no_api_calls_and_returns_ok_should_log_only() {
-        let mut client = MockDelugeRpc::new();
+        let mut client = MockCoreTorrentRpc::new();
         client.expect_remove_torrent().never();
 
         let plan = vec![
-            make_torrent("aaa", "first", 3.0, 1 * GB),
-            make_torrent("bbb", "second", 2.0, 2 * GB),
+            make_torrent("aaa", "first", Some(3.0), GB),
+            make_torrent("bbb", "second", Some(2.0), 2 * GB),
         ];
 
-        let result = execute_deletion_plan(&client, &plan, Duration::from_millis(0), true).await;
+        let result =
+            execute_deletion_plan(&client, &plan, Duration::from_millis(0), true).await;
 
         assert!(result.is_ok());
     }
 
     #[tokio::test]
     async fn when_empty_plan_then_returns_ok_and_makes_no_calls_should_short_circuit() {
-        let mut client = MockDelugeRpc::new();
+        let mut client = MockCoreTorrentRpc::new();
         client.expect_remove_torrent().never();
 
-        let result = execute_deletion_plan(&client, &[], Duration::from_millis(0), false).await;
+        let result =
+            execute_deletion_plan(&client, &[], Duration::from_millis(0), false).await;
 
         assert!(result.is_ok());
     }
@@ -303,9 +338,9 @@ mod tests {
     #[test]
     fn when_torrents_have_equal_ratios_then_sort_is_stable_should_preserve_input_order() {
         let torrents = vec![
-            make_torrent("first", "first", 1.0, 1 * GB),
-            make_torrent("second", "second", 1.0, 1 * GB),
-            make_torrent("third", "third", 1.0, 1 * GB),
+            make_torrent("first", "first", Some(1.0), GB),
+            make_torrent("second", "second", Some(1.0), GB),
+            make_torrent("third", "third", Some(1.0), GB),
         ];
 
         let plan = compute_deletion_plan(&torrents, 1, 1, 0, 1, now());
@@ -324,12 +359,19 @@ mod tests {
     #[test]
     fn when_exact_fit_then_plan_stops_inclusively_should_match_boundary() {
         let torrents = vec![
-            make_torrent("a", "a", 3.0, 1 * GB),
-            make_torrent("b", "b", 2.0, 2 * GB),
-            make_torrent("c", "c", 1.0, 5 * GB),
+            make_torrent("a", "a", Some(3.0), GB),
+            make_torrent("b", "b", Some(2.0), 2 * GB),
+            make_torrent("c", "c", Some(1.0), 5 * GB),
         ];
 
-        let plan = compute_deletion_plan(&torrents, 1, 1, 10 * GB, 13 * GB, now());
+        let plan = compute_deletion_plan(
+            &torrents,
+            1,
+            1,
+            10 * GB as u64,
+            13 * GB as u64,
+            now(),
+        );
 
         assert_eq!(
             plan.len(),
@@ -343,11 +385,11 @@ mod tests {
     #[test]
     fn when_ratio_is_negative_one_then_sorts_last_should_be_lowest_priority() {
         let torrents = vec![
-            make_torrent("normal", "normal", 1.0, 1 * GB),
-            make_torrent("infinite", "infinite", -1.0, 1 * GB),
-            make_torrent("high", "high", 3.0, 1 * GB),
+            make_torrent("normal", "normal", Some(1.0), GB),
+            make_torrent("infinite", "infinite", None, GB),
+            make_torrent("high", "high", Some(3.0), GB),
         ];
-        let plan = compute_deletion_plan(&torrents, 1, 1, 0, 2 * GB, now());
+        let plan = compute_deletion_plan(&torrents, 1, 1, 0, (2 * GB) as u64, now());
         assert_eq!(plan.len(), 2);
         assert_eq!(plan[0].info_hash, "high");
         assert_eq!(plan[1].info_hash, "normal");

@@ -376,6 +376,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::approx_constant,
+        reason = "test value, not mathematical constant"
+    )]
     fn when_f64_serialized_then_produces_float() {
         let result = to_rencode_value(&3.14f64).expect("serialize");
         assert_eq!(result, RencodeValue::Float(3.14));
@@ -392,6 +396,7 @@ mod tests {
         #[derive(Debug, Serialize, PartialEq)]
         enum MyEnum {
             Foo,
+            #[expect(dead_code, reason = "test variant exercises serialization code path")]
             Bar,
         }
 

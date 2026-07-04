@@ -85,7 +85,7 @@ mod tests {
         assert_eq!(result.smtp_recipients, vec!["admin@example.com"]);
         assert_eq!(
             result.subscriptions.get("email"),
-            Some(&vec!["TorrentFinishedEvent".to_string()])
+            Some(&vec!["TorrentFinishedEvent".to_owned()])
         );
     }
 

@@ -1250,6 +1250,10 @@ mod tests {
     }
 
     #[test]
+    #[expect(
+        clippy::empty_enum_variants_with_brackets,
+        reason = "test exercises empty tuple variant deserialization"
+    )]
     fn when_deserialize_enum_empty_tuple_variant_then_works() {
         #[derive(Debug, Deserialize, PartialEq)]
         enum MyEnum {

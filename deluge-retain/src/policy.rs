@@ -1,29 +1,29 @@
 use chrono::{DateTime, Utc};
-use deluge_rpc::models::TorrentInfo;
+use deluge_rpc::models::torrents::TorrentEntry;
 
 fn time_added_to_datetime(time_added: i64) -> Option<DateTime<Utc>> {
     DateTime::<Utc>::from_timestamp(time_added, 0)
 }
 
 pub fn filter_eligible(
-    torrents: &[TorrentInfo],
+    torrents: &[TorrentEntry],
     min_seeders: u32,
     min_age_days: u64,
     now: DateTime<Utc>,
-) -> Vec<&TorrentInfo> {
+) -> Vec<&TorrentEntry> {
     let min_age_days_i = i64::try_from(min_age_days).unwrap_or(i64::MAX);
 
     torrents
         .iter()
         .filter(|t| {
-            let completed = t.is_finished || t.progress >= 100.0;
+            let completed = t.status.is_finished || t.status.progress >= 100.0;
             if !completed {
                 return false;
             }
-            if t.total_seeds < min_seeders {
+            if t.status.total_seeds < i64::from(min_seeders) {
                 return false;
             }
-            match time_added_to_datetime(t.time_added) {
+            match time_added_to_datetime(t.status.time_added) {
                 Some(added) => (now - added).num_days() >= min_age_days_i,
                 None => false,
             }
@@ -35,26 +35,30 @@ pub fn filter_eligible(
 mod tests {
     use super::*;
     use chrono::Duration;
+    use deluge_rpc::models::torrents::TorrentStatus;
 
     fn make_torrent(
         progress: f64,
         total_seeds: u32,
         time_added: DateTime<Utc>,
         is_finished: bool,
-    ) -> TorrentInfo {
-        TorrentInfo {
+    ) -> TorrentEntry {
+        TorrentEntry {
             info_hash: String::from("deadbeef"),
-            name: String::from("test"),
-            state: String::from("Seeding"),
-            progress,
-            ratio: 1.0,
-            total_seeds,
-            num_seeds: 0,
-            time_added: time_added.timestamp(),
-            total_done: 0,
-            total_uploaded: 0,
-            is_finished,
-            download_location: String::from("/data"),
+            status: TorrentStatus {
+                name: String::from("test"),
+                state: String::from("Seeding"),
+                progress,
+                ratio: Some(1.0),
+                total_seeds: i64::from(total_seeds),
+                num_seeds: 0,
+                time_added: time_added.timestamp(),
+                total_done: 0,
+                total_uploaded: 0,
+                is_finished,
+                download_location: String::from("/data"),
+                ..Default::default()
+            },
         }
     }
 
@@ -181,7 +185,7 @@ mod tests {
     fn when_time_added_out_of_range_then_filtered_out_should_be_excluded() {
         let now = Utc::now();
         let mut t = make_torrent(100.0, 15, now - Duration::days(30), false);
-        t.time_added = i64::MIN;
+        t.status.time_added = i64::MIN;
         let torrents = [t];
 
         let result = filter_eligible(&torrents, 10, 28, now);
