@@ -26,6 +26,9 @@ log-panics = { version = "2.1.0", features = ["with-backtrace"] }
 anyhow = "1.0.103"
 thiserror = "2.0.18"
 chrono = { version = "0.4.45", features = ["serde"] }
+tokio-rustls = "0.26"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std"] }
+flate2 = "1.0"
 
 [dev-dependencies]
 wiremock = "0.6.5"
@@ -34,6 +37,7 @@ assert_fs = "1.1.4"
 assert_matches = "1.5.0"
 tokio-test = "0.4.5"
 mockall = "0.15.0"
+rcgen = "0.13"
 
 [lints.clippy]
 pedantic = { level = "warn", priority = -1 }

@@ -14,6 +14,7 @@ mod engine;
 mod rencode;
 mod torrent;
 mod tracing_setup;
+mod transport;
 
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
