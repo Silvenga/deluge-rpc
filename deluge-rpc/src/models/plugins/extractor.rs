@@ -1,7 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Configuration for the Extractor plugin.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct ExtractorConfig {
     /// Destination path for extracted files. Empty means extract in-place.
     pub extract_path: String,

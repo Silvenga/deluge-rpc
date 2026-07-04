@@ -1,6 +1,6 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct PeerInfo {
     pub client: String,
     pub country: String,
@@ -11,7 +11,7 @@ pub struct PeerInfo {
     pub up_speed: i64,
 }
 
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct FileInfo {
     pub index: i64,
     pub path: String,
@@ -19,7 +19,7 @@ pub struct FileInfo {
     pub offset: i64,
 }
 
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct TrackerInfo {
     pub url: String,
     pub tier: i64,

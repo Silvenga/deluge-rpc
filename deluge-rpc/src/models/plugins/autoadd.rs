@@ -1,9 +1,9 @@
 use crate::models::deserialize_unlimited_i64;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Configuration for the AutoAdd plugin.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct AutoAddConfig {
     /// All watch folders keyed by ID.
     pub watchdirs: HashMap<String, WatchdirOptions>,
@@ -15,7 +15,7 @@ pub struct AutoAddConfig {
 pub type WatchdirId = i64;
 
 /// Options for a single AutoAdd watch directory.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct WatchdirOptions {
     /// Whether the watchdir is actively polling.
     pub enabled: bool,

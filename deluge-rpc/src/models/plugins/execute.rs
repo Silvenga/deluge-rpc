@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// A command registered with the Execute plugin.
 ///
@@ -14,7 +14,7 @@ pub struct ExecuteCommand {
 }
 
 /// Torrent events that can trigger an Execute command.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum ExecuteEvent {
     /// Triggered when a torrent completes downloading.
     #[serde(rename = "complete")]

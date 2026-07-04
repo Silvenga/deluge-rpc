@@ -1,8 +1,8 @@
 use crate::models::deserialize_unlimited_i64;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Per-label options applied to torrents with that label.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct LabelOptions {
     /// Whether to apply bandwidth limits.
     pub apply_max: bool,
@@ -43,7 +43,7 @@ pub struct LabelOptions {
 }
 
 /// Global configuration for the Label plugin.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct LabelConfig {
     /// Tracker URLs that trigger auto-adding.
     pub auto_add_trackers: Vec<String>,

@@ -27,11 +27,23 @@ pub enum RencodeError {
     DuplicateField(String),
     #[error("invalid tagged JSON: {0}")]
     InvalidTaggedJson(String),
+    #[error("{0}")]
+    Custom(String),
+    #[error("io error: {0}")]
+    Io(io::Error),
 }
 
 use serde::de::Error as SerdeDeError;
 use serde::de::{Expected, Unexpected};
+use serde::ser::Error as SerError;
 use std::fmt::Display;
+use std::io;
+
+impl SerError for RencodeError {
+    fn custom<T: Display>(msg: T) -> Self {
+        RencodeError::Custom(msg.to_string())
+    }
+}
 
 impl SerdeDeError for RencodeError {
     fn custom<T: Display>(msg: T) -> Self {

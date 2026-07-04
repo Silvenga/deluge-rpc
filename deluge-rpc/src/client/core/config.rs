@@ -1,0 +1,174 @@
+use crate::client::RpcCaller;
+use crate::models::config::{DaemonConfig, ProxyConfig};
+use crate::protocol::DelugeRpcRequest;
+use crate::protocol::extract_single;
+use crate::rencode::RencodeValue;
+use crate::shared::Shared;
+use crate::transport::DelugeWriter;
+use anyhow::{Context, anyhow};
+use async_trait::async_trait;
+use serde::Deserialize;
+use std::collections::BTreeMap;
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
+#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[async_trait]
+pub trait CoreConfigRpc: Send + Sync {
+    async fn get_config(&self) -> anyhow::Result<DaemonConfig>;
+    async fn get_config_value(&self, key: &str) -> anyhow::Result<RencodeValue>;
+    async fn get_config_values(&self, keys: &[String]) -> anyhow::Result<BTreeMap<String, RencodeValue>>;
+    async fn set_config(&self, config: &BTreeMap<String, RencodeValue>) -> anyhow::Result<()>;
+    async fn get_proxy(&self) -> anyhow::Result<ProxyConfig>;
+}
+
+pub struct CoreConfigClient {
+    caller: RpcCaller,
+}
+
+impl CoreConfigClient {
+    #[expect(dead_code, reason = "used in task 11 when connection code is updated")]
+    pub(crate) fn new(shared: Arc<Shared>, writer: Arc<Mutex<DelugeWriter>>) -> Self {
+        Self {
+            caller: RpcCaller::new(shared, writer),
+        }
+    }
+}
+
+impl Clone for CoreConfigClient {
+    fn clone(&self) -> Self {
+        Self {
+            caller: self.caller.clone(),
+        }
+    }
+}
+
+#[async_trait]
+impl CoreConfigRpc for CoreConfigClient {
+    async fn get_config(&self) -> anyhow::Result<DaemonConfig> {
+        let result = self
+            .caller
+            .rpc_call(DelugeRpcRequest::new("core.get_config"))
+            .await
+            .context("core.get_config RPC failed")?;
+        let value = extract_single(&result, "core.get_config")?;
+        DaemonConfig::deserialize(&value).context("deserializing daemon config")
+    }
+
+    async fn get_config_value(&self, key: &str) -> anyhow::Result<RencodeValue> {
+        let result = self
+            .caller
+            .rpc_call(
+                DelugeRpcRequest::new("core.get_config_value")
+                    .with_args(vec![RencodeValue::Str(key.to_owned())]),
+            )
+            .await
+            .context("core.get_config_value RPC failed")?;
+        extract_single(&result, "core.get_config_value")
+    }
+
+    async fn get_config_values(&self, keys: &[String]) -> anyhow::Result<BTreeMap<String, RencodeValue>> {
+        let key_values: Vec<RencodeValue> = keys
+            .iter()
+            .map(|k| RencodeValue::Str(k.clone()))
+            .collect();
+        let result = self
+            .caller
+            .rpc_call(
+                DelugeRpcRequest::new("core.get_config_values")
+                    .with_args(vec![RencodeValue::List(key_values)]),
+            )
+            .await
+            .context("core.get_config_values RPC failed")?;
+        let value = extract_single(&result, "core.get_config_values")?;
+        match value {
+            RencodeValue::Dict(map) => {
+                let mut out = BTreeMap::new();
+                for (k, v) in map {
+                    match k {
+                        RencodeValue::Str(s) => {
+                            out.insert(s, v);
+                        }
+                        other => {
+                            return Err(anyhow!(
+                                "core.get_config_values returned non-str key: {other:?}"
+                            ))
+                        }
+                    }
+                }
+                Ok(out)
+            }
+            other => Err(anyhow!(
+                "core.get_config_values returned non-dict value: {other:?}"
+            )),
+        }
+    }
+
+    async fn set_config(&self, config: &BTreeMap<String, RencodeValue>) -> anyhow::Result<()> {
+        let config_dict: BTreeMap<RencodeValue, RencodeValue> = config
+            .iter()
+            .map(|(k, v)| (RencodeValue::Str(k.clone()), v.clone()))
+            .collect();
+        self.caller
+            .rpc_call(
+                DelugeRpcRequest::new("core.set_config")
+                    .with_args(vec![RencodeValue::Dict(config_dict)]),
+            )
+            .await
+            .context("core.set_config RPC failed")?;
+        Ok(())
+    }
+
+    async fn get_proxy(&self) -> anyhow::Result<ProxyConfig> {
+        let result = self
+            .caller
+            .rpc_call(DelugeRpcRequest::new("core.get_proxy"))
+            .await
+            .context("core.get_proxy RPC failed")?;
+        let value = extract_single(&result, "core.get_proxy")?;
+        ProxyConfig::deserialize(&value).context("deserializing proxy config")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::rencode::RencodeValue;
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn when_core_get_config_value_then_rencode_value() {
+        let response = RencodeValue::List(vec![RencodeValue::Str("/downloads".into())]);
+        let value = extract_single(&response, "core.get_config_value").expect("extract");
+        match value {
+            RencodeValue::Str(s) => assert_eq!(s, "/downloads"),
+            other => panic!("expected str, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn when_core_get_config_values_then_dict() {
+        let mut map = BTreeMap::new();
+        map.insert(
+            RencodeValue::Str("download_location".into()),
+            RencodeValue::Str("/downloads".into()),
+        );
+        map.insert(
+            RencodeValue::Str("daemon_port".into()),
+            RencodeValue::Int(58846),
+        );
+        let response = RencodeValue::List(vec![RencodeValue::Dict(map)]);
+
+        let value = extract_single(&response, "core.get_config_values").expect("extract");
+        match value {
+            RencodeValue::Dict(m) => {
+                assert_eq!(m.len(), 2);
+                assert_eq!(
+                    m.get(&RencodeValue::Str("download_location".into())),
+                    Some(&RencodeValue::Str("/downloads".into()))
+                );
+            }
+            other => panic!("expected dict, got {other:?}"),
+        }
+    }
+}

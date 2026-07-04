@@ -1,7 +1,7 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Configuration for the Scheduler plugin.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct SchedulerConfig {
     /// Download speed limit in "Yellow" state (KiB/s); -1.0 = unlimited.
     pub low_down: f64,
