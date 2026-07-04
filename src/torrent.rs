@@ -24,34 +24,17 @@ pub struct TorrentInfo {
     #[serde(skip)]
     pub info_hash: String,
     pub name: String,
-    #[expect(
-        dead_code,
-        reason = "populated by the client; not yet read by the engine or main"
-    )]
     pub state: String,
     pub progress: f64,
-    /// Deluge returns -1.0 when `total_done` == 0 (ratio is infinite). The
-    /// descending-ratio sort in `compute_deletion_plan` naturally places
-    /// these last (lowest deletion priority).
+    /// Deluge returns -1.0 when `total_done` == 0 (ratio is infinite). The descending-ratio sort in
+    /// `compute_deletion_plan` naturally places these last (lowest deletion priority).
     pub ratio: f64,
     pub total_seeds: u32,
-    #[expect(
-        dead_code,
-        reason = "populated by the client; not yet read by the engine or main"
-    )]
     pub num_seeds: u32,
     pub time_added: i64,
     pub total_done: u64,
-    #[expect(
-        dead_code,
-        reason = "populated by the client; not yet read by the engine or main"
-    )]
     pub total_uploaded: u64,
     pub is_finished: bool,
-    #[expect(
-        dead_code,
-        reason = "populated by the client; not yet read by the engine or main"
-    )]
     pub download_location: String,
 }
 

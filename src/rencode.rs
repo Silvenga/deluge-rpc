@@ -9,11 +9,6 @@
 //! dart-rencode (teal77/dart-rencode, Unlicense) for the Deluge constant set.
 //! No GPL-licensed Python/Cython/Go source was referenced.
 
-#![expect(
-    dead_code,
-    reason = "rencode codec is the foundation for daemon RPC client in tasks 2, 3, 7"
-)]
-
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
 use std::fmt::Write as _;
