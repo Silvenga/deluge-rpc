@@ -14,6 +14,7 @@ pub use client::core::{
     CoreTorrentClient, CoreTorrentRpc,
 };
 pub use client::daemon::{DaemonClient, DaemonRpc};
+pub use client::deluge_client::{CoreClient, DelugeClient, PluginsClient};
 pub use connection::DelugeConnection;
 pub use protocol::{DelugeRpcMessage, DelugeRpcRequest};
 pub use rencode::RencodeValue;

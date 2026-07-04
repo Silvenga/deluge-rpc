@@ -8,15 +8,17 @@ use crate::transport::DelugeTransport;
 use crate::transport::DelugeWriter;
 use anyhow::Context;
 use std::collections::BTreeMap;
-use std::mem;
 use std::sync::Arc;
 use tokio::sync::Mutex;
+use tokio::task::JoinHandle;
 
 const BROADCAST_CAPACITY: usize = 256;
 
 pub struct DelugeConnection {
     shared: Arc<Shared>,
     writer: Arc<Mutex<DelugeWriter>>,
+    #[expect(dead_code, reason = "owned JoinHandle avoids mem::forget; task continues detached on drop")]
+    reader_handle: JoinHandle<()>,
 }
 
 impl DelugeConnection {
@@ -28,23 +30,17 @@ impl DelugeConnection {
 
         let shared = Shared::new(BROADCAST_CAPACITY);
 
-        // Detach the reader task: it runs for the connection's lifetime and
-        // exits naturally when the socket closes (recv returns EOF). We
-        // intentionally leak the JoinHandle - DelugeConnection is consumed by
-        // login()/create_client(), and a Drop impl that aborts the task would
-        // kill the reader before any RPC call can complete. The task holds no
-        // resources beyond the ReadHalf, which is dropped when recv() errors.
-        let _reader_task = tokio::spawn({
+        let reader_handle = tokio::spawn({
             let reader_shared = shared.clone();
             async move {
                 reader_loop(reader, reader_shared).await;
             }
         });
-        mem::forget(_reader_task);
 
         Ok(Self {
             shared,
             writer: Arc::new(Mutex::new(writer)),
+            reader_handle,
         })
     }
 
@@ -83,7 +79,7 @@ impl DelugeConnection {
     }
 }
 
-async fn reader_loop(mut reader: DelugeReader, shared: Arc<Shared>) {
+pub(crate) async fn reader_loop(mut reader: DelugeReader, shared: Arc<Shared>) {
     loop {
         match reader.recv().await {
             Ok(raw) => match RencodeValue::decode(&raw) {

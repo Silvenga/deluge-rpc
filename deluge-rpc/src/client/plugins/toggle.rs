@@ -2,12 +2,8 @@ use crate::client::RpcCaller;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 use crate::rencode::RencodeValue;
-use crate::shared::Shared;
-use crate::transport::DelugeWriter;
 use anyhow::{Context, anyhow};
 use async_trait::async_trait;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
@@ -21,10 +17,8 @@ pub struct ToggleClient {
 }
 
 impl ToggleClient {
-    pub(crate) fn new(shared: Arc<Shared>, writer: Arc<Mutex<DelugeWriter>>) -> Self {
-        Self {
-            caller: RpcCaller::new(shared, writer),
-        }
+    pub(crate) fn new(caller: RpcCaller) -> Self {
+        Self { caller }
     }
 }
 

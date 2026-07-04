@@ -3,12 +3,8 @@ use crate::models::plugins::{HandledEvent, NotificationsConfig};
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 use crate::rencode::to_rencode_value;
-use crate::shared::Shared;
-use crate::transport::DelugeWriter;
 use anyhow::Context;
 use async_trait::async_trait;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 use serde::Deserialize;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
@@ -24,10 +20,8 @@ pub struct NotificationsClient {
 }
 
 impl NotificationsClient {
-    pub(crate) fn new(shared: Arc<Shared>, writer: Arc<Mutex<DelugeWriter>>) -> Self {
-        Self {
-            caller: RpcCaller::new(shared, writer),
-        }
+    pub(crate) fn new(caller: RpcCaller) -> Self {
+        Self { caller }
     }
 }
 

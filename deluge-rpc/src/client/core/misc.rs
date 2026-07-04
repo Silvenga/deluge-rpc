@@ -4,14 +4,10 @@ use crate::models::misc::{CreateTorrentResult, GlobResult};
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 use crate::rencode::RencodeValue;
-use crate::shared::Shared;
-use crate::transport::DelugeWriter;
 use anyhow::Context;
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
-use std::sync::Arc;
-use tokio::sync::Mutex;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
@@ -39,11 +35,8 @@ pub struct CoreMiscClient {
 }
 
 impl CoreMiscClient {
-    #[expect(dead_code, reason = "used in task 11 when connection code is updated")]
-    pub(crate) fn new(shared: Arc<Shared>, writer: Arc<Mutex<DelugeWriter>>) -> Self {
-        Self {
-            caller: RpcCaller::new(shared, writer),
-        }
+    pub(crate) fn new(caller: RpcCaller) -> Self {
+        Self { caller }
     }
 }
 

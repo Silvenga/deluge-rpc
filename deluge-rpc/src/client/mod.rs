@@ -1,5 +1,6 @@
 pub mod core;
 pub mod daemon;
+pub mod deluge_client;
 pub mod plugins;
 
 use crate::protocol::DelugeRpcMessage;
@@ -8,6 +9,7 @@ use crate::rencode::RencodeValue;
 use crate::shared::Shared;
 use crate::transport::DelugeWriter;
 use anyhow::{Context, anyhow};
+use deluge_client::{ConnectionState, DelugeClientInner};
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
@@ -17,79 +19,207 @@ use tokio::time::timeout;
 
 const RPC_TIMEOUT: Duration = Duration::from_secs(30);
 
+enum RpcCallerBackend {
+    Direct {
+        shared: Arc<Shared>,
+        writer: Arc<Mutex<DelugeWriter>>,
+    },
+    Reconnect {
+        inner: Arc<DelugeClientInner>,
+    },
+}
+
 pub struct RpcCaller {
-    shared: Arc<Shared>,
-    writer: Arc<Mutex<DelugeWriter>>,
+    backend: RpcCallerBackend,
 }
 
 impl RpcCaller {
     pub(crate) fn new(shared: Arc<Shared>, writer: Arc<Mutex<DelugeWriter>>) -> Self {
-        Self { shared, writer }
+        Self {
+            backend: RpcCallerBackend::Direct { shared, writer },
+        }
+    }
+
+    pub(crate) fn new_reconnect(inner: Arc<DelugeClientInner>) -> Self {
+        Self {
+            backend: RpcCallerBackend::Reconnect { inner },
+        }
     }
 
     pub fn subscribe_events(&self) -> broadcast::Receiver<DelugeRpcMessage> {
-        self.shared.message_tx.subscribe()
-    }
-
-    fn next_id(&self) -> u32 {
-        self.shared.next_id.fetch_add(1, Ordering::Relaxed)
-    }
-
-    pub async fn rpc_call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
-        let id = self.next_id();
-        let method = request.method.clone();
-        let encoded = request.encode(id);
-
-        let mut rx = self.shared.message_tx.subscribe();
-
-        {
-            let mut writer = self.writer.lock().await;
-            writer
-                .send(&encoded)
-                .await
-                .with_context(|| format!("failed to send RPC request `{method}`"))?;
-        }
-
-        let deadline = timeout(RPC_TIMEOUT, async {
-            loop {
-                match rx.recv().await {
-                    Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
-                        return Ok(value);
-                    }
-                    Ok(DelugeRpcMessage::Error {
-                        id: err_id,
-                        exc_type,
-                        exc_msg,
-                        traceback,
-                    }) if err_id == id => {
-                        return Err(anyhow!(
-                            "daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}"
-                        ));
-                    }
-                    Ok(_) => continue,
-                    Err(RecvError::Lagged(n)) => {
-                        tracing::warn!(n, "RPC subscriber lagged, missed messages");
-                        continue;
-                    }
-                    Err(RecvError::Closed) => {
-                        return Err(anyhow!(
-                            "connection closed while waiting for RPC response `{method}`"
-                        ));
+        match &self.backend {
+            RpcCallerBackend::Direct { shared, .. } => shared.message_tx.subscribe(),
+            RpcCallerBackend::Reconnect { inner } => {
+                match inner.state.try_lock() {
+                    Ok(state) => match &*state {
+                        deluge_client::ConnectionState::Connected { shared, .. } => {
+                            shared.message_tx.subscribe()
+                        }
+                        deluge_client::ConnectionState::Disconnected => {
+                            let (tx, rx) = broadcast::channel(1);
+                            drop(tx);
+                            rx
+                        }
+                    },
+                    Err(_) => {
+                        let (tx, rx) = broadcast::channel(1);
+                        drop(tx);
+                        rx
                     }
                 }
             }
-        })
-        .await;
+        }
+    }
 
-        deadline.unwrap_or_else(|_| Err(anyhow!("timed out waiting for RPC response `{method}`")))
+    pub async fn rpc_call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+        match &self.backend {
+            RpcCallerBackend::Direct { shared, writer } => {
+                rpc_call_direct(shared, writer, request).await
+            }
+            RpcCallerBackend::Reconnect { inner } => {
+                rpc_call_reconnect(inner, request).await
+            }
+        }
     }
 }
 
 impl Clone for RpcCaller {
     fn clone(&self) -> Self {
-        Self {
-            shared: Arc::clone(&self.shared),
-            writer: Arc::clone(&self.writer),
+        match &self.backend {
+            RpcCallerBackend::Direct { shared, writer } => Self {
+                backend: RpcCallerBackend::Direct {
+                    shared: Arc::clone(shared),
+                    writer: Arc::clone(writer),
+                },
+            },
+            RpcCallerBackend::Reconnect { inner } => Self {
+                backend: RpcCallerBackend::Reconnect {
+                    inner: Arc::clone(inner),
+                },
+            },
+        }
+    }
+}
+
+async fn rpc_call_direct(
+    shared: &Shared,
+    writer: &Arc<Mutex<DelugeWriter>>,
+    request: DelugeRpcRequest,
+) -> anyhow::Result<RencodeValue> {
+    let id = shared.next_id.fetch_add(1, Ordering::Relaxed);
+    let method = request.method.clone();
+    let encoded = request.encode(id);
+
+    let mut rx = shared.message_tx.subscribe();
+
+    {
+        let mut writer = writer.lock().await;
+        writer
+            .send(&encoded)
+            .await
+            .with_context(|| format!("failed to send RPC request `{method}`"))?;
+    }
+
+    let deadline = timeout(RPC_TIMEOUT, async {
+        loop {
+            match rx.recv().await {
+                Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
+                    return Ok(value);
+                }
+                Ok(DelugeRpcMessage::Error {
+                    id: err_id,
+                    exc_type,
+                    exc_msg,
+                    traceback,
+                }) if err_id == id => {
+                    return Err(anyhow!(
+                        "daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}"
+                    ));
+                }
+                Ok(_) => continue,
+                Err(RecvError::Lagged(n)) => {
+                    tracing::warn!(n, "RPC subscriber lagged, missed messages");
+                    continue;
+                }
+                Err(RecvError::Closed) => {
+                    return Err(anyhow!(
+                        "connection closed while waiting for RPC response `{method}`"
+                    ));
+                }
+            }
+        }
+    })
+    .await;
+
+    deadline.unwrap_or_else(|_| Err(anyhow!("timed out waiting for RPC response `{method}`")))
+}
+
+async fn rpc_call_reconnect(
+    inner: &DelugeClientInner,
+    request: DelugeRpcRequest,
+) -> anyhow::Result<RencodeValue> {
+    let method = request.method.clone();
+
+    let (writer, mut rx) = {
+        let mut state = inner.state.lock().await;
+        state
+            .ensure_connected(&inner.host, inner.port, &inner.username, &inner.password)
+            .await
+            .with_context(|| format!("reconnect failed for RPC `{method}`"))?;
+        state
+            .writer_and_rx()
+            .ok_or_else(|| anyhow!("connection lost after reconnect for RPC `{method}`"))?
+    };
+
+    let id = inner.next_id.fetch_add(1, Ordering::Relaxed);
+    let encoded = request.encode(id);
+
+    {
+        let mut writer = writer.lock().await;
+        if let Err(e) = writer.send(&encoded).await {
+            let mut state = inner.state.lock().await;
+            *state = ConnectionState::Disconnected;
+            return Err(anyhow!("failed to send RPC request `{method}`: {e}"));
+        }
+    }
+
+    let deadline = timeout(RPC_TIMEOUT, async {
+        loop {
+            match rx.recv().await {
+                Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
+                    return Ok(value);
+                }
+                Ok(DelugeRpcMessage::Error {
+                    id: err_id,
+                    exc_type,
+                    exc_msg,
+                    traceback,
+                }) if err_id == id => {
+                    return Err(anyhow!(
+                        "daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}"
+                    ));
+                }
+                Ok(_) => continue,
+                Err(RecvError::Lagged(n)) => {
+                    tracing::warn!(n, "RPC subscriber lagged, missed messages");
+                    continue;
+                }
+                Err(RecvError::Closed) => {
+                    return Err(anyhow!(
+                        "connection closed while waiting for RPC response `{method}`"
+                    ));
+                }
+            }
+        }
+    })
+    .await;
+
+    match deadline {
+        Ok(result) => result,
+        Err(_) => {
+            let mut state = inner.state.lock().await;
+            *state = ConnectionState::Disconnected;
+            Err(anyhow!("timed out waiting for RPC response `{method}`"))
         }
     }
 }
