@@ -13,6 +13,7 @@ pub enum DelugeRpcMessage {
         value: RencodeValue,
     },
     Error {
+        id: u32,
         exc_type: String,
         exc_msg: String,
         traceback: String,
@@ -61,10 +62,23 @@ pub fn decode_message(decoded: &RencodeValue) -> anyhow::Result<DelugeRpcMessage
             Ok(DelugeRpcMessage::Response { id, value })
         }
         RPC_ERROR => {
-            let exc_type = field_as_str(inner.get(1)).unwrap_or_else(|| "<unknown>".to_owned());
-            let exc_msg = field_as_str(inner.get(2)).unwrap_or_else(|| "<unknown>".to_owned());
-            let traceback = field_as_str(inner.get(3)).unwrap_or_else(|| "<none>".to_owned());
+            let id = match inner.get(1) {
+                Some(RencodeValue::Int(i)) => {
+                    u32::try_from(*i).map_err(|_| anyhow!("RPC error id out of u32 range: {i}"))?
+                }
+                Some(other) => bail!("RPC error id is not an int: {other:?}"),
+                None => bail!("RPC error missing id"),
+            };
+            let exc_type = field_as_str(inner.get(2)).unwrap_or_else(|| "<unknown>".to_owned());
+            let exc_msg = match inner.get(3) {
+                Some(RencodeValue::List(args)) if !args.is_empty() => {
+                    field_as_str(args.first()).unwrap_or_else(|| "<empty args>".to_owned())
+                }
+                _ => field_as_str(inner.get(3)).unwrap_or_else(|| "<unknown>".to_owned()),
+            };
+            let traceback = field_as_str(inner.get(5)).unwrap_or_else(|| "<none>".to_owned());
             Ok(DelugeRpcMessage::Error {
+                id,
                 exc_type,
                 exc_msg,
                 traceback,
@@ -155,18 +169,22 @@ mod tests {
     fn when_error_message_then_fields_extracted() {
         let message = RencodeValue::List(vec![RencodeValue::List(vec![
             RencodeValue::Int(RPC_ERROR),
+            RencodeValue::Int(7),
             RencodeValue::Str(String::from("BadLoginError")),
-            RencodeValue::Str(String::from("bad password")),
+            RencodeValue::List(vec![RencodeValue::Str(String::from("bad password"))]),
+            RencodeValue::Dict(BTreeMap::new()),
             RencodeValue::Str(String::from("traceback here")),
         ])]);
 
         let msg = decode_message(&message).expect("decode");
         match msg {
             DelugeRpcMessage::Error {
+                id,
                 exc_type,
                 exc_msg,
                 traceback,
             } => {
+                assert_eq!(id, 7);
                 assert_eq!(exc_type, "BadLoginError");
                 assert_eq!(exc_msg, "bad password");
                 assert_eq!(traceback, "traceback here");

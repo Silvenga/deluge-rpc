@@ -58,10 +58,11 @@ impl DelugeRpcClient {
                         return Ok(value);
                     }
                     Ok(DelugeRpcMessage::Error {
+                        id: err_id,
                         exc_type,
                         exc_msg,
                         traceback,
-                    }) => {
+                    }) if err_id == id => {
                         return Err(anyhow!(
                             "daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}"
                         ));
