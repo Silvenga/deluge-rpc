@@ -7,6 +7,7 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 use tokio::sync::broadcast;
 use tokio::sync::broadcast::error::RecvError;
+use tokio::time::sleep;
 use tokio::time::timeout;
 
 use super::deluge_client::{ConnectionState, DelugeClientInner};
@@ -82,31 +83,64 @@ async fn rpc_call_reconnect(
         }
     }
 
+    {
+        let state = inner.state.lock().await;
+        let dead = match &*state {
+            ConnectionState::Connected { reader_handle, .. } => reader_handle.is_finished(),
+            ConnectionState::Disconnected => true,
+        };
+        if dead {
+            drop(state);
+            let mut state = inner.state.lock().await;
+            *state = ConnectionState::Disconnected;
+            return Err(anyhow!("connection lost after sending RPC request `{method}`"));
+        }
+    }
+
     let deadline = timeout(RPC_TIMEOUT, async {
         loop {
-            match rx.recv().await {
-                Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
-                    return Ok(value);
+            tokio::select! {
+                recv_result = rx.recv() => {
+                    match recv_result {
+                        Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
+                            return Ok(value);
+                        }
+                        Ok(DelugeRpcMessage::Error {
+                            id: err_id,
+                            exc_type,
+                            exc_msg,
+                            traceback,
+                        }) if err_id == id => {
+                            return Err(anyhow!(
+                                "daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}"
+                            ));
+                        }
+                        Ok(_) => continue,
+                        Err(RecvError::Lagged(n)) => {
+                            tracing::warn!(n, "RPC subscriber lagged, missed messages");
+                            continue;
+                        }
+                        Err(RecvError::Closed) => {
+                            return Err(anyhow!(
+                                "connection closed while waiting for RPC response `{method}`"
+                            ));
+                        }
+                    }
                 }
-                Ok(DelugeRpcMessage::Error {
-                    id: err_id,
-                    exc_type,
-                    exc_msg,
-                    traceback,
-                }) if err_id == id => {
-                    return Err(anyhow!(
-                        "daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}"
-                    ));
-                }
-                Ok(_) => continue,
-                Err(RecvError::Lagged(n)) => {
-                    tracing::warn!(n, "RPC subscriber lagged, missed messages");
-                    continue;
-                }
-                Err(RecvError::Closed) => {
-                    return Err(anyhow!(
-                        "connection closed while waiting for RPC response `{method}`"
-                    ));
+                _ = sleep(Duration::from_millis(50)) => {
+                    let state = inner.state.lock().await;
+                    let dead = match &*state {
+                        ConnectionState::Connected { reader_handle, .. } => reader_handle.is_finished(),
+                        ConnectionState::Disconnected => true,
+                    };
+                    if dead {
+                        drop(state);
+                        let mut state = inner.state.lock().await;
+                        *state = ConnectionState::Disconnected;
+                        return Err(anyhow!(
+                            "connection lost while waiting for RPC response `{method}`"
+                        ));
+                    }
                 }
             }
         }
