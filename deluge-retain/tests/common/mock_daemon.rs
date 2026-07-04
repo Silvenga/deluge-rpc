@@ -5,12 +5,12 @@
 //! accepts a single connection, decodes each framed request, records the
 //! method name, and replies with a pre-configured canned response.
 //!
-//! Only the four methods used by [`deluge_retain::client::DelugeClient`] are
+//! Only the four methods used by [`deluge_retain::DelugeRpcClient`] are
 //! supported: `daemon.login`, `core.get_free_space`,
 //! `core.get_torrents_status`, and `core.remove_torrent`. Any other
 //! method receives an `RPC_ERROR` reply.
 
-use deluge_retain::rencode::{RencodeValue, decode, encode};
+use deluge_retain::RencodeValue;
 use flate2::Compression;
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
@@ -126,10 +126,6 @@ impl MockDelugeDaemon {
     ///
     /// The server accepts a single TLS connection and serves the canned
     /// responses in `config`, recording each received method name.
-    #[expect(
-        clippy::expect_used,
-        reason = "test helper: bind/local_addr failures are fatal and unrecoverable"
-    )]
     pub async fn start(config: MockDaemonConfig) -> Self {
         ensure_crypto_provider();
         let listener = TcpListener::bind("127.0.0.1:0")
@@ -173,10 +169,6 @@ impl MockDelugeDaemon {
     }
 
     /// Method names received from the client, in arrival order.
-    #[expect(
-        clippy::expect_used,
-        reason = "test helper: a poisoned received-methods mutex is a fatal test bug"
-    )]
     pub fn received_methods(&self) -> Vec<String> {
         self.received
             .lock()
@@ -196,10 +188,6 @@ impl Drop for MockDelugeDaemon {
 /// Mirrors the test helper in [`crate::transport`]; duplicated here so the
 /// mock daemon stays self-contained and does not depend on private test
 /// items in another module.
-#[expect(
-    clippy::expect_used,
-    reason = "test helper: rcgen/server-config failures are fatal and unrecoverable"
-)]
 fn self_signed_server_config() -> Arc<ServerConfig> {
     ensure_crypto_provider();
     let key_pair = rcgen::KeyPair::generate().expect("mock daemon: generate key pair");
@@ -219,10 +207,6 @@ fn self_signed_server_config() -> Arc<ServerConfig> {
 
 /// Serve one TLS connection: read framed requests, record method names,
 /// and write canned responses.
-#[expect(
-    clippy::expect_used,
-    reason = "test helper: a poisoned received-methods mutex is a fatal test bug"
-)]
 async fn serve(
     tls: &mut TlsStream<TcpStream>,
     config: &MockDaemonConfig,
@@ -234,7 +218,7 @@ async fn serve(
             Err(ReadFrameError::Eof) => return Ok(()),
             Err(ReadFrameError::Io(e)) => return Err(e),
         };
-        let Ok(decoded) = decode(&raw) else {
+        let Ok(decoded) = RencodeValue::decode(&raw) else {
             continue;
         };
         let Some((id, method)) = extract_request(&decoded) else {
@@ -245,7 +229,7 @@ async fn serve(
             guard.push(method.clone());
         }
         let response = build_response(id, &method, config);
-        let encoded = encode(&response);
+        let encoded = RencodeValue::encode(&response);
         write_frame(tls, &encoded).await?;
     }
 }
@@ -307,10 +291,6 @@ async fn write_frame(tls: &mut TlsStream<TcpStream>, data: &[u8]) -> io::Result<
 
 /// Extract `(request_id, method_name)` from a decoded request envelope
 /// `[[id, method, [args], {kwargs}]]`.
-#[expect(
-    clippy::indexing_slicing,
-    reason = "request shape is validated by guards; parts[0]/parts[1] are safe after len check"
-)]
 fn extract_request(decoded: &RencodeValue) -> Option<(i64, String)> {
     let outer = match decoded {
         RencodeValue::List(items) if items.len() == 1 => &items[0],
@@ -390,22 +370,9 @@ fn zlib_decompress(data: &[u8]) -> Result<Vec<u8>, String> {
 // ---------------------------------------------------------------------------
 
 #[cfg(test)]
-#[expect(
-    clippy::expect_used,
-    reason = "mock daemon tests use expect for clarity on shape errors"
-)]
-#[expect(
-    clippy::unwrap_used,
-    reason = "mock daemon tests use unwrap for clarity on known-good values"
-)]
-#[expect(
-    clippy::indexing_slicing,
-    reason = "mock daemon tests index known-length vectors"
-)]
 mod tests {
     use super::*;
-    use deluge_retain::client::{DelugeClient, DelugeRpc};
-    use deluge_retain::torrent::TorrentInfo;
+    use deluge_retain::{DelugeRpc, DelugeRpcClient, TorrentInfo};
 
     use std::string::ToString;
 
@@ -476,7 +443,7 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeClient::new(
+        let client = DelugeRpcClient::new(
             mock.host(),
             mock.port(),
             String::from("localclient"),
@@ -509,7 +476,7 @@ mod tests {
     async fn when_login_fails_then_client_returns_error() {
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_bad()).await;
 
-        let client = DelugeClient::new(
+        let client = DelugeRpcClient::new(
             mock.host(),
             mock.port(),
             String::from("localclient"),
@@ -540,7 +507,7 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeClient::new(
+        let client = DelugeRpcClient::new(
             mock.host(),
             mock.port(),
             String::from("localclient"),
@@ -568,7 +535,7 @@ mod tests {
         };
         let mock = MockDelugeDaemon::start(config).await;
 
-        let client = DelugeClient::new(
+        let client = DelugeRpcClient::new(
             mock.host(),
             mock.port(),
             String::from("localclient"),
@@ -594,7 +561,7 @@ mod tests {
         // Login configured, but free_space left as NotConfigured.
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_ok()).await;
 
-        let client = DelugeClient::new(
+        let client = DelugeRpcClient::new(
             mock.host(),
             mock.port(),
             String::from("localclient"),

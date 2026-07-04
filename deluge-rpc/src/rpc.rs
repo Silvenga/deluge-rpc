@@ -1,7 +1,7 @@
 use crate::torrent::TorrentInfo;
 use async_trait::async_trait;
 
-#[cfg_attr(test, mockall::automock)]
+#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
 pub trait DelugeRpc: Send + Sync {
     async fn login(&self) -> anyhow::Result<()>;

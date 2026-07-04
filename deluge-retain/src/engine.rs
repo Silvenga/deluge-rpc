@@ -5,11 +5,11 @@
 //! Planning is deterministic and side-effect free so it can be unit-tested
 //! without a live client; execution is async and throttled.
 
-use crate::client::DelugeRpc;
-use crate::torrent::{TorrentInfo, filter_eligible};
+use crate::policy::filter_eligible;
 use anyhow::Result;
 use bytesize::ByteSize;
 use chrono::{DateTime, Utc};
+use deluge_rpc::{DelugeRpc, TorrentInfo};
 use std::cmp::Ordering;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -159,14 +159,9 @@ pub async fn execute_deletion_plan(
 }
 
 #[cfg(test)]
-#[expect(
-    clippy::expect_used,
-    clippy::indexing_slicing,
-    reason = "tests panic on unexpected shapes — that is the test failing"
-)]
 mod tests {
     use super::*;
-    use crate::client::MockDelugeRpc;
+    use deluge_rpc::MockDelugeRpc;
     use chrono::Utc;
 
     const GB: u64 = 1_073_741_824;

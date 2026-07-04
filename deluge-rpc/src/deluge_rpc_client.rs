@@ -1,7 +1,13 @@
-use crate::rencode::{RencodeValue, decode, encode};
+use crate::parse::parse_torrent;
+use crate::rencode::RencodeValue;
+use crate::rpc::DelugeRpc;
 use crate::torrent::TorrentInfo;
 use crate::transport::DelugeTransport;
-use anyhow::{anyhow, Context};
+use crate::wire::{
+    ResponseOutcome, build_request, extract_single, extract_single_dict, extract_single_int,
+    handle_response,
+};
+use anyhow::{Context, anyhow};
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 use std::sync::atomic::{AtomicU32, Ordering};
@@ -9,14 +15,7 @@ use std::time::Duration;
 use tokio::sync::Mutex;
 use tokio::time::timeout;
 
-use crate::client::parse::parse_torrent;
-use crate::client::rpc::DelugeRpc;
-use crate::client::wire::{
-    build_request, extract_single, extract_single_dict, extract_single_int, handle_response,
-    ResponseOutcome,
-};
-
-pub struct DelugeClient {
+pub struct DelugeRpcClient {
     host: String,
     port: u16,
     username: String,
@@ -25,7 +24,7 @@ pub struct DelugeClient {
     request_id: AtomicU32,
 }
 
-impl DelugeClient {
+impl DelugeRpcClient {
     pub fn new(host: String, port: u16, username: String, password: String) -> Self {
         Self {
             host,
@@ -49,7 +48,7 @@ impl DelugeClient {
     ) -> anyhow::Result<RencodeValue> {
         let id = self.next_id();
         let request = build_request(id, method, args, kwargs);
-        let encoded = encode(&request);
+        let encoded = RencodeValue::encode(&request);
 
         let mut guard = self.transport.lock().await;
         let transport = guard
@@ -65,7 +64,7 @@ impl DelugeClient {
                 .await
                 .map_err(|_| anyhow!("timed out waiting for RPC response `{method}`"))?
                 .with_context(|| format!("failed to recv RPC response for `{method}`"))?;
-            let decoded = decode(&raw)
+            let decoded = RencodeValue::decode(&raw)
                 .with_context(|| format!("failed to decode RPC response for `{method}`"))?;
 
             match handle_response(&decoded, id, method)? {
@@ -77,7 +76,7 @@ impl DelugeClient {
 }
 
 #[async_trait]
-impl DelugeRpc for DelugeClient {
+impl DelugeRpc for DelugeRpcClient {
     async fn login(&self) -> anyhow::Result<()> {
         let transport = DelugeTransport::connect(&self.host, self.port)
             .await

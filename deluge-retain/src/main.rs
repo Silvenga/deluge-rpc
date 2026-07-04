@@ -12,10 +12,10 @@ use bytesize::ByteSize;
 use chrono::Utc;
 use clap::Parser;
 use deluge_retain::cli::Cli;
-use deluge_retain::client::{DelugeClient, DelugeRpc};
 use deluge_retain::config::{Config, HostConfig, Rules};
 use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
 use deluge_retain::tracing_setup::init_tracing;
+use deluge_retain::{DelugeRpcClient, DelugeRpc};
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -67,10 +67,6 @@ pub(crate) async fn run_once(config: &Config, dry_run: bool) -> Result<()> {
 
 /// Process a single host: resolve password, log in, check free space, and
 /// execute a deletion plan if below the low water mark.
-#[expect(
-    clippy::too_many_lines,
-    reason = "linear host-processing pipeline; splitting would obscure the sequential flow"
-)]
 async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
     let password = match host.resolve_password() {
         Ok(pw) => pw,
@@ -80,7 +76,7 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
         }
     };
 
-    let client = DelugeClient::new(
+    let client = DelugeRpcClient::new(
         host.host.clone(),
         host.port,
         host.username.clone(),
@@ -219,15 +215,11 @@ async fn shutdown_signal() {
 mod mock_daemon;
 
 #[cfg(test)]
-#[expect(
-    clippy::unwrap_used,
-    reason = "integration tests use unwrap for clarity on known-good values"
-)]
 mod tests {
     use super::*;
     use std::collections::BTreeMap;
 
-    use deluge_retain::rencode::RencodeValue;
+    use deluge_retain::RencodeValue;
 
     use mock_daemon::{MockDaemonConfig, MockDelugeDaemon, MockResponse};
 

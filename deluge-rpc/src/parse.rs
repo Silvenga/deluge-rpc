@@ -49,18 +49,7 @@ fn get_str<'a>(
 fn get_float(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::Result<f64> {
     match fields.get(&RencodeValue::Str(String::from(key))) {
         Some(RencodeValue::Float(f)) => Ok(*f),
-        Some(RencodeValue::Int(i)) =>
-        {
-            #[expect(
-                clippy::cast_precision_loss,
-                reason = "Deluge may send a float field as an int; widening to f64 is the intended coercion"
-            )]
-            #[expect(
-                clippy::as_conversions,
-                reason = "i64 to f64 is the intended widening conversion for numeric field coercion"
-            )]
-            Ok(*i as f64)
-        }
+        Some(RencodeValue::Int(i)) => Ok(*i as f64),
         Some(other) => Err(anyhow!("field `{key}` is not a number: {other:?}")),
         None => Err(anyhow!("missing field `{key}`")),
     }
@@ -69,18 +58,7 @@ fn get_float(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow
 fn get_int(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::Result<i64> {
     match fields.get(&RencodeValue::Str(String::from(key))) {
         Some(RencodeValue::Int(i)) => Ok(*i),
-        Some(RencodeValue::Float(f)) =>
-        {
-            #[expect(
-                clippy::cast_possible_truncation,
-                reason = "Deluge may send an int field as a float; truncating to i64 is the intended coercion"
-            )]
-            #[expect(
-                clippy::as_conversions,
-                reason = "f64 to i64 truncation is the intended coercion for int fields sent as floats"
-            )]
-            Ok(*f as i64)
-        }
+        Some(RencodeValue::Float(f)) => Ok(*f as i64),
         Some(other) => Err(anyhow!("field `{key}` is not an int: {other:?}")),
         None => Err(anyhow!("missing field `{key}`")),
     }
@@ -105,8 +83,6 @@ fn get_u64(fields: &BTreeMap<RencodeValue, RencodeValue>, key: &str) -> anyhow::
 }
 
 #[cfg(test)]
-#[expect(clippy::expect_used, reason = "test assertions use expect for clarity")]
-#[expect(clippy::unwrap_used, reason = "test helpers use unwrap for clarity")]
 mod tests {
     use super::*;
 

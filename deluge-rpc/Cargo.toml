@@ -1,0 +1,37 @@
+[package]
+name = "deluge-rpc"
+description = "Client library for the Deluge daemon RPC protocol (TLS + framed zlib + rencode)"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme.workspace = true
+keywords = ["deluge", "rpc", "client", "bittorrent"]
+categories = ["network-programming", "api-bindings"]
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+async-trait = { workspace = true }
+flate2 = { workspace = true }
+rustls = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true }
+tracing = { workspace = true }
+mockall = { workspace = true, optional = true }
+
+[features]
+mock = ["dep:mockall"]
+
+[dev-dependencies]
+mockall = { workspace = true }
+rcgen = { workspace = true }
+tokio = { workspace = true }

@@ -414,13 +414,30 @@ dependencies = [
  "assert_cmd",
  "assert_fs",
  "assert_matches",
- "async-trait",
  "bytesize",
  "chrono",
  "clap",
+ "deluge-rpc",
  "flate2",
  "humantime-serde",
  "log-panics",
+ "rcgen",
+ "rustls",
+ "serde",
+ "tokio",
+ "tokio-rustls",
+ "toml",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "deluge-rpc"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "flate2",
  "mockall",
  "rcgen",
  "rustls",
@@ -428,9 +445,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-rustls",
- "toml",
  "tracing",
- "tracing-subscriber",
 ]
 
 [[package]]

@@ -9,14 +9,7 @@
 //! The binary's `tracing` subscriber writes to **stdout** (the default
 //! `tracing_subscriber::fmt` layer target), so assertions are on stdout.
 
-#![expect(
-    clippy::expect_used,
-    reason = "integration tests panic on unexpected shapes via expect for clarity"
-)]
-#![expect(
-    clippy::unwrap_used,
-    reason = "integration tests use unwrap for clarity on known-good values"
-)]
+
 
 mod common;
 
@@ -25,7 +18,7 @@ use assert_fs::NamedTempFile;
 use assert_fs::fixture::FileWriteStr;
 use chrono::Utc;
 use common::mock_daemon::{MockDaemonConfig, MockDelugeDaemon, MockResponse};
-use deluge_retain::rencode::RencodeValue;
+use deluge_retain::RencodeValue;
 use std::collections::BTreeMap;
 use std::time::Duration;
 

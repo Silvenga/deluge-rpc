@@ -1,10 +1,10 @@
-use std::fs;
-use std::path::Path;
 use crate::config::host_config::HostConfig;
 use crate::config::rules::Rules;
-use serde::Deserialize;
-use std::time::Duration;
 use anyhow::{bail, Context};
+use serde::Deserialize;
+use std::fs;
+use std::path::Path;
+use std::time::Duration;
 
 /// Top-level configuration loaded from the TOML file.
 #[derive(Debug, Clone, Deserialize)]
@@ -24,11 +24,6 @@ pub struct Config {
 
 impl Config {
     /// Load and validate a configuration from the TOML file at `path`.
-    ///
-    /// # Errors
-    ///
-    /// Returns an error if the file cannot be read, the TOML is malformed, or
-    /// any validation rule is violated.
     pub fn load(path: &str) -> anyhow::Result<Config> {
         let contents = fs::read_to_string(Path::new(path))
             .with_context(|| format!("failed to read config file {path}"))?;

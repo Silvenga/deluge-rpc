@@ -32,12 +32,7 @@ pub fn handle_response(
     method: &str,
 ) -> anyhow::Result<ResponseOutcome> {
     let outer = match decoded {
-        RencodeValue::List(items) if items.len() == 1 =>
-        {
-            #[expect(
-                clippy::expect_used,
-                reason = "len == 1 is checked by the guard; first() cannot be None"
-            )]
+        RencodeValue::List(items) if items.len() == 1 => {
             items.first().expect("len == 1 checked above")
         }
         other => {
@@ -114,12 +109,7 @@ fn rpc_error(inner: &[RencodeValue]) -> anyhow::Error {
 
 pub fn extract_single(value: &RencodeValue, method: &str) -> anyhow::Result<RencodeValue> {
     match value {
-        RencodeValue::List(items) if items.len() == 1 =>
-        {
-            #[expect(
-                clippy::expect_used,
-                reason = "len == 1 is checked by the guard; first() cannot be None"
-            )]
+        RencodeValue::List(items) if items.len() == 1 => {
             Ok(items.first().expect("len == 1 checked above").clone())
         }
         other => Err(anyhow!(
@@ -162,9 +152,6 @@ pub fn field_as_str(value: Option<&RencodeValue>) -> Option<String> {
 }
 
 #[cfg(test)]
-#[expect(clippy::expect_used, reason = "test assertions use expect for clarity")]
-#[expect(clippy::unwrap_used, reason = "test helpers use unwrap for clarity")]
-#[expect(clippy::indexing_slicing, reason = "tests index known-length buffers")]
 mod tests {
     use super::*;
 

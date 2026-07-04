@@ -1,68 +1,10 @@
-//! Torrent data model and state representation.
-
 use chrono::{DateTime, Utc};
-use serde::Deserialize;
+use deluge_rpc::TorrentInfo;
 
-/// Status snapshot for a single torrent, as returned by Deluge's
-/// `web.update_ui` JSON-RPC method.
-///
-/// `info_hash` is not part of the per-torrent status dict — it is the
-/// key under which the dict is nested — so it is skipped during
-/// deserialization and populated by the client after parsing.
-///
-/// # Field semantics
-///
-/// `total_seeds` is the swarm-wide seed count reported by the tracker
-/// (the size of the seeder pool for this torrent's infohash). `num_seeds`
-/// is the number of seeds the local Deluge daemon is currently connected
-/// to. The retention filter cares about swarm health, so it uses
-/// `total_seeds` — a torrent with a healthy seeder pool elsewhere can be
-/// safely deleted locally even if the daemon happens to be connected to
-/// few peers right now.
-#[derive(Debug, Clone, Deserialize)]
-pub struct TorrentInfo {
-    #[serde(skip)]
-    pub info_hash: String,
-    pub name: String,
-    pub state: String,
-    pub progress: f64,
-    /// Deluge returns -1.0 when `total_done` == 0 (ratio is infinite). The descending-ratio sort in
-    /// `compute_deletion_plan` naturally places these last (lowest deletion priority).
-    pub ratio: f64,
-    pub total_seeds: u32,
-    pub num_seeds: u32,
-    pub time_added: i64,
-    pub total_done: u64,
-    pub total_uploaded: u64,
-    pub is_finished: bool,
-    pub download_location: String,
-}
-
-/// Convert a Deluge `time_added` epoch-seconds value into a UTC `DateTime`.
-///
-/// Returns `None` when the value is out of range, so callers can fall
-/// back to a sensible default (typically treating the torrent as
-/// ineligible rather than crashing).
 fn time_added_to_datetime(time_added: i64) -> Option<DateTime<Utc>> {
     DateTime::<Utc>::from_timestamp(time_added, 0)
 }
 
-/// Filter `torrents` down to those eligible for deletion under the
-/// retention rules.
-///
-/// A torrent is eligible when **all** of the following hold:
-///
-/// 1. **Completed** — `is_finished` is `true` *or* `progress >= 100.0`.
-///    This is hardcoded; there is no config flag to retain incomplete
-///    torrents.
-/// 2. **Healthy swarm** — `total_seeds >= min_seeders`. The swarm-wide
-///    seeder count is used (see [`TorrentInfo`] field docs), not the
-///    count of locally connected seeds.
-/// 3. **Old enough** — the torrent was added at least `min_age_days`
-///    days before `now`. Torrents whose `time_added` cannot be parsed
-///    are treated as age-zero (newest) and therefore filtered out.
-///
-/// Returns references to the eligible torrents in input order.
 pub fn filter_eligible(
     torrents: &[TorrentInfo],
     min_seeders: u32,
