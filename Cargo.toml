@@ -1,0 +1,70 @@
+[package]
+name = "deluge-retain"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "Automatic torrent retention tool for Deluge"
+license = "MIT"
+repository = "https://github.com/Silvenga/deluge-retain"
+keywords = ["deluge", "torrent", "retention"]
+categories = ["command-line-utilities"]
+readme = "README.md"
+
+[dependencies]
+tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros", "signal", "time"] }
+clap = { version = "4.6.1", features = ["derive"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.150"
+toml = "1.1.2"
+reqwest = { version = "0.13.4", default-features = false, features = ["json", "cookies", "rustls"] }
+bytesize = { version = "2.3.1", features = ["serde"] }
+humantime = "2.3.0"
+humantime-serde = "1.1.1"
+tracing = { version = "0.1.44", features = ["log"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt"] }
+log-panics = { version = "2.1.0", features = ["with-backtrace"] }
+anyhow = "1.0.103"
+thiserror = "2.0.18"
+chrono = { version = "0.4.45", features = ["serde"] }
+
+[dev-dependencies]
+wiremock = "0.6.5"
+assert_cmd = "2.2.2"
+assert_fs = "1.1.4"
+assert_matches = "1.5.0"
+tokio-test = "0.4.5"
+mockall = "0.15.0"
+
+[lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+create_dir = "warn"
+else_if_without_else = "warn"
+filetype_is_file = "warn"
+infinite_loop = "warn"
+undocumented_unsafe_blocks = "warn"
+unnecessary_safety_comment = "warn"
+unnecessary_safety_doc = "warn"
+empty_enum_variants_with_brackets = "warn"
+empty_structs_with_brackets = "warn"
+get_unwrap = "warn"
+iter_over_hash_type = "warn"
+print_stderr = "warn"
+print_stdout = "warn"
+redundant_test_prefix = "warn"
+redundant_type_annotations = "warn"
+str_to_string = "warn"
+todo = "warn"
+unneeded_field_pattern = "warn"
+wildcard_dependencies = "warn"
+redundant_feature_names = "warn"
+negative_feature_names = "warn"
+cargo_common_metadata = "warn"
+absolute_paths = "warn"
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+as_conversions = "warn"
+cast_possible_truncation = "warn"
+indexing_slicing = "warn"

@@ -1,0 +1,13 @@
+services:
+  deluge:
+    image: linuxserver/deluge:latest
+    # User configures Deluge here — ports, volumes, environment, etc.
+
+  deluge-retain:
+    build: .
+    volumes:
+      - ./deluge-retain.toml:/etc/deluge-retain.toml:ro
+    command: ["--config", "/etc/deluge-retain.toml"]
+    restart: unless-stopped
+    depends_on:
+      - deluge
