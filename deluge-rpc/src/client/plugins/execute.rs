@@ -13,7 +13,12 @@ pub trait ExecuteRpc: Send + Sync {
     async fn add_command(&self, event: &ExecuteEvent, command: &str) -> anyhow::Result<()>;
     async fn get_commands(&self) -> anyhow::Result<Vec<ExecuteCommand>>;
     async fn remove_command(&self, command_id: &str) -> anyhow::Result<()>;
-    async fn save_command(&self, command_id: &str, event: &ExecuteEvent, command: &str) -> anyhow::Result<()>;
+    async fn save_command(
+        &self,
+        command_id: &str,
+        event: &ExecuteEvent,
+        command: &str,
+    ) -> anyhow::Result<()>;
 }
 
 pub struct ExecuteClient {
@@ -40,10 +45,8 @@ impl ExecuteRpc for ExecuteClient {
         let event_value = to_rencode_value(event).context("serializing execute event")?;
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("execute.add_command").with_args(vec![
-                    event_value,
-                    RencodeValue::Str(command.to_owned()),
-                ]),
+                DelugeRpcRequest::new("execute.add_command")
+                    .with_args(vec![event_value, RencodeValue::Str(command.to_owned())]),
             )
             .await?;
         Ok(())
@@ -62,15 +65,19 @@ impl ExecuteRpc for ExecuteClient {
     async fn remove_command(&self, command_id: &str) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("execute.remove_command").with_args(vec![
-                    RencodeValue::Str(command_id.to_owned()),
-                ]),
+                DelugeRpcRequest::new("execute.remove_command")
+                    .with_args(vec![RencodeValue::Str(command_id.to_owned())]),
             )
             .await?;
         Ok(())
     }
 
-    async fn save_command(&self, command_id: &str, event: &ExecuteEvent, command: &str) -> anyhow::Result<()> {
+    async fn save_command(
+        &self,
+        command_id: &str,
+        event: &ExecuteEvent,
+        command: &str,
+    ) -> anyhow::Result<()> {
         let event_value = to_rencode_value(event).context("serializing execute event")?;
         self.caller
             .rpc_call(
@@ -93,16 +100,16 @@ mod tests {
 
     #[test]
     fn when_execute_get_commands_response_then_deserializes() {
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
-            RencodeValue::List(vec![
+        let response =
+            RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::List(vec![
                 RencodeValue::Str("abc123".into()),
                 RencodeValue::Str("complete".into()),
                 RencodeValue::Str("echo done".into()),
-            ]),
-        ])]);
+            ])])]);
 
         let value = extract_single(&response, "execute.get_commands").expect("extract");
-        let commands: Vec<ExecuteCommand> = Vec::<ExecuteCommand>::deserialize(&value).expect("deserialize");
+        let commands: Vec<ExecuteCommand> =
+            Vec::<ExecuteCommand>::deserialize(&value).expect("deserialize");
 
         assert_eq!(commands.len(), 1);
         assert_eq!(commands[0].command_id, "abc123");

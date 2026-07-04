@@ -88,8 +88,7 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
         }
     };
 
-    let free_space = match client.core().session
-        .get_free_space(None).await {
+    let free_space = match client.core().session.get_free_space(None).await {
         Ok(bytes) => u64::try_from(bytes).unwrap_or(0),
         Err(err) => {
             error!(host = %host.host, port = host.port, error = %err, "free space query failed for host `{}:{}`: {err}", host.host, host.port);
@@ -186,8 +185,7 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
     }
 
     if !dry_run {
-        match client.core().session
-        .get_free_space(None).await {
+        match client.core().session.get_free_space(None).await {
             Ok(new_free) => info!(
                 host = %host.host,
                 port = host.port,

@@ -1,11 +1,11 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Proxy settings from the daemon config's `proxy` sub-dict.
 ///
 /// Contains 10 keys. The `core.get_proxy()` method returns a subset of 8 keys
 /// (excluding `force_proxy` and `anonymous_mode`) read from live libtorrent
 /// session settings.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct ProxyConfig {
     /// Proxy type: 0=None, 1=Socks4, 2=Socks5, 3=Socks5+Auth, 4=HTTP, 5=HTTP+Auth, 6=I2P
     #[serde(rename = "type")]

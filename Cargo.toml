@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["deluge-rpc", "deluge-retain"]
+members = ["deluge-rpc", "deluge-rpc-mock", "deluge-retain", "deluge-cli"]
 
 [workspace.package]
 version = "0.1.0"
@@ -24,7 +24,7 @@ assert_fs = "1.1.4"
 assert_matches = "1.5.0"
 bytesize = { version = "2.3.1", features = ["serde"] }
 chrono = { version = "0.4.45", features = ["serde"] }
-clap = { version = "4.6.1", features = ["derive"] }
+clap = { version = "4.6.1", features = ["derive", "env"] }
 flate2 = "1.1.9"
 humantime-serde = "1.1.1"
 log-panics = { version = "2.1.0", features = ["with-backtrace"] }

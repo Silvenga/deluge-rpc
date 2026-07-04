@@ -138,10 +138,8 @@ impl CoreSessionRpc for CoreSessionClient {
     }
 
     async fn get_session_status(&self, keys: &[String]) -> anyhow::Result<SessionStatus> {
-        let key_values: Vec<RencodeValue> = keys
-            .iter()
-            .map(|k| RencodeValue::Str(k.clone()))
-            .collect();
+        let key_values: Vec<RencodeValue> =
+            keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
             .caller
             .rpc_call(
@@ -282,8 +280,7 @@ mod tests {
         let response = RencodeValue::List(vec![RencodeValue::Dict(map)]);
 
         let value = extract_single(&response, "core.get_session_status").expect("extract");
-        let status: SessionStatus =
-            SessionStatus::deserialize(&value).expect("deserialize");
+        let status: SessionStatus = SessionStatus::deserialize(&value).expect("deserialize");
 
         assert!((status.download_rate - 1024.0).abs() < f64::EPSILON);
         assert!((status.upload_rate - 512.0).abs() < f64::EPSILON);

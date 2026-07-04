@@ -1,5 +1,5 @@
-use crate::rencode::RencodeError;
 use crate::RencodeValue;
+use crate::rencode::RencodeError;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
@@ -17,7 +17,7 @@ pub fn deserialize_dict_values<'de, V: Deserialize<'de>>(
                 field: String::new(),
                 expected: "dict",
                 got: variant_name(other),
-            })
+            });
         }
     };
 

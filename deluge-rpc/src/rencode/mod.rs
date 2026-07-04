@@ -10,7 +10,6 @@ mod ser;
 mod value;
 
 pub use error::RencodeError;
-#[expect(unused_imports, reason = "re-exported for external consumers")]
 pub use json::{from_json, to_json};
 pub use ser::to_rencode_value;
 pub use value::RencodeValue;

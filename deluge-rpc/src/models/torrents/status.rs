@@ -2,9 +2,9 @@ use super::sub_dicts::{FileInfo, PeerInfo, TrackerInfo};
 use crate::models::sentinels::{
     deserialize_never_i64, deserialize_ratio, deserialize_unlimited_f64, deserialize_unlimited_i64,
 };
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct TorrentStatus {
     // --- Time / transfer stats ---

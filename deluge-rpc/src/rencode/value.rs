@@ -1,8 +1,12 @@
+use std::cmp::Ordering;
+use std::collections::BTreeMap;
+
+use serde::Serialize;
+
 use crate::rencode::decode::decode;
 use crate::rencode::encode::encode;
 use crate::rencode::error::RencodeError;
-use std::cmp::Ordering;
-use std::collections::BTreeMap;
+use crate::rencode::json::to_json;
 
 #[derive(Debug, Clone)]
 pub enum RencodeValue {
@@ -92,6 +96,13 @@ impl RencodeValue {
             }),
             None => Err(RencodeError::MissingField(key.to_owned())),
         }
+    }
+}
+
+impl Serialize for RencodeValue {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let json = to_json(self);
+        json.serialize(serializer)
     }
 }
 

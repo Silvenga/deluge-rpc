@@ -7,6 +7,9 @@
       <sourceFolder url="file://$MODULE_DIR$/deluge-rpc/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/deluge-cli/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/deluge-cli/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/deluge-rpc-mock/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

@@ -53,9 +53,8 @@ impl LabelRpc for LabelClient {
     async fn add(&self, label_id: &str) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("label.add").with_args(vec![
-                    RencodeValue::Str(label_id.to_owned()),
-                ]),
+                DelugeRpcRequest::new("label.add")
+                    .with_args(vec![RencodeValue::Str(label_id.to_owned())]),
             )
             .await?;
         Ok(())
@@ -64,9 +63,8 @@ impl LabelRpc for LabelClient {
     async fn remove(&self, label_id: &str) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("label.remove").with_args(vec![
-                    RencodeValue::Str(label_id.to_owned()),
-                ]),
+                DelugeRpcRequest::new("label.remove")
+                    .with_args(vec![RencodeValue::Str(label_id.to_owned())]),
             )
             .await?;
         Ok(())
@@ -76,10 +74,8 @@ impl LabelRpc for LabelClient {
         let options_value = to_rencode_value(options).context("serializing label options")?;
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("label.set_options").with_args(vec![
-                    RencodeValue::Str(label_id.to_owned()),
-                    options_value,
-                ]),
+                DelugeRpcRequest::new("label.set_options")
+                    .with_args(vec![RencodeValue::Str(label_id.to_owned()), options_value]),
             )
             .await?;
         Ok(())
@@ -89,9 +85,8 @@ impl LabelRpc for LabelClient {
         let result = self
             .caller
             .rpc_call(
-                DelugeRpcRequest::new("label.get_options").with_args(vec![
-                    RencodeValue::Str(label_id.to_owned()),
-                ]),
+                DelugeRpcRequest::new("label.get_options")
+                    .with_args(vec![RencodeValue::Str(label_id.to_owned())]),
             )
             .await
             .context("label.get_options RPC failed")?;
@@ -101,12 +96,10 @@ impl LabelRpc for LabelClient {
 
     async fn set_torrent(&self, torrent_id: &str, label_id: &str) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(
-                DelugeRpcRequest::new("label.set_torrent").with_args(vec![
-                    RencodeValue::Str(torrent_id.to_owned()),
-                    RencodeValue::Str(label_id.to_owned()),
-                ]),
-            )
+            .rpc_call(DelugeRpcRequest::new("label.set_torrent").with_args(vec![
+                RencodeValue::Str(torrent_id.to_owned()),
+                RencodeValue::Str(label_id.to_owned()),
+            ]))
             .await?;
         Ok(())
     }
@@ -124,9 +117,7 @@ impl LabelRpc for LabelClient {
     async fn set_config(&self, config: &LabelConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing label config")?;
         self.caller
-            .rpc_call(
-                DelugeRpcRequest::new("label.set_config").with_args(vec![config_value]),
-            )
+            .rpc_call(DelugeRpcRequest::new("label.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }

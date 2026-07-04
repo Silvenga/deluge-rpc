@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::proxy::ProxyConfig;
 use crate::models::sentinels::{deserialize_unlimited_f64, deserialize_unlimited_i64};
@@ -11,7 +11,7 @@ use crate::models::sentinels::{deserialize_unlimited_f64, deserialize_unlimited_
 ///
 /// Sentinel values (`-1` / `-1.0` meaning "unlimited") are deserialized as
 /// `None` via `deserialize_unlimited_i64` / `deserialize_unlimited_f64`.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct DaemonConfig {
     // --- Info / telemetry ---
     pub send_info: bool,

@@ -11,8 +11,8 @@ use deluge_client::{ConnectionState, DelugeClientInner};
 use std::sync::Arc;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
-use tokio::sync::broadcast::error::RecvError;
 use tokio::sync::broadcast;
+use tokio::sync::broadcast::error::RecvError;
 use tokio::time::timeout;
 
 const RPC_TIMEOUT: Duration = Duration::from_secs(30);
@@ -26,7 +26,6 @@ impl RpcCaller {
         Self { inner }
     }
 
-    #[expect(dead_code, reason = "used by cassette recorder in deluge-rpc-mock crate")]
     pub fn subscribe_events(&self) -> broadcast::Receiver<DelugeRpcMessage> {
         match self.inner.state.try_lock() {
             Ok(state) => match &*state {
@@ -129,5 +128,3 @@ async fn rpc_call_reconnect(
         }
     }
 }
-
-

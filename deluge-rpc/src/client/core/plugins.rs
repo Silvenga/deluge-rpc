@@ -52,7 +52,7 @@ impl CorePluginRpc for CorePluginClient {
                         other => {
                             return Err(anyhow!(
                                 "core.get_available_plugins returned non-str element: {other:?}"
-                            ))
+                            ));
                         }
                     }
                 }
@@ -80,7 +80,7 @@ impl CorePluginRpc for CorePluginClient {
                         other => {
                             return Err(anyhow!(
                                 "core.get_enabled_plugins returned non-str element: {other:?}"
-                            ))
+                            ));
                         }
                     }
                 }
@@ -130,12 +130,10 @@ impl CorePluginRpc for CorePluginClient {
 
     async fn upload_plugin(&self, filename: &str, filedump: &str) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(
-                DelugeRpcRequest::new("core.upload_plugin").with_args(vec![
-                    RencodeValue::Str(filename.to_owned()),
-                    RencodeValue::Str(filedump.to_owned()),
-                ]),
-            )
+            .rpc_call(DelugeRpcRequest::new("core.upload_plugin").with_args(vec![
+                RencodeValue::Str(filename.to_owned()),
+                RencodeValue::Str(filedump.to_owned()),
+            ]))
             .await
             .context("core.upload_plugin RPC failed")?;
         Ok(())

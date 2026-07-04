@@ -245,14 +245,7 @@ mod tests {
     fn when_single_oversized_torrent_then_still_selected_should_include_oversized() {
         let torrents = vec![make_torrent("big", "big", Some(1.0), 5 * GB)];
 
-        let plan = compute_deletion_plan(
-            &torrents,
-            1,
-            1,
-            10 * GB as u64,
-            13 * GB as u64,
-            now(),
-        );
+        let plan = compute_deletion_plan(&torrents, 1, 1, 10 * GB as u64, 13 * GB as u64, now());
 
         assert_eq!(plan.len(), 1, "oversized torrent is still selected");
         assert_eq!(plan[0].info_hash, "big");
@@ -276,11 +269,7 @@ mod tests {
 
         let plan = compute_deletion_plan(&torrents, 1, 1, 0, 100 * GB as u64, now());
 
-        assert_eq!(
-            plan.len(),
-            2,
-            "all eligible returned even if insufficient"
-        );
+        assert_eq!(plan.len(), 2, "all eligible returned even if insufficient");
     }
 
     #[test]
@@ -293,14 +282,7 @@ mod tests {
     fn when_free_space_already_above_high_water_mark_then_empty_plan_should_be_returned() {
         let torrents = vec![make_torrent("a", "a", Some(1.0), GB)];
 
-        let plan = compute_deletion_plan(
-            &torrents,
-            1,
-            1,
-            20 * GB as u64,
-            10 * GB as u64,
-            now(),
-        );
+        let plan = compute_deletion_plan(&torrents, 1, 1, 20 * GB as u64, 10 * GB as u64, now());
 
         assert!(
             plan.is_empty(),
@@ -318,8 +300,7 @@ mod tests {
             make_torrent("bbb", "second", Some(2.0), 2 * GB),
         ];
 
-        let result =
-            execute_deletion_plan(&client, &plan, Duration::from_millis(0), true).await;
+        let result = execute_deletion_plan(&client, &plan, Duration::from_millis(0), true).await;
 
         assert!(result.is_ok());
     }
@@ -329,8 +310,7 @@ mod tests {
         let mut client = MockCoreTorrentRpc::new();
         client.expect_remove_torrent().never();
 
-        let result =
-            execute_deletion_plan(&client, &[], Duration::from_millis(0), false).await;
+        let result = execute_deletion_plan(&client, &[], Duration::from_millis(0), false).await;
 
         assert!(result.is_ok());
     }
@@ -364,14 +344,7 @@ mod tests {
             make_torrent("c", "c", Some(1.0), 5 * GB),
         ];
 
-        let plan = compute_deletion_plan(
-            &torrents,
-            1,
-            1,
-            10 * GB as u64,
-            13 * GB as u64,
-            now(),
-        );
+        let plan = compute_deletion_plan(&torrents, 1, 1, 10 * GB as u64, 13 * GB as u64, now());
 
         assert_eq!(
             plan.len(),

@@ -10,7 +10,11 @@ use serde::Deserialize;
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
 pub trait StatsRpc: Send + Sync {
-    async fn get_stats(&self, keys: &[String], interval: i64) -> anyhow::Result<Option<StatsGetStatsResult>>;
+    async fn get_stats(
+        &self,
+        keys: &[String],
+        interval: i64,
+    ) -> anyhow::Result<Option<StatsGetStatsResult>>;
     async fn get_totals(&self) -> anyhow::Result<StatsTotals>;
     async fn get_session_totals(&self) -> anyhow::Result<StatsTotals>;
     async fn set_config(&self, config: &StatsConfig) -> anyhow::Result<()>;
@@ -38,16 +42,19 @@ impl Clone for StatsClient {
 
 #[async_trait]
 impl StatsRpc for StatsClient {
-    async fn get_stats(&self, keys: &[String], interval: i64) -> anyhow::Result<Option<StatsGetStatsResult>> {
-        let keys_list: Vec<RencodeValue> = keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
+    async fn get_stats(
+        &self,
+        keys: &[String],
+        interval: i64,
+    ) -> anyhow::Result<Option<StatsGetStatsResult>> {
+        let keys_list: Vec<RencodeValue> =
+            keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
             .caller
-            .rpc_call(
-                DelugeRpcRequest::new("stats.get_stats").with_args(vec![
-                    RencodeValue::List(keys_list),
-                    RencodeValue::Int(interval),
-                ]),
-            )
+            .rpc_call(DelugeRpcRequest::new("stats.get_stats").with_args(vec![
+                RencodeValue::List(keys_list),
+                RencodeValue::Int(interval),
+            ]))
             .await
             .context("stats.get_stats RPC failed")?;
         let value = extract_single(&result, "stats.get_stats")?;
@@ -82,9 +89,7 @@ impl StatsRpc for StatsClient {
     async fn set_config(&self, config: &StatsConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing stats config")?;
         self.caller
-            .rpc_call(
-                DelugeRpcRequest::new("stats.set_config").with_args(vec![config_value]),
-            )
+            .rpc_call(DelugeRpcRequest::new("stats.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }

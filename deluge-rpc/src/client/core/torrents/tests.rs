@@ -21,7 +21,10 @@ fn when_add_torrent_file_response_str_then_some() {
         RencodeValue::None => None,
         _ => panic!("unexpected value: {value:?}"),
     };
-    assert_eq!(result, Some("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()));
+    assert_eq!(
+        result,
+        Some("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into())
+    );
 }
 
 #[test]
@@ -49,9 +52,9 @@ fn when_add_torrent_files_response_empty_then_all_succeeded() {
 
 #[test]
 fn when_add_torrent_files_response_errors_then_deserialized() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![
-        RencodeValue::Str("failed to add torrent".into()),
-    ])]);
+    let response = RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::Str(
+        "failed to add torrent".into(),
+    )])]);
     let value = extract_single(&response, "core.add_torrent_files").expect("extract");
     let result: AddTorrentFilesResult =
         AddTorrentFilesResult::deserialize(&value).expect("deserialize");
@@ -83,7 +86,10 @@ fn when_prefetch_magnet_metadata_response_tuple_then_deserialized() {
     let value = extract_single(&response, "core.prefetch_magnet_metadata").expect("extract");
     let result: PrefetchMagnetResult =
         PrefetchMagnetResult::deserialize(&value).expect("deserialize");
-    assert_eq!(result.torrent_id, "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111");
+    assert_eq!(
+        result.torrent_id,
+        "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111"
+    );
     assert_eq!(result.metadata, b"bencoded-data");
 }
 
@@ -151,19 +157,52 @@ fn when_get_torrent_status_response_dict_then_torrent_status() {
         RencodeValue::Str("progress".into()),
         RencodeValue::Float(50.0),
     );
-    map.insert(RencodeValue::Str("hash".into()), RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()));
+    map.insert(
+        RencodeValue::Str("hash".into()),
+        RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()),
+    );
     map.insert(RencodeValue::Str("ratio".into()), RencodeValue::Float(-1.0));
     map.insert(RencodeValue::Str("eta".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("completed_time".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("last_seen_complete".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("time_since_download".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("time_since_transfer".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("time_since_upload".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("seeds_peers_ratio".into()), RencodeValue::Float(-1.0));
-    map.insert(RencodeValue::Str("max_connections".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("max_download_speed".into()), RencodeValue::Float(-1.0));
-    map.insert(RencodeValue::Str("max_upload_slots".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("max_upload_speed".into()), RencodeValue::Float(-1.0));
+    map.insert(
+        RencodeValue::Str("completed_time".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("last_seen_complete".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("time_since_download".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("time_since_transfer".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("time_since_upload".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("seeds_peers_ratio".into()),
+        RencodeValue::Float(-1.0),
+    );
+    map.insert(
+        RencodeValue::Str("max_connections".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("max_download_speed".into()),
+        RencodeValue::Float(-1.0),
+    );
+    map.insert(
+        RencodeValue::Str("max_upload_slots".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("max_upload_speed".into()),
+        RencodeValue::Float(-1.0),
+    );
     let response = RencodeValue::List(vec![RencodeValue::Dict(map)]);
 
     let value = extract_single(&response, "core.get_torrent_status").expect("extract");
@@ -180,22 +219,64 @@ fn when_get_torrent_status_response_dict_then_torrent_status() {
 
 fn make_torrent_entry_dict(name: &str, hash: &str) -> BTreeMap<RencodeValue, RencodeValue> {
     let mut map = BTreeMap::new();
-    map.insert(RencodeValue::Str("name".into()), RencodeValue::Str(name.into()));
-    map.insert(RencodeValue::Str("state".into()), RencodeValue::Str("Seeding".into()));
-    map.insert(RencodeValue::Str("progress".into()), RencodeValue::Float(100.0));
+    map.insert(
+        RencodeValue::Str("name".into()),
+        RencodeValue::Str(name.into()),
+    );
+    map.insert(
+        RencodeValue::Str("state".into()),
+        RencodeValue::Str("Seeding".into()),
+    );
+    map.insert(
+        RencodeValue::Str("progress".into()),
+        RencodeValue::Float(100.0),
+    );
     map.insert(RencodeValue::Str("ratio".into()), RencodeValue::Float(2.5));
-    map.insert(RencodeValue::Str("hash".into()), RencodeValue::Str(hash.into()));
+    map.insert(
+        RencodeValue::Str("hash".into()),
+        RencodeValue::Str(hash.into()),
+    );
     map.insert(RencodeValue::Str("eta".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("completed_time".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("last_seen_complete".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("time_since_download".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("time_since_transfer".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("time_since_upload".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("seeds_peers_ratio".into()), RencodeValue::Float(-1.0));
-    map.insert(RencodeValue::Str("max_connections".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("max_download_speed".into()), RencodeValue::Float(-1.0));
-    map.insert(RencodeValue::Str("max_upload_slots".into()), RencodeValue::Int(-1));
-    map.insert(RencodeValue::Str("max_upload_speed".into()), RencodeValue::Float(-1.0));
+    map.insert(
+        RencodeValue::Str("completed_time".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("last_seen_complete".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("time_since_download".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("time_since_transfer".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("time_since_upload".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("seeds_peers_ratio".into()),
+        RencodeValue::Float(-1.0),
+    );
+    map.insert(
+        RencodeValue::Str("max_connections".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("max_download_speed".into()),
+        RencodeValue::Float(-1.0),
+    );
+    map.insert(
+        RencodeValue::Str("max_upload_slots".into()),
+        RencodeValue::Int(-1),
+    );
+    map.insert(
+        RencodeValue::Str("max_upload_speed".into()),
+        RencodeValue::Float(-1.0),
+    );
     map
 }
 
@@ -204,11 +285,17 @@ fn when_get_torrents_status_response_dict_then_vec_torrent_entry() {
     let mut result_dict = BTreeMap::new();
     result_dict.insert(
         RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()),
-        RencodeValue::Dict(make_torrent_entry_dict("torrent-a", "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111")),
+        RencodeValue::Dict(make_torrent_entry_dict(
+            "torrent-a",
+            "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111",
+        )),
     );
     result_dict.insert(
         RencodeValue::Str("bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222".into()),
-        RencodeValue::Dict(make_torrent_entry_dict("torrent-b", "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222")),
+        RencodeValue::Dict(make_torrent_entry_dict(
+            "torrent-b",
+            "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
+        )),
     );
     let response = RencodeValue::List(vec![RencodeValue::Dict(result_dict)]);
 
@@ -251,10 +338,7 @@ fn when_get_torrents_status_response_empty_dict_then_empty_vec() {
 #[test]
 fn when_get_filter_tree_response_dict_then_filter_tree() {
     let state_entries = vec![
-        RencodeValue::List(vec![
-            RencodeValue::Str("All".into()),
-            RencodeValue::Int(42),
-        ]),
+        RencodeValue::List(vec![RencodeValue::Str("All".into()), RencodeValue::Int(42)]),
         RencodeValue::List(vec![
             RencodeValue::Str("Seeding".into()),
             RencodeValue::Int(10),
@@ -351,17 +435,13 @@ async fn when_mock_core_torrent_rpc_then_expectations_met() {
     let mut mock = MockCoreTorrentRpc::new();
 
     mock.expect_remove_torrent()
-        .with(
-            predicate::eq("hash1"),
-            predicate::eq(true),
-        )
+        .with(predicate::eq("hash1"), predicate::eq(true))
         .returning(|_, _| Ok(true));
 
     mock.expect_get_torrents_status()
         .returning(|_, _, _| Ok(vec![]));
 
-    mock.expect_get_session_state()
-        .returning(|| Ok(vec![]));
+    mock.expect_get_session_state().returning(|| Ok(vec![]));
 
     let removed = mock.remove_torrent("hash1", true).await.expect("remove");
     assert!(removed);

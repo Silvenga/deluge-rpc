@@ -407,6 +407,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4ae5f15dda3c708c0ade84bfee31ccab44a3da4f88015ed22f63732abe300c8"
 
 [[package]]
+name = "deluge-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "assert_cmd",
+ "assert_fs",
+ "chrono",
+ "clap",
+ "deluge-rpc",
+ "flate2",
+ "rcgen",
+ "rustls",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-rustls",
+ "toml",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "deluge-retain"
 version = "0.1.0"
 dependencies = [
@@ -440,6 +462,22 @@ dependencies = [
  "base64",
  "flate2",
  "mockall",
+ "rcgen",
+ "rustls",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tokio-rustls",
+ "tracing",
+]
+
+[[package]]
+name = "deluge-rpc-mock"
+version = "0.1.0"
+dependencies = [
+ "deluge-rpc",
+ "flate2",
  "rcgen",
  "rustls",
  "serde",

@@ -12,7 +12,10 @@ use std::collections::BTreeMap;
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
 pub trait CoreMiscRpc: Send + Sync {
-    #[expect(clippy::too_many_arguments, reason = "create_torrent has many optional params per Deluge API")]
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "create_torrent has many optional params per Deluge API"
+    )]
     async fn create_torrent(
         &self,
         path: &str,
@@ -27,7 +30,11 @@ pub trait CoreMiscRpc: Send + Sync {
         add_to_session: bool,
     ) -> anyhow::Result<CreateTorrentResult>;
     async fn glob(&self, path: &str) -> anyhow::Result<GlobResult>;
-    async fn get_completion_paths(&self, completion_text: &str, show_hidden_files: bool) -> anyhow::Result<CompletionPaths>;
+    async fn get_completion_paths(
+        &self,
+        completion_text: &str,
+        show_hidden_files: bool,
+    ) -> anyhow::Result<CompletionPaths>;
 }
 
 pub struct CoreMiscClient {
@@ -65,22 +72,13 @@ impl CoreMiscRpc for CoreMiscClient {
     ) -> anyhow::Result<CreateTorrentResult> {
         let mut kwargs = BTreeMap::new();
         if let Some(c) = comment {
-            kwargs.insert(
-                RencodeValue::Str("comment".into()),
-                RencodeValue::Str(c),
-            );
+            kwargs.insert(RencodeValue::Str("comment".into()), RencodeValue::Str(c));
         }
         if let Some(t) = target {
-            kwargs.insert(
-                RencodeValue::Str("target".into()),
-                RencodeValue::Str(t),
-            );
+            kwargs.insert(RencodeValue::Str("target".into()), RencodeValue::Str(t));
         }
         if let Some(ws) = webseeds {
-            let ws_values: Vec<RencodeValue> = ws
-                .into_iter()
-                .map(RencodeValue::Str)
-                .collect();
+            let ws_values: Vec<RencodeValue> = ws.into_iter().map(RencodeValue::Str).collect();
             kwargs.insert(
                 RencodeValue::Str("webseeds".into()),
                 RencodeValue::List(ws_values),
@@ -99,13 +97,7 @@ impl CoreMiscRpc for CoreMiscClient {
         if let Some(tr) = trackers {
             let tr_values: Vec<RencodeValue> = tr
                 .into_iter()
-                .map(|tier| {
-                    RencodeValue::List(
-                        tier.into_iter()
-                            .map(RencodeValue::Str)
-                            .collect(),
-                    )
-                })
+                .map(|tier| RencodeValue::List(tier.into_iter().map(RencodeValue::Str).collect()))
                 .collect();
             kwargs.insert(
                 RencodeValue::Str("trackers".into()),
@@ -147,7 +139,11 @@ impl CoreMiscRpc for CoreMiscClient {
         GlobResult::deserialize(&value).context("deserializing glob result")
     }
 
-    async fn get_completion_paths(&self, completion_text: &str, show_hidden_files: bool) -> anyhow::Result<CompletionPaths> {
+    async fn get_completion_paths(
+        &self,
+        completion_text: &str,
+        show_hidden_files: bool,
+    ) -> anyhow::Result<CompletionPaths> {
         let mut args_map = BTreeMap::new();
         args_map.insert(
             RencodeValue::Str("completion_text".into()),
@@ -162,8 +158,7 @@ impl CoreMiscRpc for CoreMiscClient {
         let result = self
             .caller
             .rpc_call(
-                DelugeRpcRequest::new("core.get_completion_paths")
-                    .with_args(vec![args_value]),
+                DelugeRpcRequest::new("core.get_completion_paths").with_args(vec![args_value]),
             )
             .await
             .context("core.get_completion_paths RPC failed")?;

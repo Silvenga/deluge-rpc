@@ -10,7 +10,12 @@ use std::collections::BTreeMap;
 #[async_trait]
 pub trait DaemonRpc: Send + Sync {
     async fn info(&self) -> anyhow::Result<String>;
-    async fn login(&self, username: &str, password: &str, client_version: &str) -> anyhow::Result<i64>;
+    async fn login(
+        &self,
+        username: &str,
+        password: &str,
+        client_version: &str,
+    ) -> anyhow::Result<i64>;
     async fn set_event_interest(&self, event_names: &[String]) -> anyhow::Result<bool>;
     async fn shutdown(&self) -> anyhow::Result<()>;
     async fn get_method_list(&self) -> anyhow::Result<Vec<String>>;
@@ -25,6 +30,10 @@ pub struct DaemonClient {
 impl DaemonClient {
     pub(crate) fn new(caller: RpcCaller) -> Self {
         Self { caller }
+    }
+
+    pub(crate) fn rpc_caller(&self) -> RpcCaller {
+        self.caller.clone()
     }
 }
 
@@ -51,7 +60,12 @@ impl DaemonRpc for DaemonClient {
         }
     }
 
-    async fn login(&self, username: &str, password: &str, client_version: &str) -> anyhow::Result<i64> {
+    async fn login(
+        &self,
+        username: &str,
+        password: &str,
+        client_version: &str,
+    ) -> anyhow::Result<i64> {
         let mut kwargs = BTreeMap::new();
         kwargs.insert(
             RencodeValue::Str("client_version".into()),
@@ -118,7 +132,7 @@ impl DaemonRpc for DaemonClient {
                         other => {
                             return Err(anyhow!(
                                 "daemon.get_method_list returned non-str element: {other:?}"
-                            ))
+                            ));
                         }
                     }
                 }
@@ -139,7 +153,9 @@ impl DaemonRpc for DaemonClient {
         let value = extract_single(&result, "daemon.get_version")?;
         match value {
             RencodeValue::Str(s) => Ok(s),
-            other => Err(anyhow!("daemon.get_version returned non-str value: {other:?}")),
+            other => Err(anyhow!(
+                "daemon.get_version returned non-str value: {other:?}"
+            )),
         }
     }
 
@@ -235,12 +251,8 @@ mod tests {
     #[test]
     fn when_mock_daemon_rpc_then_expectations_met() {
         let mut mock = MockDaemonRpc::new();
-        mock.expect_info()
-            .times(1)
-            .returning(|| Ok("2.1.1".into()));
-        mock.expect_login()
-            .times(1)
-            .returning(|_, _, _| Ok(10));
+        mock.expect_info().times(1).returning(|| Ok("2.1.1".into()));
+        mock.expect_login().times(1).returning(|_, _, _| Ok(10));
         mock.expect_set_event_interest()
             .times(1)
             .returning(|_| Ok(true));
@@ -254,19 +266,18 @@ mod tests {
         let rt = Runtime::new().expect("runtime");
         rt.block_on(async {
             assert_eq!(mock.info().await.expect("info"), "2.1.1");
-            assert_eq!(
-                mock.login("user", "pass", "1.0").await.expect("login"),
-                10
+            assert_eq!(mock.login("user", "pass", "1.0").await.expect("login"), 10);
+            assert!(
+                mock.set_event_interest(&["TorrentAddedEvent".into()])
+                    .await
+                    .expect("set_event_interest")
             );
-            assert!(mock
-                .set_event_interest(&["TorrentAddedEvent".into()])
-                .await
-                .expect("set_event_interest"));
             assert_eq!(mock.get_version().await.expect("get_version"), "2.1.1");
-            assert!(mock
-                .authorized_call("core.get_free_space")
-                .await
-                .expect("authorized_call"));
+            assert!(
+                mock.authorized_call("core.get_free_space")
+                    .await
+                    .expect("authorized_call")
+            );
         });
     }
 }

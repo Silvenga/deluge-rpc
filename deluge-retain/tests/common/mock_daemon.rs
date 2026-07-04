@@ -468,8 +468,7 @@ mod tests {
     async fn when_login_fails_then_client_returns_error() {
         let mock = MockDelugeDaemon::start(MockDaemonConfig::login_bad()).await;
 
-        let result =
-            DelugeClient::connect(&mock.host(), mock.port(), "localclient", "wrong").await;
+        let result = DelugeClient::connect(&mock.host(), mock.port(), "localclient", "wrong").await;
         assert!(
             result.is_err(),
             "login with a BadLoginError response must fail"

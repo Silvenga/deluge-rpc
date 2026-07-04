@@ -12,10 +12,22 @@ use std::collections::BTreeMap;
 #[async_trait]
 pub trait CoreAccountRpc: Send + Sync {
     async fn get_known_accounts(&self) -> anyhow::Result<Vec<AccountInfo>>;
-    async fn create_account(&self, username: &str, password: &str, authlevel: &str) -> anyhow::Result<bool>;
-    async fn update_account(&self, username: &str, password: &str, authlevel: &str) -> anyhow::Result<bool>;
+    async fn create_account(
+        &self,
+        username: &str,
+        password: &str,
+        authlevel: &str,
+    ) -> anyhow::Result<bool>;
+    async fn update_account(
+        &self,
+        username: &str,
+        password: &str,
+        authlevel: &str,
+    ) -> anyhow::Result<bool>;
     async fn remove_account(&self, username: &str) -> anyhow::Result<bool>;
-    async fn get_auth_levels_mappings(&self) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)>;
+    async fn get_auth_levels_mappings(
+        &self,
+    ) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)>;
 }
 
 pub struct CoreAccountClient {
@@ -48,16 +60,19 @@ impl CoreAccountRpc for CoreAccountClient {
         Vec::<AccountInfo>::deserialize(&value).context("deserializing accounts")
     }
 
-    async fn create_account(&self, username: &str, password: &str, authlevel: &str) -> anyhow::Result<bool> {
+    async fn create_account(
+        &self,
+        username: &str,
+        password: &str,
+        authlevel: &str,
+    ) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(
-                DelugeRpcRequest::new("core.create_account").with_args(vec![
-                    RencodeValue::Str(username.to_owned()),
-                    RencodeValue::Str(password.to_owned()),
-                    RencodeValue::Str(authlevel.to_owned()),
-                ]),
-            )
+            .rpc_call(DelugeRpcRequest::new("core.create_account").with_args(vec![
+                RencodeValue::Str(username.to_owned()),
+                RencodeValue::Str(password.to_owned()),
+                RencodeValue::Str(authlevel.to_owned()),
+            ]))
             .await
             .context("core.create_account RPC failed")?;
         let value = extract_single(&result, "core.create_account")?;
@@ -69,16 +84,19 @@ impl CoreAccountRpc for CoreAccountClient {
         }
     }
 
-    async fn update_account(&self, username: &str, password: &str, authlevel: &str) -> anyhow::Result<bool> {
+    async fn update_account(
+        &self,
+        username: &str,
+        password: &str,
+        authlevel: &str,
+    ) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(
-                DelugeRpcRequest::new("core.update_account").with_args(vec![
-                    RencodeValue::Str(username.to_owned()),
-                    RencodeValue::Str(password.to_owned()),
-                    RencodeValue::Str(authlevel.to_owned()),
-                ]),
-            )
+            .rpc_call(DelugeRpcRequest::new("core.update_account").with_args(vec![
+                RencodeValue::Str(username.to_owned()),
+                RencodeValue::Str(password.to_owned()),
+                RencodeValue::Str(authlevel.to_owned()),
+            ]))
             .await
             .context("core.update_account RPC failed")?;
         let value = extract_single(&result, "core.update_account")?;
@@ -108,7 +126,9 @@ impl CoreAccountRpc for CoreAccountClient {
         }
     }
 
-    async fn get_auth_levels_mappings(&self) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)> {
+    async fn get_auth_levels_mappings(
+        &self,
+    ) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)> {
         let result = self
             .caller
             .rpc_call(DelugeRpcRequest::new("core.get_auth_levels_mappings"))
@@ -157,9 +177,8 @@ mod tests {
             RencodeValue::Str("authlevel_int".into()),
             RencodeValue::Int(10),
         );
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::Dict(
-            account,
-        )])]);
+        let response =
+            RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::Dict(account)])]);
 
         let value = extract_single(&response, "core.get_known_accounts").expect("extract");
         let accounts: Vec<AccountInfo> =
@@ -183,23 +202,11 @@ mod tests {
     #[test]
     fn when_core_get_auth_levels_mappings_then_tuple() {
         let mut name_to_int = BTreeMap::new();
-        name_to_int.insert(
-            RencodeValue::Str("NONE".into()),
-            RencodeValue::Int(0),
-        );
-        name_to_int.insert(
-            RencodeValue::Str("ADMIN".into()),
-            RencodeValue::Int(10),
-        );
+        name_to_int.insert(RencodeValue::Str("NONE".into()), RencodeValue::Int(0));
+        name_to_int.insert(RencodeValue::Str("ADMIN".into()), RencodeValue::Int(10));
         let mut int_to_name = BTreeMap::new();
-        int_to_name.insert(
-            RencodeValue::Int(0),
-            RencodeValue::Str("NONE".into()),
-        );
-        int_to_name.insert(
-            RencodeValue::Int(10),
-            RencodeValue::Str("ADMIN".into()),
-        );
+        int_to_name.insert(RencodeValue::Int(0), RencodeValue::Str("NONE".into()));
+        int_to_name.insert(RencodeValue::Int(10), RencodeValue::Str("ADMIN".into()));
         let response = RencodeValue::List(vec![RencodeValue::List(vec![
             RencodeValue::Dict(name_to_int),
             RencodeValue::Dict(int_to_name),

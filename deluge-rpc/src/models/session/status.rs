@@ -1,4 +1,4 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use crate::RencodeValue;
@@ -17,7 +17,7 @@ use crate::RencodeValue;
 ///
 /// The exact set of available metrics depends on the libtorrent version the
 /// daemon was built against. Unknown keys should be treated as missing or zero.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct SessionStatus {
     // --- Rate keys (f64, bytes/sec) ---
     pub download_rate: f64,

@@ -40,9 +40,8 @@ impl BlocklistRpc for BlocklistClient {
         let result = self
             .caller
             .rpc_call(
-                DelugeRpcRequest::new("blocklist.check_import").with_args(vec![
-                    RencodeValue::Bool(force),
-                ]),
+                DelugeRpcRequest::new("blocklist.check_import")
+                    .with_args(vec![RencodeValue::Bool(force)]),
             )
             .await
             .context("blocklist.check_import RPC failed")?;
@@ -50,7 +49,9 @@ impl BlocklistRpc for BlocklistClient {
         match value {
             RencodeValue::None => Ok(None),
             RencodeValue::Str(s) => Ok(Some(s)),
-            other => Err(anyhow!("blocklist.check_import returned unexpected type: {other:?}")),
+            other => Err(anyhow!(
+                "blocklist.check_import returned unexpected type: {other:?}"
+            )),
         }
     }
 
@@ -67,9 +68,7 @@ impl BlocklistRpc for BlocklistClient {
     async fn set_config(&self, config: &BlocklistConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing blocklist config")?;
         self.caller
-            .rpc_call(
-                DelugeRpcRequest::new("blocklist.set_config").with_args(vec![config_value]),
-            )
+            .rpc_call(DelugeRpcRequest::new("blocklist.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -108,11 +107,17 @@ mod tests {
             ("num_whited", RencodeValue::Int(10)),
             ("num_blocked", RencodeValue::Int(5000)),
             ("file_progress", RencodeValue::Float(1.0)),
-            ("file_url", RencodeValue::Str("https://example.com/blocklist.txt".into())),
+            (
+                "file_url",
+                RencodeValue::Str("https://example.com/blocklist.txt".into()),
+            ),
             ("file_size", RencodeValue::Int(1_048_576)),
             ("file_date", RencodeValue::Float(1_700_000_000.0)),
             ("file_type", RencodeValue::Str("p2p (gz)".into())),
-            ("whitelisted", RencodeValue::List(vec![RencodeValue::Str("10.0.0.1".into())])),
+            (
+                "whitelisted",
+                RencodeValue::List(vec![RencodeValue::Str("10.0.0.1".into())]),
+            ),
         ])]);
 
         let value = extract_single(&response, "blocklist.get_status").expect("extract");

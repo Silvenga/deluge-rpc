@@ -1,0 +1,32 @@
+[package]
+name = "deluge-rpc-mock"
+description = "Cassette replay server for Deluge daemon RPC protocol testing"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme.workspace = true
+keywords = ["deluge", "rpc", "mock", "testing", "cassette"]
+categories = ["development-tools::testing"]
+
+[lints]
+workspace = true
+
+[dependencies]
+deluge-rpc = { path = "../deluge-rpc" }
+flate2 = { workspace = true }
+rcgen = { workspace = true }
+rustls = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tokio-rustls = { workspace = true }
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true }

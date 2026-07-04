@@ -14,7 +14,10 @@ use std::collections::BTreeMap;
 pub trait CoreConfigRpc: Send + Sync {
     async fn get_config(&self) -> anyhow::Result<DaemonConfig>;
     async fn get_config_value(&self, key: &str) -> anyhow::Result<RencodeValue>;
-    async fn get_config_values(&self, keys: &[String]) -> anyhow::Result<BTreeMap<String, RencodeValue>>;
+    async fn get_config_values(
+        &self,
+        keys: &[String],
+    ) -> anyhow::Result<BTreeMap<String, RencodeValue>>;
     async fn set_config(&self, config: &BTreeMap<String, RencodeValue>) -> anyhow::Result<()>;
     async fn get_proxy(&self) -> anyhow::Result<ProxyConfig>;
 }
@@ -61,11 +64,12 @@ impl CoreConfigRpc for CoreConfigClient {
         extract_single(&result, "core.get_config_value")
     }
 
-    async fn get_config_values(&self, keys: &[String]) -> anyhow::Result<BTreeMap<String, RencodeValue>> {
-        let key_values: Vec<RencodeValue> = keys
-            .iter()
-            .map(|k| RencodeValue::Str(k.clone()))
-            .collect();
+    async fn get_config_values(
+        &self,
+        keys: &[String],
+    ) -> anyhow::Result<BTreeMap<String, RencodeValue>> {
+        let key_values: Vec<RencodeValue> =
+            keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
             .caller
             .rpc_call(
@@ -86,7 +90,7 @@ impl CoreConfigRpc for CoreConfigClient {
                         other => {
                             return Err(anyhow!(
                                 "core.get_config_values returned non-str key: {other:?}"
-                            ))
+                            ));
                         }
                     }
                 }

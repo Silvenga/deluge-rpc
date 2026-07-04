@@ -38,9 +38,7 @@ impl SchedulerRpc for SchedulerClient {
     async fn set_config(&self, config: &SchedulerConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing scheduler config")?;
         self.caller
-            .rpc_call(
-                DelugeRpcRequest::new("scheduler.set_config").with_args(vec![config_value]),
-            )
+            .rpc_call(DelugeRpcRequest::new("scheduler.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }

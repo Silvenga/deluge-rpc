@@ -129,9 +129,7 @@ impl ConnectionState {
                             exc_msg,
                             ..
                         }) if id == login_id => {
-                            return Err(anyhow!(
-                                "daemon.login failed: {exc_type}: {exc_msg}"
-                            ));
+                            return Err(anyhow!("daemon.login failed: {exc_type}: {exc_msg}"));
                         }
                         Ok(_) => continue,
                         Err(RecvError::Lagged(n)) => {
@@ -168,7 +166,12 @@ impl ConnectionState {
         Ok(())
     }
 
-    pub(crate) fn writer_and_rx(&self) -> Option<(Arc<Mutex<DelugeWriter>>, broadcast::Receiver<DelugeRpcMessage>)> {
+    pub(crate) fn writer_and_rx(
+        &self,
+    ) -> Option<(
+        Arc<Mutex<DelugeWriter>>,
+        broadcast::Receiver<DelugeRpcMessage>,
+    )> {
         match self {
             ConnectionState::Connected { writer, shared, .. } => {
                 let rx = shared.message_tx.subscribe();
@@ -233,6 +236,10 @@ impl DelugeClient {
     pub fn plugins(&self) -> &PluginsClient {
         &self.plugins_client
     }
+
+    pub fn rpc_caller(&self) -> RpcCaller {
+        self.daemon_client.rpc_caller()
+    }
 }
 
 pub struct CoreClient {
@@ -296,8 +303,6 @@ mod tests {
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
     use rustls::crypto::ring;
-    use tokio::time::sleep;
-    use tokio_rustls::server::TlsStream;
     use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;
     use std::io::{Read, Write};
@@ -306,6 +311,8 @@ mod tests {
     use std::time::Duration;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::{TcpListener, TcpStream};
+    use tokio::time::sleep;
+    use tokio_rustls::server::TlsStream;
 
     const HEADER_LEN: usize = 5;
     const PROTOCOL_VERSION: u8 = 1;
@@ -415,10 +422,7 @@ mod tests {
         }
     }
 
-    async fn handle_connection(
-        mut tls: TlsStream<TcpStream>,
-        drop_after_requests: u32,
-    ) {
+    async fn handle_connection(mut tls: TlsStream<TcpStream>, drop_after_requests: u32) {
         let mut header = [0u8; HEADER_LEN];
         let mut request_count: u32 = 0;
         loop {
@@ -490,14 +494,9 @@ mod tests {
     async fn when_connect_then_client_has_all_sub_clients() {
         let server = MockServer::new(u32::MAX).await;
 
-        let client = DelugeClient::connect(
-            "127.0.0.1",
-            server.addr.port(),
-            "testuser",
-            "testpass",
-        )
-        .await
-        .expect("connect");
+        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
+            .await
+            .expect("connect");
 
         let _daemon = client.daemon();
         let core = client.core();
@@ -525,14 +524,9 @@ mod tests {
     async fn when_reader_dies_then_next_call_reconnects() {
         let server = MockServer::new(2).await;
 
-        let client = DelugeClient::connect(
-            "127.0.0.1",
-            server.addr.port(),
-            "testuser",
-            "testpass",
-        )
-        .await
-        .expect("connect");
+        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
+            .await
+            .expect("connect");
 
         let result = client.daemon().info().await;
         assert!(result.is_ok(), "first call should succeed: {result:?}");
@@ -540,61 +534,55 @@ mod tests {
         sleep(Duration::from_millis(100)).await;
 
         let result2 = client.daemon().info().await;
-        assert!(result2.is_ok(), "second call after reconnect should succeed: {result2:?}");
+        assert!(
+            result2.is_ok(),
+            "second call after reconnect should succeed: {result2:?}"
+        );
     }
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_reconnect_then_re_login_succeeds() {
         let server = MockServer::new(2).await;
 
-        let client = DelugeClient::connect(
-            "127.0.0.1",
-            server.addr.port(),
-            "testuser",
-            "testpass",
-        )
-        .await
-        .expect("connect");
+        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
+            .await
+            .expect("connect");
 
         let _ = client.daemon().info().await;
 
         sleep(Duration::from_millis(100)).await;
 
         let result = client.daemon().get_version().await;
-        assert!(result.is_ok(), "call after reconnect should succeed: {result:?}");
+        assert!(
+            result.is_ok(),
+            "call after reconnect should succeed: {result:?}"
+        );
     }
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_in_flight_request_dropped_then_error_returned() {
         let server = MockServer::new(1).await;
 
-        let client = DelugeClient::connect(
-            "127.0.0.1",
-            server.addr.port(),
-            "testuser",
-            "testpass",
-        )
-        .await
-        .expect("connect");
+        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
+            .await
+            .expect("connect");
 
         sleep(Duration::from_millis(100)).await;
 
         let result = client.daemon().info().await;
-        assert!(result.is_err(), "call should fail (connection dropped): {result:?}");
+        assert!(
+            result.is_err(),
+            "call should fail (connection dropped): {result:?}"
+        );
     }
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_repeated_reconnects_then_no_reader_leak() {
         let server = MockServer::new(2).await;
 
-        let client = DelugeClient::connect(
-            "127.0.0.1",
-            server.addr.port(),
-            "testuser",
-            "testpass",
-        )
-        .await
-        .expect("connect");
+        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
+            .await
+            .expect("connect");
 
         for i in 0..5 {
             let result = client.daemon().info().await;

@@ -6,13 +6,17 @@ use crate::protocol::extract_single_int;
 use crate::rencode::{RencodeValue, to_rencode_value};
 use anyhow::{Context, anyhow};
 use async_trait::async_trait;
-use std::collections::BTreeMap;
 use serde::Deserialize;
+use std::collections::BTreeMap;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
 pub trait AutoaddRpc: Send + Sync {
-    async fn set_options(&self, watchdir_id: WatchdirId, options: &WatchdirOptions) -> anyhow::Result<()>;
+    async fn set_options(
+        &self,
+        watchdir_id: WatchdirId,
+        options: &WatchdirOptions,
+    ) -> anyhow::Result<()>;
     async fn enable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()>;
     async fn disable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()>;
     async fn set_config(&self, config: &AutoAddConfig) -> anyhow::Result<()>;
@@ -44,14 +48,16 @@ impl Clone for AutoaddClient {
 
 #[async_trait]
 impl AutoaddRpc for AutoaddClient {
-    async fn set_options(&self, watchdir_id: WatchdirId, options: &WatchdirOptions) -> anyhow::Result<()> {
+    async fn set_options(
+        &self,
+        watchdir_id: WatchdirId,
+        options: &WatchdirOptions,
+    ) -> anyhow::Result<()> {
         let options_value = to_rencode_value(options).context("serializing watchdir options")?;
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("autoadd.set_options").with_args(vec![
-                    RencodeValue::Int(watchdir_id),
-                    options_value,
-                ]),
+                DelugeRpcRequest::new("autoadd.set_options")
+                    .with_args(vec![RencodeValue::Int(watchdir_id), options_value]),
             )
             .await?;
         Ok(())
@@ -60,9 +66,8 @@ impl AutoaddRpc for AutoaddClient {
     async fn enable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("autoadd.enable_watchdir").with_args(vec![
-                    RencodeValue::Int(watchdir_id),
-                ]),
+                DelugeRpcRequest::new("autoadd.enable_watchdir")
+                    .with_args(vec![RencodeValue::Int(watchdir_id)]),
             )
             .await?;
         Ok(())
@@ -71,9 +76,8 @@ impl AutoaddRpc for AutoaddClient {
     async fn disable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("autoadd.disable_watchdir").with_args(vec![
-                    RencodeValue::Int(watchdir_id),
-                ]),
+                DelugeRpcRequest::new("autoadd.disable_watchdir")
+                    .with_args(vec![RencodeValue::Int(watchdir_id)]),
             )
             .await?;
         Ok(())
@@ -82,9 +86,7 @@ impl AutoaddRpc for AutoaddClient {
     async fn set_config(&self, config: &AutoAddConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing autoadd config")?;
         self.caller
-            .rpc_call(
-                DelugeRpcRequest::new("autoadd.set_config").with_args(vec![config_value]),
-            )
+            .rpc_call(DelugeRpcRequest::new("autoadd.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -106,8 +108,7 @@ impl AutoaddRpc for AutoaddClient {
             .await
             .context("autoadd.get_watchdirs RPC failed")?;
         let value = extract_single(&result, "autoadd.get_watchdirs")?;
-        BTreeMap::<String, WatchdirOptions>::deserialize(&value)
-            .context("deserializing watchdirs")
+        BTreeMap::<String, WatchdirOptions>::deserialize(&value).context("deserializing watchdirs")
     }
 
     async fn add(&self, options: Option<WatchdirOptions>) -> anyhow::Result<WatchdirId> {
@@ -127,9 +128,8 @@ impl AutoaddRpc for AutoaddClient {
     async fn remove(&self, watchdir_id: WatchdirId) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
-                DelugeRpcRequest::new("autoadd.remove").with_args(vec![
-                    RencodeValue::Int(watchdir_id),
-                ]),
+                DelugeRpcRequest::new("autoadd.remove")
+                    .with_args(vec![RencodeValue::Int(watchdir_id)]),
             )
             .await?;
         Ok(())
@@ -144,7 +144,9 @@ impl AutoaddRpc for AutoaddClient {
         let value = extract_single(&result, "autoadd.is_admin_level")?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!("autoadd.is_admin_level returned non-bool: {other:?}")),
+            other => Err(anyhow!(
+                "autoadd.is_admin_level returned non-bool: {other:?}"
+            )),
         }
     }
 
