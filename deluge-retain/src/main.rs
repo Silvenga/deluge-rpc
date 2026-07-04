@@ -15,7 +15,7 @@ use deluge_retain::cli::Cli;
 use deluge_retain::config::{Config, HostConfig, Rules};
 use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
 use deluge_retain::tracing_setup::init_tracing;
-use deluge_retain::{DelugeRpcClient, DelugeRpc};
+use deluge_retain::{DelugeRpc, DelugeRpcClient};
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;

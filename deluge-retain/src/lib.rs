@@ -4,5 +4,5 @@ pub mod engine;
 pub mod policy;
 pub mod tracing_setup;
 
-pub use deluge_rpc::{DelugeRpcClient, DelugeRpc, RencodeValue};
 pub use config::{Config, HostConfig, Rules};
+pub use deluge_rpc::{DelugeRpc, DelugeRpcClient, RencodeValue};

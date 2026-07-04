@@ -9,8 +9,6 @@
 //! The binary's `tracing` subscriber writes to **stdout** (the default
 //! `tracing_subscriber::fmt` layer target), so assertions are on stdout.
 
-
-
 mod common;
 
 use assert_cmd::Command;

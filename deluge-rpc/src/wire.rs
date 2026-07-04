@@ -6,20 +6,6 @@ pub const RPC_RESPONSE: i64 = 1;
 pub const RPC_ERROR: i64 = 2;
 pub const RPC_EVENT: i64 = 3;
 
-pub fn build_request(
-    id: u32,
-    method: &str,
-    args: Vec<RencodeValue>,
-    kwargs: BTreeMap<RencodeValue, RencodeValue>,
-) -> RencodeValue {
-    RencodeValue::List(vec![RencodeValue::List(vec![
-        RencodeValue::Int(i64::from(id)),
-        RencodeValue::Str(String::from(method)),
-        RencodeValue::List(args),
-        RencodeValue::Dict(kwargs),
-    ])])
-}
-
 #[derive(Debug)]
 pub enum ResponseOutcome {
     Return(RencodeValue),
@@ -154,6 +140,7 @@ pub fn field_as_str(value: Option<&RencodeValue>) -> Option<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::protocol::DelugeRpcRequest;
 
     fn unwrap_request(value: &RencodeValue) -> Vec<RencodeValue> {
         let outer = match value {
@@ -185,7 +172,10 @@ mod tests {
             RencodeValue::Str(String::from("secret")),
         ];
 
-        let request = build_request(1, "daemon.login", args, kwargs);
+        let request = DelugeRpcRequest::new("daemon.login")
+            .with_args(args)
+            .with_kwargs(kwargs)
+            .into_rencode_value(1);
 
         let outer = match &request {
             RencodeValue::List(items) if items.len() == 1 => &items[0],
@@ -223,12 +213,7 @@ mod tests {
 
     #[test]
     fn when_get_free_space_request_built_then_args_has_none() {
-        let request = build_request(
-            2,
-            "core.get_free_space",
-            vec![RencodeValue::None],
-            BTreeMap::new(),
-        );
+        let request = DelugeRpcRequest::new("core.get_free_space").into_rencode_value(2);
         let parts = unwrap_request(&request);
         assert_eq!(parts[0], RencodeValue::Int(2));
         match &parts[2] {
@@ -251,7 +236,9 @@ mod tests {
             RencodeValue::Dict(BTreeMap::new()),
             RencodeValue::List(keys),
         ];
-        let request = build_request(3, "core.get_torrents_status", args, BTreeMap::new());
+        let request = DelugeRpcRequest::new("core.get_torrents_status")
+            .with_args(args)
+            .into_rencode_value(3);
         let parts = unwrap_request(&request);
         match &parts[2] {
             RencodeValue::List(args) => {
@@ -275,7 +262,9 @@ mod tests {
             RencodeValue::Str(String::from("deadbeef")),
             RencodeValue::Bool(true),
         ];
-        let request = build_request(4, "core.remove_torrent", args, BTreeMap::new());
+        let request = DelugeRpcRequest::new("core.remove_torrent")
+            .with_args(args)
+            .into_rencode_value(4);
         let parts = unwrap_request(&request);
         match &parts[2] {
             RencodeValue::List(args) => {

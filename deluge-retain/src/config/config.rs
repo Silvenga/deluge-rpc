@@ -1,6 +1,6 @@
 use crate::config::host_config::HostConfig;
 use crate::config::rules::Rules;
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use serde::Deserialize;
 use std::fs;
 use std::path::Path;

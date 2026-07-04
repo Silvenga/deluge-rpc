@@ -1,5 +1,6 @@
 mod client;
 pub mod models;
+mod protocol;
 mod rencode;
 mod rpc;
 mod transport;

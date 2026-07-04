@@ -1,10 +1,10 @@
 use crate::models::TorrentInfo;
+use crate::protocol::DelugeRpcRequest;
 use crate::rencode::RencodeValue;
 use crate::rpc::DelugeRpc;
 use crate::transport::DelugeTransport;
 use crate::wire::{
-    ResponseOutcome, build_request, extract_single, extract_single_dict, extract_single_int,
-    handle_response,
+    ResponseOutcome, extract_single, extract_single_dict, extract_single_int, handle_response,
 };
 use anyhow::{Context, anyhow};
 use async_trait::async_trait;
@@ -39,14 +39,11 @@ impl DelugeRpcClient {
         self.next_request_id.fetch_add(1, Ordering::Relaxed)
     }
 
-    async fn rpc_call(
-        &self,
-        method: &str,
-        args: Vec<RencodeValue>,
-        kwargs: BTreeMap<RencodeValue, RencodeValue>,
-    ) -> anyhow::Result<RencodeValue> {
+    async fn rpc_call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
         let id = self.next_id();
-        let encoded = build_request(id, method, args, kwargs).encode();
+
+        let method = request.method.to_owned();
+        let encoded = request.encode(id);
 
         let mut guard = self.transport.lock().await;
         let transport = guard
@@ -65,7 +62,7 @@ impl DelugeRpcClient {
             let decoded = RencodeValue::decode(&raw)
                 .with_context(|| format!("failed to decode RPC response for `{method}`"))?;
 
-            match handle_response(&decoded, id, method)? {
+            match handle_response(&decoded, id, &method)? {
                 ResponseOutcome::Return(value) => return Ok(value),
                 ResponseOutcome::Continue => {}
             }
@@ -95,8 +92,12 @@ impl DelugeRpc for DelugeRpcClient {
             RencodeValue::Str(self.password.clone()),
         ];
 
+        let request = DelugeRpcRequest::new("daemon.login")
+            .with_args(args)
+            .with_kwargs(kwargs);
+
         let result = self
-            .rpc_call("daemon.login", args, kwargs)
+            .rpc_call(request)
             .await
             .context("daemon.login RPC failed")?;
 
@@ -107,11 +108,7 @@ impl DelugeRpc for DelugeRpcClient {
 
     async fn get_free_space(&self) -> anyhow::Result<u64> {
         let result = self
-            .rpc_call(
-                "core.get_free_space",
-                vec![RencodeValue::None],
-                BTreeMap::new(),
-            )
+            .rpc_call(DelugeRpcRequest::new("core.get_free_space"))
             .await
             .context("core.get_free_space RPC failed")?;
 
@@ -142,7 +139,7 @@ impl DelugeRpc for DelugeRpcClient {
         ];
 
         let result = self
-            .rpc_call("core.get_torrents_status", args, BTreeMap::default())
+            .rpc_call(DelugeRpcRequest::new("core.get_torrents_status").with_args(args))
             .await
             .context("core.get_torrents_status RPC failed")?;
 
@@ -167,13 +164,11 @@ impl DelugeRpc for DelugeRpcClient {
     }
 
     async fn remove_torrent(&self, id: &str) -> anyhow::Result<bool> {
-        let args = vec![
-            RencodeValue::Str(id.to_owned()),
-            RencodeValue::Bool(true),
-        ];
-
         let result = self
-            .rpc_call("core.remove_torrent", args, BTreeMap::default())
+            .rpc_call(DelugeRpcRequest::new("core.remove_torrent").with_args(vec![
+                RencodeValue::Str(id.to_owned()),
+                RencodeValue::Bool(true),
+            ]))
             .await
             .context("core.remove_torrent RPC failed")?;
 
