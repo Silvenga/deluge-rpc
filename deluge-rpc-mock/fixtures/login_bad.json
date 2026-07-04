@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-04T12:00:00Z",
+  "daemon_version": "2.1.1",
+  "interactions": [
+    {
+      "request": {
+        "method": "daemon.login",
+        "args": {
+          "type": "list",
+          "value": [
+            {"type": "str", "value": "localclient"},
+            {"type": "str", "value": "secret"}
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {"type": "str", "value": "client_version"},
+              "value": {"type": "str", "value": "deluge-rpc/0.1.0"}
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "BadLoginError",
+        "exc_msg": "bad password",
+        "traceback": ""
+      }
+    }
+  ]
+}

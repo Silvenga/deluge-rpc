@@ -1,0 +1,117 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-04T12:00:00Z",
+  "daemon_version": "2.1.1",
+  "interactions": [
+    {
+      "request": {
+        "method": "daemon.login",
+        "args": {
+          "type": "list",
+          "value": [
+            {"type": "str", "value": "localclient"},
+            {"type": "str", "value": "secret"}
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {"type": "str", "value": "client_version"},
+              "value": {"type": "str", "value": "deluge-rpc/0.1.0"}
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {"type": "int", "value": 5}
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_free_space",
+        "args": {
+          "type": "list",
+          "value": [
+            {"type": "none"}
+          ]
+        },
+        "kwargs": {
+          "type": "list",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {"type": "int", "value": 5368709120}
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_torrents_status",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": []
+            },
+            {
+              "type": "list",
+              "value": [
+                {"type": "str", "value": "name"},
+                {"type": "str", "value": "state"},
+                {"type": "str", "value": "progress"},
+                {"type": "str", "value": "ratio"},
+                {"type": "str", "value": "total_seeds"},
+                {"type": "str", "value": "num_seeds"},
+                {"type": "str", "value": "time_added"},
+                {"type": "str", "value": "total_done"},
+                {"type": "str", "value": "total_uploaded"},
+                {"type": "str", "value": "is_finished"},
+                {"type": "str", "value": "download_location"}
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {"type": "str", "value": "diff"},
+              "value": {"type": "bool", "value": false}
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {"type": "str", "value": "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111"},
+              "value": {
+                "type": "dict",
+                "value": [
+                  {"key": {"type": "str", "value": "name"}, "value": {"type": "str", "value": "old-torrent"}},
+                  {"key": {"type": "str", "value": "state"}, "value": {"type": "str", "value": "Seeding"}},
+                  {"key": {"type": "str", "value": "progress"}, "value": {"type": "float", "value": 100.0}},
+                  {"key": {"type": "str", "value": "ratio"}, "value": {"type": "float", "value": 3.0}},
+                  {"key": {"type": "str", "value": "total_seeds"}, "value": {"type": "int", "value": 50}},
+                  {"key": {"type": "str", "value": "num_seeds"}, "value": {"type": "int", "value": 5}},
+                  {"key": {"type": "str", "value": "time_added"}, "value": {"type": "int", "value": 1700000000}},
+                  {"key": {"type": "str", "value": "total_done"}, "value": {"type": "int", "value": 2147483648}},
+                  {"key": {"type": "str", "value": "total_uploaded"}, "value": {"type": "int", "value": 0}},
+                  {"key": {"type": "str", "value": "is_finished"}, "value": {"type": "bool", "value": true}},
+                  {"key": {"type": "str", "value": "download_location"}, "value": {"type": "str", "value": "/data"}}
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
