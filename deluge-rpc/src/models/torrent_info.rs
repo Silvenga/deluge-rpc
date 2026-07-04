@@ -1,5 +1,5 @@
-use crate::RencodeValue;
 use crate::rencode::RencodeError;
+use crate::RencodeValue;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
