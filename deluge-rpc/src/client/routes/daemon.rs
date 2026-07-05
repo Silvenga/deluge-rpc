@@ -1,8 +1,8 @@
-use crate::client::RpcCaller;
+use crate::client::caller::RpcCaller;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::{extract_single, extract_single_int};
 use crate::rencode::RencodeValue;
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
@@ -30,18 +30,6 @@ pub struct DaemonClient {
 impl DaemonClient {
     pub(crate) fn new(caller: RpcCaller) -> Self {
         Self { caller }
-    }
-
-    pub(crate) fn rpc_caller(&self) -> RpcCaller {
-        self.caller.clone()
-    }
-}
-
-impl Clone for DaemonClient {
-    fn clone(&self) -> Self {
-        Self {
-            caller: self.caller.clone(),
-        }
     }
 }
 

@@ -1,31 +1,31 @@
-use crate::client::RpcCaller;
-use crate::models::plugins::WebUiConfig;
-use crate::protocol::DelugeRpcRequest;
+use crate::client::caller::RpcCaller;
+use crate::models::WebUiConfig;
 use crate::protocol::extract_single;
-use crate::rencode::{RencodeValue, to_rencode_value};
-use anyhow::{Context, anyhow};
+use crate::protocol::DelugeRpcRequest;
+use crate::rencode::{to_rencode_value, RencodeValue};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
-pub trait WebuiRpc: Send + Sync {
+pub trait WebUiRpc: Send + Sync {
     async fn got_deluge_web(&self) -> anyhow::Result<bool>;
     async fn set_config(&self, config: &WebUiConfig) -> anyhow::Result<()>;
     async fn get_config(&self) -> anyhow::Result<WebUiConfig>;
 }
 
-pub struct WebuiClient {
+pub struct WebUiClient {
     caller: RpcCaller,
 }
 
-impl WebuiClient {
+impl WebUiClient {
     pub(crate) fn new(caller: RpcCaller) -> Self {
         Self { caller }
     }
 }
 
-impl Clone for WebuiClient {
+impl Clone for WebUiClient {
     fn clone(&self) -> Self {
         Self {
             caller: self.caller.clone(),
@@ -34,7 +34,7 @@ impl Clone for WebuiClient {
 }
 
 #[async_trait]
-impl WebuiRpc for WebuiClient {
+impl WebUiRpc for WebUiClient {
     async fn got_deluge_web(&self) -> anyhow::Result<bool> {
         let result = self
             .caller

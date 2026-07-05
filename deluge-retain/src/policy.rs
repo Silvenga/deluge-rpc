@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use deluge_rpc::models::torrents::TorrentEntry;
+use deluge_rpc::models::TorrentEntry;
 
 fn time_added_to_datetime(time_added: i64) -> Option<DateTime<Utc>> {
     DateTime::<Utc>::from_timestamp(time_added, 0)
@@ -35,7 +35,7 @@ pub fn filter_eligible(
 mod tests {
     use super::*;
     use chrono::Duration;
-    use deluge_rpc::models::torrents::TorrentStatus;
+    use deluge_rpc::models::TorrentStatus;
 
     fn make_torrent(
         progress: f64,

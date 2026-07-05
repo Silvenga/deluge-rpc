@@ -1,8 +1,6 @@
-use crate::client::RpcCaller;
-use crate::models::config::CompletionPaths;
-use crate::models::misc::{CreateTorrentResult, GlobResult};
-use crate::protocol::DelugeRpcRequest;
-use crate::protocol::extract_single;
+use crate::client::caller::RpcCaller;
+use crate::models::{CompletionPaths, CreateTorrentResult, GlobResult};
+use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::RencodeValue;
 use anyhow::Context;
 use async_trait::async_trait;
@@ -23,7 +21,7 @@ pub trait CoreMiscRpc: Send + Sync {
         piece_length: i64,
         comment: Option<String>,
         target: Option<String>,
-        webseeds: Option<Vec<String>>,
+        web_seeds: Option<Vec<String>>,
         private: bool,
         created_by: Option<String>,
         trackers: Option<Vec<Vec<String>>>,
@@ -64,7 +62,7 @@ impl CoreMiscRpc for CoreMiscClient {
         piece_length: i64,
         comment: Option<String>,
         target: Option<String>,
-        webseeds: Option<Vec<String>>,
+        web_seeds: Option<Vec<String>>,
         private: bool,
         created_by: Option<String>,
         trackers: Option<Vec<Vec<String>>>,
@@ -77,7 +75,7 @@ impl CoreMiscRpc for CoreMiscClient {
         if let Some(t) = target {
             kwargs.insert(RencodeValue::Str("target".into()), RencodeValue::Str(t));
         }
-        if let Some(ws) = webseeds {
+        if let Some(ws) = web_seeds {
             let ws_values: Vec<RencodeValue> = ws.into_iter().map(RencodeValue::Str).collect();
             kwargs.insert(
                 RencodeValue::Str("webseeds".into()),
@@ -194,6 +192,6 @@ mod tests {
         let result: CreateTorrentResult =
             CreateTorrentResult::deserialize(&value).expect("deserialize");
         assert_eq!(result.filename, "my.torrent");
-        assert_eq!(result.filedump, "base64data");
+        assert_eq!(result.file_dump, "base64data");
     }
 }

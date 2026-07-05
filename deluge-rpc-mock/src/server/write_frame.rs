@@ -1,6 +1,6 @@
 use crate::server::constants::{HEADER_LEN, PROTOCOL_VERSION};
-use flate2::Compression;
 use flate2::write::ZlibEncoder;
+use flate2::Compression;
 use std::io;
 use std::io::ErrorKind;
 use std::io::Write;

@@ -1,10 +1,8 @@
-use super::deluge_client::{ConnectionState, DelugeClientInner};
-use crate::protocol::DelugeRpcMessage;
-use crate::protocol::DelugeRpcRequest;
-use crate::rencode::RencodeValue;
-use anyhow::{Context, anyhow};
-use std::sync::Arc;
+use crate::client::{ConnectionState, DelugeClientInner};
+use crate::{DelugeRpcMessage, DelugeRpcRequest, RencodeValue};
+use anyhow::{anyhow, Context};
 use std::sync::atomic::Ordering;
+use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::broadcast;
 use tokio::sync::broadcast::error::RecvError;
@@ -18,10 +16,11 @@ pub struct RpcCaller {
 }
 
 impl RpcCaller {
-    pub(crate) fn new_reconnect(inner: Arc<DelugeClientInner>) -> Self {
+    pub fn new_reconnect(inner: Arc<DelugeClientInner>) -> Self {
         Self { inner }
     }
 
+    #[expect(dead_code, reason = "future use")]
     pub fn subscribe_events(&self) -> broadcast::Receiver<DelugeRpcMessage> {
         match self.inner.state.try_lock() {
             Ok(state) => match &*state {

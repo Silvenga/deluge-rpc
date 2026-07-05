@@ -1,27 +1,19 @@
-use super::connection::reader_loop;
-use super::shared::Shared;
-use crate::client::RpcCaller;
-use crate::client::core::{
-    CoreAccountClient, CoreConfigClient, CoreMiscClient, CorePluginClient, CoreSessionClient,
-    CoreTorrentClient,
+use crate::client::caller::RpcCaller;
+use crate::client::shared::Shared;
+use crate::{
+    AutoAddClient, BlocklistClient, CoreAccountClient, CoreConfigClient, CoreMiscClient,
+    CorePluginClient, CoreSessionClient, CoreTorrentClient, DaemonClient, DelugeReader,
+    DelugeRpcMessage, DelugeRpcRequest, DelugeTransport, DelugeWriter, ExecuteClient,
+    ExtractorClient, LabelClient, NotificationsClient, RencodeValue, SchedulerClient, StatsClient,
+    ToggleClient, WebUiClient,
 };
-use crate::client::daemon::DaemonClient;
-use crate::client::plugins::{
-    AutoaddClient, BlocklistClient, ExecuteClient, ExtractorClient, LabelClient,
-    NotificationsClient, SchedulerClient, StatsClient, ToggleClient, WebuiClient,
-};
-use crate::protocol::DelugeRpcMessage;
-use crate::protocol::DelugeRpcRequest;
-use crate::rencode::RencodeValue;
-use crate::transport::{DelugeTransport, DelugeWriter};
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use std::collections::BTreeMap;
+use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
-use std::sync::atomic::AtomicU32;
-use std::sync::atomic::Ordering;
 use std::time::Duration;
 use tokio::sync::broadcast::error::RecvError;
-use tokio::sync::{Mutex, broadcast};
+use tokio::sync::{broadcast, Mutex};
 use tokio::task::JoinHandle;
 use tokio::time::timeout;
 
@@ -182,9 +174,32 @@ impl ConnectionState {
     }
 }
 
+async fn reader_loop(mut reader: DelugeReader, shared: Arc<Shared>) {
+    loop {
+        match reader.recv().await {
+            Ok(raw) => match RencodeValue::decode(&raw) {
+                Ok(decoded) => match DelugeRpcMessage::from_rencode_value(&decoded) {
+                    Ok(msg) => {
+                        let _ = shared.message_tx.send(msg);
+                    }
+                    Err(e) => {
+                        tracing::warn!(error = %e, "failed to decode RPC message");
+                    }
+                },
+                Err(e) => {
+                    tracing::warn!(error = %e, "failed to decode rencode payload");
+                }
+            },
+            Err(e) => {
+                tracing::info!(error = %e, "reader loop ended (connection closed)");
+                break;
+            }
+        }
+    }
+}
+
 pub struct DelugeClient {
-    #[expect(dead_code, reason = "held for reconnect via RpcCaller")]
-    inner: Arc<DelugeClientInner>,
+    caller: RpcCaller,
     daemon_client: DaemonClient,
     core_client: CoreClient,
     plugins_client: PluginsClient,
@@ -197,7 +212,7 @@ impl DelugeClient {
         username: &str,
         password: &str,
     ) -> anyhow::Result<Self> {
-        let inner = Arc::new(DelugeClientInner::new(
+        let inner = Arc::from(DelugeClientInner::new(
             host.to_owned(),
             port,
             username.to_owned(),
@@ -212,13 +227,13 @@ impl DelugeClient {
                 .context("initial connect failed")?;
         }
 
-        let caller = RpcCaller::new_reconnect(Arc::clone(&inner));
+        let caller = RpcCaller::new_reconnect(inner.clone());
         let daemon_client = DaemonClient::new(caller.clone());
         let core_client = CoreClient::new(caller.clone());
-        let plugins_client = PluginsClient::new(caller);
+        let plugins_client = PluginsClient::new(caller.clone());
 
         Ok(Self {
-            inner,
+            caller,
             daemon_client,
             core_client,
             plugins_client,
@@ -237,8 +252,9 @@ impl DelugeClient {
         &self.plugins_client
     }
 
-    pub fn rpc_caller(&self) -> RpcCaller {
-        self.daemon_client.rpc_caller()
+    // A low-level method to call the RPC server directly.
+    pub async fn call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+        self.caller.rpc_call(request).await
     }
 }
 
@@ -265,7 +281,7 @@ impl CoreClient {
 }
 
 pub struct PluginsClient {
-    pub autoadd: AutoaddClient,
+    pub autoadd: AutoAddClient,
     pub blocklist: BlocklistClient,
     pub execute: ExecuteClient,
     pub extractor: ExtractorClient,
@@ -274,13 +290,13 @@ pub struct PluginsClient {
     pub scheduler: SchedulerClient,
     pub stats: StatsClient,
     pub toggle: ToggleClient,
-    pub webui: WebuiClient,
+    pub webui: WebUiClient,
 }
 
 impl PluginsClient {
     fn new(caller: RpcCaller) -> Self {
         Self {
-            autoadd: AutoaddClient::new(caller.clone()),
+            autoadd: AutoAddClient::new(caller.clone()),
             blocklist: BlocklistClient::new(caller.clone()),
             execute: ExecuteClient::new(caller.clone()),
             extractor: ExtractorClient::new(caller.clone()),
@@ -289,7 +305,7 @@ impl PluginsClient {
             scheduler: SchedulerClient::new(caller.clone()),
             stats: StatsClient::new(caller.clone()),
             toggle: ToggleClient::new(caller.clone()),
-            webui: WebuiClient::new(caller),
+            webui: WebUiClient::new(caller),
         }
     }
 }
@@ -297,11 +313,11 @@ impl PluginsClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::client::daemon::DaemonRpc;
+    use crate::client::DaemonRpc;
     use crate::rencode::RencodeValue;
-    use flate2::Compression;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
+    use flate2::Compression;
     use rustls::crypto::ring;
     use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;

@@ -1,28 +1,16 @@
-use serde::{Deserialize, Serialize};
-
 use super::proxy::ProxyConfig;
 use crate::models::sentinels::{deserialize_unlimited_f64, deserialize_unlimited_i64};
+use serde::{Deserialize, Serialize};
 
-/// Full daemon configuration returned by `core.get_config()`.
-///
-/// Contains 77 top-level keys covering info, daemon, storage, network, DHT,
-/// encryption, bandwidth, queue, seeding, torrent defaults, plugins, path
-/// chooser UI, updates, proxy, and miscellaneous settings.
-///
-/// Sentinel values (`-1` / `-1.0` meaning "unlimited") are deserialized as
-/// `None` via `deserialize_unlimited_i64` / `deserialize_unlimited_f64`.
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct DaemonConfig {
-    // --- Info / telemetry ---
     pub send_info: bool,
     pub info_sent: f64,
 
-    // --- Daemon / remote ---
     pub daemon_port: i64,
     pub allow_remote: bool,
 
-    // --- Storage / file management ---
     pub pre_allocate_storage: bool,
     pub download_location: String,
     pub copy_torrent_file: bool,
@@ -34,7 +22,6 @@ pub struct DaemonConfig {
     pub move_completed_paths_list: Vec<String>,
     pub download_location_paths_list: Vec<String>,
 
-    // --- Network / listening ---
     pub listen_ports: Vec<i64>,
     pub listen_interface: String,
     pub outgoing_interface: String,
@@ -48,7 +35,6 @@ pub struct DaemonConfig {
     pub outgoing_ports: Vec<i64>,
     pub random_outgoing_ports: bool,
 
-    // --- DHT / PEX / LSD / trackers ---
     pub dht: bool,
     pub upnp: bool,
     pub natpmp: bool,
@@ -56,12 +42,10 @@ pub struct DaemonConfig {
     pub lsd: bool,
     pub announce_to_all_tiers: bool,
 
-    // --- Encryption ---
     pub enc_in_policy: i64,
     pub enc_out_policy: i64,
     pub enc_level: i64,
 
-    // --- Bandwidth / connections (global) ---
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_connections_global: Option<i64>,
     #[serde(deserialize_with = "deserialize_unlimited_f64")]
@@ -76,7 +60,6 @@ pub struct DaemonConfig {
     pub ignore_limits_on_local_network: bool,
     pub rate_limit_ip_overhead: bool,
 
-    // --- Bandwidth / connections (per-torrent) ---
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_connections_per_torrent: Option<i64>,
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
@@ -86,7 +69,6 @@ pub struct DaemonConfig {
     #[serde(deserialize_with = "deserialize_unlimited_f64")]
     pub max_download_speed_per_torrent: Option<f64>,
 
-    // --- Queue / active management ---
     pub max_active_seeding: i64,
     pub max_active_downloading: i64,
     pub max_active_limit: i64,
@@ -95,7 +77,6 @@ pub struct DaemonConfig {
     pub auto_managed: bool,
     pub auto_manage_prefer_seeds: bool,
 
-    // --- Seeding / ratio ---
     pub stop_seed_at_ratio: bool,
     pub remove_seed_at_ratio: bool,
     pub stop_seed_ratio: f64,
@@ -103,30 +84,24 @@ pub struct DaemonConfig {
     pub seed_time_ratio_limit: f64,
     pub seed_time_limit: i64,
 
-    // --- Torrent options (defaults for new torrents) ---
     pub prioritize_first_last_pieces: bool,
     pub sequential_download: bool,
     pub add_paused: bool,
     pub super_seeding: bool,
     pub shared: bool,
 
-    // --- Plugins ---
     pub enabled_plugins: Vec<String>,
 
-    // --- Path chooser UI ---
     pub path_chooser_show_chooser_button_on_localhost: bool,
     pub path_chooser_auto_complete_enabled: bool,
     pub path_chooser_accelerator_string: String,
     pub path_chooser_max_popup_rows: i64,
     pub path_chooser_show_hidden_files: bool,
 
-    // --- Updates ---
     pub new_release_check: bool,
 
-    // --- Proxy (nested dict) ---
     pub proxy: ProxyConfig,
 
-    // --- Miscellaneous ---
     pub peer_tos: String,
     pub geoip_db_location: String,
     pub cache_size: i64,

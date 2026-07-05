@@ -1,8 +1,7 @@
-use crate::client::RpcCaller;
-use crate::protocol::DelugeRpcRequest;
-use crate::protocol::extract_single;
+use crate::client::caller::RpcCaller;
+use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::RencodeValue;
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]

@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use serde::de::{self, Deserializer, SeqAccess, Visitor};
+use serde::Deserialize;
 use std::fmt;
 
 /// Private helper: deserializes `Vec<u8>` via `deserialize_bytes` instead of `deserialize_seq`.
@@ -99,49 +99,6 @@ impl<'de> Deserialize<'de> for PrefetchMagnetResult {
     }
 }
 
-/// Return of `core.create_torrent`.
-/// Tuple of `(torrent_id, filedump)` where `filedump` is base64-encoded torrent data.
-#[derive(Debug, Clone, PartialEq)]
-pub struct CreateTorrentResult {
-    pub torrent_id: String,
-    pub filedump: String,
-}
-
-impl<'de> Deserialize<'de> for CreateTorrentResult {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        struct CreateVisitor;
-
-        impl<'de> Visitor<'de> for CreateVisitor {
-            type Value = CreateTorrentResult;
-
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-                formatter.write_str("a 2-element tuple (torrent_id, filedump)")
-            }
-
-            fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
-            where
-                A: SeqAccess<'de>,
-            {
-                let torrent_id: String = seq
-                    .next_element()?
-                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
-                let filedump: String = seq
-                    .next_element()?
-                    .ok_or_else(|| de::Error::invalid_length(1, &self))?;
-                Ok(CreateTorrentResult {
-                    torrent_id,
-                    filedump,
-                })
-            }
-        }
-
-        deserializer.deserialize_seq(CreateVisitor)
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -162,23 +119,6 @@ mod tests {
             "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111"
         );
         assert_eq!(result.metadata, b"bencoded-data");
-    }
-
-    #[test]
-    fn when_create_torrent_result_from_tuple_then_fields_populate() {
-        let value = RencodeValue::List(vec![
-            RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()),
-            RencodeValue::Str("base64-encoded-data".into()),
-        ]);
-
-        let result: CreateTorrentResult =
-            CreateTorrentResult::deserialize(&value).expect("deserialize");
-
-        assert_eq!(
-            result.torrent_id,
-            "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111"
-        );
-        assert_eq!(result.filedump, "base64-encoded-data");
     }
 
     #[test]

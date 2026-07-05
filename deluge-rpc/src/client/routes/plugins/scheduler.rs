@@ -1,7 +1,6 @@
-use crate::client::RpcCaller;
-use crate::models::plugins::{SchedulerConfig, SchedulerState};
-use crate::protocol::DelugeRpcRequest;
-use crate::protocol::extract_single;
+use crate::client::caller::RpcCaller;
+use crate::models::{SchedulerConfig, SchedulerState};
+use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::to_rencode_value;
 use anyhow::Context;
 use async_trait::async_trait;

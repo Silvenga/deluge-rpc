@@ -1,12 +1,3 @@
-//! Entry point for the deluge-retain binary.
-//!
-//! Wires together the CLI parser, tracing init, config loader, and the
-//! retention engine into the two operating modes:
-//!
-//! - **once mode** (`--once`): run a single retention cycle and exit.
-//! - **watch mode** (default): poll every host on `config.poll_interval`,
-//!   handling `SIGINT`/`SIGTERM` for graceful shutdown between cycles.
-
 use anyhow::Result;
 use bytesize::ByteSize;
 use chrono::Utc;
@@ -15,10 +6,8 @@ use deluge_retain::cli::Cli;
 use deluge_retain::config::{Config, HostConfig, Rules};
 use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
 use deluge_retain::tracing_setup::init_tracing;
-use deluge_rpc::CoreSessionRpc;
-use deluge_rpc::CoreTorrentRpc;
-use deluge_rpc::DelugeClient;
-use deluge_rpc::models::torrents::FilterDict;
+use deluge_rpc::models::FilterDict;
+use deluge_rpc::{CoreSessionRpc, CoreTorrentRpc, DelugeClient};
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;

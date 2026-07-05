@@ -1,44 +1,42 @@
-use crate::client::RpcCaller;
-use crate::models::plugins::{AutoAddConfig, WatchdirId, WatchdirOptions};
-use crate::protocol::DelugeRpcRequest;
-use crate::protocol::extract_single;
-use crate::protocol::extract_single_int;
-use crate::rencode::{RencodeValue, to_rencode_value};
-use anyhow::{Context, anyhow};
+use crate::client::caller::RpcCaller;
+use crate::models::{AutoAddConfig, WatchDirId, WatchDirOptions};
+use crate::protocol::{extract_single, extract_single_int, DelugeRpcRequest};
+use crate::rencode::{to_rencode_value, RencodeValue};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
-pub trait AutoaddRpc: Send + Sync {
+pub trait AutoAddRpc: Send + Sync {
     async fn set_options(
         &self,
-        watchdir_id: WatchdirId,
-        options: &WatchdirOptions,
+        watch_dir_id: WatchDirId,
+        options: &WatchDirOptions,
     ) -> anyhow::Result<()>;
-    async fn enable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()>;
-    async fn disable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()>;
+    async fn enable_watch_dir(&self, watch_dir_id: WatchDirId) -> anyhow::Result<()>;
+    async fn disable_watch_dir(&self, watch_dir_id: WatchDirId) -> anyhow::Result<()>;
     async fn set_config(&self, config: &AutoAddConfig) -> anyhow::Result<()>;
     async fn get_config(&self) -> anyhow::Result<AutoAddConfig>;
-    async fn get_watchdirs(&self) -> anyhow::Result<BTreeMap<String, WatchdirOptions>>;
-    async fn add(&self, options: Option<WatchdirOptions>) -> anyhow::Result<WatchdirId>;
-    async fn remove(&self, watchdir_id: WatchdirId) -> anyhow::Result<()>;
+    async fn get_watch_dirs(&self) -> anyhow::Result<BTreeMap<String, WatchDirOptions>>;
+    async fn add(&self, options: Option<WatchDirOptions>) -> anyhow::Result<WatchDirId>;
+    async fn remove(&self, watch_dir_id: WatchDirId) -> anyhow::Result<()>;
     async fn is_admin_level(&self) -> anyhow::Result<bool>;
     async fn get_auth_user(&self) -> anyhow::Result<String>;
 }
 
-pub struct AutoaddClient {
+pub struct AutoAddClient {
     caller: RpcCaller,
 }
 
-impl AutoaddClient {
+impl AutoAddClient {
     pub(crate) fn new(caller: RpcCaller) -> Self {
         Self { caller }
     }
 }
 
-impl Clone for AutoaddClient {
+impl Clone for AutoAddClient {
     fn clone(&self) -> Self {
         Self {
             caller: self.caller.clone(),
@@ -47,23 +45,23 @@ impl Clone for AutoaddClient {
 }
 
 #[async_trait]
-impl AutoaddRpc for AutoaddClient {
+impl AutoAddRpc for AutoAddClient {
     async fn set_options(
         &self,
-        watchdir_id: WatchdirId,
-        options: &WatchdirOptions,
+        watch_dir_id: WatchDirId,
+        options: &WatchDirOptions,
     ) -> anyhow::Result<()> {
         let options_value = to_rencode_value(options).context("serializing watchdir options")?;
         self.caller
             .rpc_call(
                 DelugeRpcRequest::new("autoadd.set_options")
-                    .with_args(vec![RencodeValue::Int(watchdir_id), options_value]),
+                    .with_args(vec![RencodeValue::Int(watch_dir_id), options_value]),
             )
             .await?;
         Ok(())
     }
 
-    async fn enable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()> {
+    async fn enable_watch_dir(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
                 DelugeRpcRequest::new("autoadd.enable_watchdir")
@@ -73,7 +71,7 @@ impl AutoaddRpc for AutoaddClient {
         Ok(())
     }
 
-    async fn disable_watchdir(&self, watchdir_id: WatchdirId) -> anyhow::Result<()> {
+    async fn disable_watch_dir(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
                 DelugeRpcRequest::new("autoadd.disable_watchdir")
@@ -101,17 +99,17 @@ impl AutoaddRpc for AutoaddClient {
         AutoAddConfig::deserialize(&value).context("deserializing autoadd config")
     }
 
-    async fn get_watchdirs(&self) -> anyhow::Result<BTreeMap<String, WatchdirOptions>> {
+    async fn get_watch_dirs(&self) -> anyhow::Result<BTreeMap<String, WatchDirOptions>> {
         let result = self
             .caller
             .rpc_call(DelugeRpcRequest::new("autoadd.get_watchdirs"))
             .await
             .context("autoadd.get_watchdirs RPC failed")?;
         let value = extract_single(&result)?;
-        BTreeMap::<String, WatchdirOptions>::deserialize(&value).context("deserializing watchdirs")
+        BTreeMap::<String, WatchDirOptions>::deserialize(&value).context("deserializing watchdirs")
     }
 
-    async fn add(&self, options: Option<WatchdirOptions>) -> anyhow::Result<WatchdirId> {
+    async fn add(&self, options: Option<WatchDirOptions>) -> anyhow::Result<WatchDirId> {
         let args = match options {
             Some(opts) => vec![to_rencode_value(&opts).context("serializing watchdir options")?],
             None => vec![RencodeValue::None],
@@ -125,7 +123,7 @@ impl AutoaddRpc for AutoaddClient {
         Ok(id)
     }
 
-    async fn remove(&self, watchdir_id: WatchdirId) -> anyhow::Result<()> {
+    async fn remove(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
         self.caller
             .rpc_call(
                 DelugeRpcRequest::new("autoadd.remove")
@@ -236,7 +234,7 @@ mod tests {
         let config: AutoAddConfig = AutoAddConfig::deserialize(&value).expect("deserialize");
 
         assert_eq!(config.next_id, 2);
-        assert_eq!(config.watchdirs.len(), 1);
+        assert_eq!(config.watch_dirs.len(), 1);
     }
 
     #[test]

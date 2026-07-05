@@ -1,4 +1,4 @@
-mod autoadd;
+mod auto_add;
 mod blocklist;
 mod execute;
 mod extractor;
@@ -9,7 +9,7 @@ mod stats;
 mod toggle;
 mod webui;
 
-pub use autoadd::{AutoaddClient, AutoaddRpc};
+pub use auto_add::{AutoAddClient, AutoAddRpc};
 pub use blocklist::{BlocklistClient, BlocklistRpc};
 pub use execute::{ExecuteClient, ExecuteRpc};
 pub use extractor::{ExtractorClient, ExtractorRpc};
@@ -18,10 +18,10 @@ pub use notifications::{NotificationsClient, NotificationsRpc};
 pub use scheduler::{SchedulerClient, SchedulerRpc};
 pub use stats::{StatsClient, StatsRpc};
 pub use toggle::{ToggleClient, ToggleRpc};
-pub use webui::{WebuiClient, WebuiRpc};
+pub use webui::{WebUiClient, WebUiRpc};
 
 #[cfg(any(test, feature = "mock"))]
-pub use autoadd::MockAutoaddRpc;
+pub use auto_add::MockAutoAddRpc;
 #[cfg(any(test, feature = "mock"))]
 pub use blocklist::MockBlocklistRpc;
 #[cfg(any(test, feature = "mock"))]
@@ -39,4 +39,4 @@ pub use stats::MockStatsRpc;
 #[cfg(any(test, feature = "mock"))]
 pub use toggle::MockToggleRpc;
 #[cfg(any(test, feature = "mock"))]
-pub use webui::MockWebuiRpc;
+pub use webui::MockWebUiRpc;

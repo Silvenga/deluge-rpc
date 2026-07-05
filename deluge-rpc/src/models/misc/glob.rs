@@ -1,6 +1,4 @@
-/// Result of `core.glob(path)`.
-///
-/// Returns a list of filesystem paths matching the glob pattern.
+/// Result of `core.glob(path)`. Returns a list of filesystem paths matching the glob pattern.
 pub type GlobResult = Vec<String>;
 
 #[cfg(test)]

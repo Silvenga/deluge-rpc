@@ -6,10 +6,9 @@ mod label;
 mod notifications;
 mod scheduler;
 mod stats;
-mod toggle;
 mod webui;
 
-pub use autoadd::{AutoAddConfig, WatchdirId, WatchdirOptions};
+pub use autoadd::{AutoAddConfig, WatchDirId, WatchDirOptions};
 pub use blocklist::{BlocklistConfig, BlocklistStatus};
 pub use execute::{ExecuteCommand, ExecuteEvent};
 pub use extractor::ExtractorConfig;

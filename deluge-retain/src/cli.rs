@@ -1,5 +1,3 @@
-//! Command-line argument parsing.
-
 use clap::Parser;
 
 /// Automatic torrent retention tool for Deluge.

@@ -1,25 +1,10 @@
+use crate::RencodeValue;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use crate::RencodeValue;
-
 /// Session status returned by `core.get_session_status(keys)`.
-///
-/// Contains libtorrent session metrics. The ~150 keys are too many for a flat
-/// struct, so this uses a hybrid approach:
-///
-/// - **Typed fields**: The 10 rate keys (all `f64`, bytes/sec) and 2 cache hit
-///   ratios (all `f64`, 0.0–1.0) are typed directly for ergonomic access.
-/// - **Overflow**: All remaining keys (`peer.*`, `net.*`, `ses.*`, `disk.*`,
-///   `dht.*`, `utp.*`, `sock_bufs.*`, `tracker.*`) are captured in the
-///   `#[serde(flatten)] extra: HashMap<String, RencodeValue>` field. Access
-///   them by key name and deserialize the `RencodeValue` to the expected type.
-///
-/// The exact set of available metrics depends on the libtorrent version the
-/// daemon was built against. Unknown keys should be treated as missing or zero.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct SessionStatus {
-    // --- Rate keys (f64, bytes/sec) ---
     pub download_rate: f64,
     pub upload_rate: f64,
     pub payload_download_rate: f64,
@@ -31,11 +16,9 @@ pub struct SessionStatus {
     pub dht_download_rate: f64,
     pub dht_upload_rate: f64,
 
-    // --- Cache hit ratios (f64, 0.0–1.0) ---
     pub write_hit_ratio: f64,
     pub read_hit_ratio: f64,
 
-    // --- Overflow for all remaining keys ---
     #[serde(flatten)]
     pub extra: HashMap<String, RencodeValue>,
 }

@@ -7,7 +7,6 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct TorrentStatus {
-    // --- Time / transfer stats ---
     pub active_time: i64,
     pub all_time_download: i64,
     #[serde(deserialize_with = "deserialize_never_i64", default)]
@@ -30,13 +29,11 @@ pub struct TorrentStatus {
     pub total_uploaded: i64,
     pub total_wanted: i64,
 
-    // --- Rates ---
     pub download_payload_rate: i64,
     pub upload_payload_rate: i64,
     #[serde(deserialize_with = "deserialize_never_i64", default)]
     pub eta: Option<i64>,
 
-    // --- Ratios / seed metrics ---
     pub distributed_copies: f64,
     #[serde(deserialize_with = "deserialize_ratio", default)]
     pub ratio: Option<f64>,
@@ -44,7 +41,6 @@ pub struct TorrentStatus {
     #[serde(deserialize_with = "deserialize_ratio", default)]
     pub seeds_peers_ratio: Option<f64>,
 
-    // --- Peers / seeds ---
     pub num_peers: i64,
     pub num_seeds: i64,
     pub total_peers: i64,
@@ -52,7 +48,6 @@ pub struct TorrentStatus {
     #[serde(default)]
     pub peers: Vec<PeerInfo>,
 
-    // --- State ---
     pub state: String,
     pub paused: bool,
     pub progress: f64,
@@ -65,7 +60,6 @@ pub struct TorrentStatus {
     pub queue: i64,
     pub storage_mode: String,
 
-    // --- Identity / metadata ---
     pub hash: String,
     pub name: String,
     #[serde(default)]
@@ -89,13 +83,11 @@ pub struct TorrentStatus {
     #[serde(default)]
     pub pieces: Option<Vec<i64>>,
 
-    // --- File state ---
     #[serde(default)]
     pub file_priorities: Vec<i64>,
     #[serde(default)]
     pub file_progress: Vec<f64>,
 
-    // --- Trackers ---
     #[serde(default)]
     pub tracker: String,
     #[serde(default)]
@@ -105,7 +97,6 @@ pub struct TorrentStatus {
     #[serde(default)]
     pub trackers: Vec<TrackerInfo>,
 
-    // --- Options (per-torrent, returned in status) ---
     pub auto_managed: bool,
     pub is_auto_managed: bool,
     pub download_location: String,

@@ -6,17 +6,18 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct AutoAddConfig {
     /// All watch folders keyed by ID.
-    pub watchdirs: HashMap<String, WatchdirOptions>,
+    #[serde(rename = "watchdirs")]
+    pub watch_dirs: HashMap<String, WatchDirOptions>,
     /// Next ID to assign to a new watchdir.
     pub next_id: i64,
 }
 
 /// Numeric identifier for a watch directory.
-pub type WatchdirId = i64;
+pub type WatchDirId = i64;
 
 /// Options for a single AutoAdd watch directory.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
-pub struct WatchdirOptions {
+pub struct WatchDirOptions {
     /// Whether the watchdir is actively polling.
     pub enabled: bool,
     /// Filesystem path to watch for .torrent files.
@@ -28,7 +29,8 @@ pub struct WatchdirOptions {
     /// Whether to delete copied .torrent files after processing.
     pub delete_copy_torrent_toggle: bool,
     /// Whether to use absolute paths.
-    pub abspath: bool,
+    #[serde(rename = "abspath")]
+    pub abs_path: bool,
     /// Save path for torrents added from this watchdir.
     pub download_location: String,
     /// Per-torrent max download speed; -1 = unlimited.
@@ -172,8 +174,8 @@ mod tests {
         let result: AutoAddConfig = AutoAddConfig::deserialize(&value).expect("deserialize");
 
         assert_eq!(result.next_id, 2);
-        assert_eq!(result.watchdirs.len(), 1);
-        let opts = result.watchdirs.get("1").expect("watchdir 1");
+        assert_eq!(result.watch_dirs.len(), 1);
+        let opts = result.watch_dirs.get("1").expect("watchdir 1");
         assert!(opts.enabled);
         assert_eq!(opts.path, "/watch/torrents");
         assert_eq!(opts.owner, "admin");
@@ -183,14 +185,14 @@ mod tests {
     fn when_watchdir_options_dict_then_fields_populate() {
         let value = make_watchdir_options_dict();
 
-        let result: WatchdirOptions = WatchdirOptions::deserialize(&value).expect("deserialize");
+        let result: WatchDirOptions = WatchDirOptions::deserialize(&value).expect("deserialize");
 
         assert!(result.enabled);
         assert_eq!(result.path, "/watch/torrents");
         assert_eq!(result.append_extension, ".added");
         assert!(!result.copy_torrent);
         assert!(!result.delete_copy_torrent_toggle);
-        assert!(result.abspath);
+        assert!(result.abs_path);
         assert_eq!(result.download_location, "/downloads");
         assert_eq!(result.max_download_speed, None);
         assert_eq!(result.max_upload_speed, None);
@@ -254,7 +256,7 @@ mod tests {
             ("label_toggle", RencodeValue::Bool(false)),
         ]);
 
-        let result: WatchdirOptions = WatchdirOptions::deserialize(&value).expect("deserialize");
+        let result: WatchDirOptions = WatchDirOptions::deserialize(&value).expect("deserialize");
 
         assert_eq!(result.max_download_speed, Some(1000));
         assert_eq!(result.max_upload_speed, Some(500));

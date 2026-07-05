@@ -1,6 +1,6 @@
 use crate::protocol::DelugeRpcMessage;
-use std::sync::Arc;
 use std::sync::atomic::AtomicU32;
+use std::sync::Arc;
 use tokio::sync::broadcast;
 
 pub struct Shared {

@@ -1,8 +1,8 @@
-use crate::client::RpcCaller;
-use crate::protocol::DelugeRpcRequest;
+use crate::client::caller::RpcCaller;
 use crate::protocol::extract_single;
+use crate::protocol::DelugeRpcRequest;
 use crate::rencode::RencodeValue;
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
@@ -12,7 +12,7 @@ pub trait CorePluginRpc: Send + Sync {
     async fn get_enabled_plugins(&self) -> anyhow::Result<Vec<String>>;
     async fn enable_plugin(&self, plugin: &str) -> anyhow::Result<bool>;
     async fn disable_plugin(&self, plugin: &str) -> anyhow::Result<bool>;
-    async fn upload_plugin(&self, filename: &str, filedump: &str) -> anyhow::Result<()>;
+    async fn upload_plugin(&self, filename: &str, file_dump: &str) -> anyhow::Result<()>;
     async fn rescan_plugins(&self) -> anyhow::Result<()>;
 }
 

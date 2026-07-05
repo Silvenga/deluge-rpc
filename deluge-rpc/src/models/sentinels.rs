@@ -154,8 +154,6 @@ mod tests {
         RencodeValue::Dict(map)
     }
 
-    // --- deserialize_unlimited_i64 ---
-
     #[derive(Debug, Deserialize, PartialEq)]
     struct UnlimitedI64 {
         #[serde(deserialize_with = "deserialize_unlimited_i64")]
@@ -188,8 +186,6 @@ mod tests {
 
         assert_eq!(result, UnlimitedI64 { field: Some(0) });
     }
-
-    // --- deserialize_unlimited_f64 ---
 
     #[derive(Debug, Deserialize, PartialEq)]
     struct UnlimitedF64 {
@@ -242,8 +238,6 @@ mod tests {
         assert_eq!(result, UnlimitedF64 { field: None });
     }
 
-    // --- deserialize_never_i64 ---
-
     #[derive(Debug, Deserialize, PartialEq)]
     struct NeverI64 {
         #[serde(deserialize_with = "deserialize_never_i64")]
@@ -281,8 +275,6 @@ mod tests {
 
         assert_eq!(result, NeverI64 { field: Some(0) });
     }
-
-    // --- deserialize_ratio ---
 
     #[derive(Debug, Deserialize, PartialEq)]
     struct Ratio {

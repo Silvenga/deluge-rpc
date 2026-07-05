@@ -8,8 +8,8 @@ mod sub_dicts;
 pub use entry::TorrentEntry;
 pub use filter::{FilterDict, FilterTree, FilterTreeEntry};
 pub use methods::{
-    AddTorrentFileResult, AddTorrentFilesResult, CreateTorrentResult, GetMagnetUriResult,
-    PrefetchMagnetResult, RemoveTorrentsResult,
+    AddTorrentFileResult, AddTorrentFilesResult, GetMagnetUriResult, PrefetchMagnetResult,
+    RemoveTorrentsResult,
 };
 pub use options::{AddTorrentOptions, SetTorrentOptions};
 pub use status::TorrentStatus;

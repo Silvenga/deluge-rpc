@@ -1,9 +1,8 @@
-use crate::client::RpcCaller;
-use crate::models::session::SessionStatus;
-use crate::protocol::DelugeRpcRequest;
-use crate::protocol::{extract_single, extract_single_int};
+use crate::client::caller::RpcCaller;
+use crate::models::SessionStatus;
+use crate::protocol::{extract_single, extract_single_int, DelugeRpcRequest};
 use crate::rencode::RencodeValue;
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 
@@ -14,11 +13,7 @@ pub trait CoreSessionRpc: Send + Sync {
     async fn resume_session(&self) -> anyhow::Result<()>;
     async fn is_session_paused(&self) -> anyhow::Result<bool>;
     async fn get_listen_port(&self) -> anyhow::Result<i64>;
-    /// Returns the active SSL listen port.
-    ///
-    /// **Availability**: This method may not exist on all daemon versions.
-    /// On Deluge v2.1.2.dev0 it is absent from `daemon.get_method_list()`.
-    /// Callers should handle `RpcError::MethodNotFound`.
+    /// Returns the active SSL listen port. This method may not exist on all daemon versions.
     async fn get_ssl_listen_port(&self) -> anyhow::Result<i64>;
     async fn get_external_ip(&self) -> anyhow::Result<String>;
     async fn get_libtorrent_version(&self) -> anyhow::Result<String>;

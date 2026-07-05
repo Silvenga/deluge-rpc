@@ -1,6 +1,6 @@
 use crate::commands::call::{rencode_from_json_value, rencode_to_plain_json};
 use clap::Subcommand;
-use deluge_rpc::models::torrents::FilterDict;
+use deluge_rpc::models::FilterDict;
 use deluge_rpc::{CoreConfigRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc, DelugeClient};
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;

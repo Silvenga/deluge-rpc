@@ -8,8 +8,10 @@ use serde::Deserialize;
 pub struct AccountInfo {
     pub username: String,
     pub password: String,
-    pub authlevel: String,
-    pub authlevel_int: i64,
+    #[serde(rename = "authlevel")]
+    pub auth_level: String,
+    #[serde(rename = "authlevel_int")]
+    pub auth_level_int: i64,
 }
 
 #[cfg(test)]
@@ -48,8 +50,8 @@ mod tests {
 
         assert_eq!(result.username, "admin");
         assert_eq!(result.password, "hashed_password");
-        assert_eq!(result.authlevel, "ADMIN");
-        assert_eq!(result.authlevel_int, 10);
+        assert_eq!(result.auth_level, "ADMIN");
+        assert_eq!(result.auth_level_int, 10);
     }
 
     #[test]
@@ -76,7 +78,7 @@ mod tests {
         let result: AccountInfo = AccountInfo::deserialize(&value).expect("deserialize");
 
         assert_eq!(result.username, "viewer");
-        assert_eq!(result.authlevel, "READONLY");
-        assert_eq!(result.authlevel_int, 1);
+        assert_eq!(result.auth_level, "READONLY");
+        assert_eq!(result.auth_level_int, 1);
     }
 }

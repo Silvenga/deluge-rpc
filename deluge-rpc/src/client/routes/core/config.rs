@@ -1,10 +1,9 @@
-use crate::client::RpcCaller;
-use crate::models::config::DaemonConfig;
-use crate::models::config::ProxyConfig;
-use crate::protocol::DelugeRpcRequest;
+use crate::client::caller::RpcCaller;
+use crate::models::{DaemonConfig, ProxyConfig};
 use crate::protocol::extract_single;
+use crate::protocol::DelugeRpcRequest;
 use crate::rencode::RencodeValue;
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;

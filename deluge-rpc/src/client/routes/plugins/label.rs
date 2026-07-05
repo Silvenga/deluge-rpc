@@ -1,8 +1,7 @@
-use crate::client::RpcCaller;
-use crate::models::plugins::{LabelConfig, LabelOptions};
-use crate::protocol::DelugeRpcRequest;
-use crate::protocol::extract_single;
-use crate::rencode::{RencodeValue, to_rencode_value};
+use crate::client::caller::RpcCaller;
+use crate::models::{LabelConfig, LabelOptions};
+use crate::protocol::{extract_single, DelugeRpcRequest};
+use crate::rencode::{to_rencode_value, RencodeValue};
 use anyhow::Context;
 use async_trait::async_trait;
 use serde::Deserialize;

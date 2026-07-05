@@ -1,11 +1,10 @@
-use crate::client::RpcCaller;
-use crate::models::plugins::{BlocklistConfig, BlocklistStatus};
-use crate::protocol::DelugeRpcRequest;
-use crate::protocol::extract_single;
-use crate::rencode::{RencodeValue, to_rencode_value};
-use anyhow::{Context, anyhow};
+use crate::models::{BlocklistConfig, BlocklistStatus};
+use crate::protocol::{DelugeRpcRequest, extract_single};
+use crate::rencode::{to_rencode_value, RencodeValue};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
+use crate::client::caller::RpcCaller;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]

@@ -1,8 +1,8 @@
 mod common;
 
 use assert_cmd::Command;
-use assert_fs::NamedTempFile;
 use assert_fs::fixture::FileWriteStr;
+use assert_fs::NamedTempFile;
 use chrono::Utc;
 use common::cassettes;
 use deluge_rpc_mock::Matcher;

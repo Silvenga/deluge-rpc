@@ -1,21 +1,19 @@
-use base64::Engine;
 use base64::engine::general_purpose::STANDARD as Base64Engine;
+use base64::Engine;
 use clap::Args;
-use deluge_rpc::RencodeValue;
+use deluge_rpc::{DelugeClient, RencodeValue};
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
 #[derive(Args, Debug, Clone)]
 pub struct CallArgs {
     pub method: String,
-
     pub args_json: Option<String>,
-
     pub kwargs_json: Option<String>,
 }
 
 pub async fn run_call(
-    client_rpc: &deluge_rpc::RpcCaller,
+    client: &DelugeClient,
     args: &CallArgs,
 ) -> anyhow::Result<(
     String,
@@ -59,8 +57,8 @@ pub async fn run_call(
     let request = deluge_rpc::DelugeRpcRequest::new(&args.method)
         .with_args(parsed_args.clone())
         .with_kwargs(parsed_kwargs.clone());
-    let response = client_rpc
-        .rpc_call(request)
+    let response = client
+        .call(request)
         .await
         .map_err(|e| anyhow::anyhow!("RPC call to '{}' failed: {e}", args.method))?;
 

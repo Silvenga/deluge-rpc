@@ -1,5 +1,5 @@
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
-use rustls::{ServerConfig, crypto};
+use rustls::{crypto, ServerConfig};
 use std::sync::Once;
 
 pub fn self_signed_server_config() -> ServerConfig {

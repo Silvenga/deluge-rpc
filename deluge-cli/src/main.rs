@@ -1,6 +1,6 @@
 use anyhow::Context;
 use clap::{Parser, Subcommand};
-use deluge_rpc::{DelugeClient, RencodeValue, RpcCaller};
+use deluge_rpc::{DelugeClient, DelugeRpcRequest, RencodeValue};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::process;
@@ -14,7 +14,7 @@ use commands::{
     CallArgs, CoreCommand, CoreConfigCommand, CoreSessionCommand, CoreTorrentsCommand,
     DaemonCommand, LabelCommand, PluginsListCommand,
 };
-use record::{Cassette, Interaction, Request, Response, load_cassette, write_cassette_atomic};
+use record::{load_cassette, write_cassette_atomic, Cassette, Interaction, Request, Response};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -75,12 +75,11 @@ async fn run() -> anyhow::Result<()> {
     .context("failed to connect to Deluge daemon")?;
 
     let mut interactions: Vec<Interaction> = Vec::new();
-    let caller = client.rpc_caller();
 
     match &cli.command {
         Command::Call(args) => {
             let (method, parsed_args, parsed_kwargs, response) =
-                commands::call::run_call(&caller, args).await?;
+                commands::call::run_call(&client, args).await?;
             commands::call::print_call_result(&response);
 
             if resolved.record.is_some() {
@@ -100,7 +99,7 @@ async fn run() -> anyhow::Result<()> {
 
             if resolved.record.is_some() {
                 let (method, rpc_args, rpc_kwargs, raw_response) =
-                    daemon_record_call(&caller, cmd).await?;
+                    daemon_record_call(&client, cmd).await?;
                 interactions.push(Interaction {
                     request: Request {
                         method,
@@ -118,7 +117,7 @@ async fn run() -> anyhow::Result<()> {
             println!("{output}");
 
             if resolved.record.is_some() {
-                let interactions_from_core = core_record_call(&caller, cmd).await?;
+                let interactions_from_core = core_record_call(&client, cmd).await?;
                 interactions.extend(interactions_from_core);
             }
         }
@@ -128,7 +127,7 @@ async fn run() -> anyhow::Result<()> {
 
             if resolved.record.is_some() {
                 let (method, rpc_args, rpc_kwargs, raw_response) =
-                    label_record_call(&caller, cmd).await?;
+                    label_record_call(&client, cmd).await?;
                 interactions.push(Interaction {
                     request: Request {
                         method,
@@ -173,7 +172,7 @@ async fn run() -> anyhow::Result<()> {
 }
 
 async fn daemon_record_call(
-    caller: &RpcCaller,
+    client: &DelugeClient,
     cmd: &DaemonCommand,
 ) -> anyhow::Result<(
     String,
@@ -195,16 +194,16 @@ async fn daemon_record_call(
         DaemonCommand::Shutdown => ("daemon.shutdown", vec![], BTreeMap::new()),
     };
 
-    let request = deluge_rpc::DelugeRpcRequest::new(method)
+    let request = DelugeRpcRequest::new(method)
         .with_args(rpc_args.clone())
         .with_kwargs(rpc_kwargs.clone());
-    let response = caller.rpc_call(request).await?;
+    let response = client.call(request).await?;
 
     Ok((method.to_owned(), rpc_args, rpc_kwargs, response))
 }
 
 async fn core_record_call(
-    caller: &RpcCaller,
+    client: &DelugeClient,
     cmd: &CoreCommand,
 ) -> anyhow::Result<Vec<Interaction>> {
     use BTreeMap;
@@ -252,10 +251,10 @@ async fn core_record_call(
         }
     };
 
-    let request = deluge_rpc::DelugeRpcRequest::new(method)
+    let request = DelugeRpcRequest::new(method)
         .with_args(args_vec.clone())
         .with_kwargs(kwargs.clone());
-    let response = caller.rpc_call(request).await?;
+    let response = client.call(request).await?;
 
     interactions.push(Interaction {
         request: Request {
@@ -395,7 +394,7 @@ fn core_plugins_record_params(
 }
 
 async fn label_record_call(
-    caller: &RpcCaller,
+    client: &DelugeClient,
     cmd: &LabelCommand,
 ) -> anyhow::Result<(
     String,
@@ -412,10 +411,10 @@ async fn label_record_call(
         LabelCommand::Remove { id } => ("label.remove", vec![RencodeValue::Str(id.clone())]),
     };
 
-    let request = deluge_rpc::DelugeRpcRequest::new(method)
+    let request = DelugeRpcRequest::new(method)
         .with_args(rpc_args.clone())
         .with_kwargs(BTreeMap::new());
-    let response = caller.rpc_call(request).await?;
+    let response = client.call(request).await?;
 
     Ok((method.to_owned(), rpc_args, BTreeMap::new(), response))
 }

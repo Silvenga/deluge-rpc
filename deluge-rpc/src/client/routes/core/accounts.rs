@@ -1,9 +1,9 @@
-use crate::client::RpcCaller;
-use crate::models::config::AccountInfo;
-use crate::protocol::DelugeRpcRequest;
+use crate::client::caller::RpcCaller;
+use crate::models::AccountInfo;
 use crate::protocol::extract_single;
+use crate::protocol::DelugeRpcRequest;
 use crate::rencode::RencodeValue;
-use anyhow::{Context, anyhow};
+use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -16,13 +16,13 @@ pub trait CoreAccountRpc: Send + Sync {
         &self,
         username: &str,
         password: &str,
-        authlevel: &str,
+        auth_level: &str,
     ) -> anyhow::Result<bool>;
     async fn update_account(
         &self,
         username: &str,
         password: &str,
-        authlevel: &str,
+        auth_level: &str,
     ) -> anyhow::Result<bool>;
     async fn remove_account(&self, username: &str) -> anyhow::Result<bool>;
     async fn get_auth_levels_mappings(
@@ -64,14 +64,14 @@ impl CoreAccountRpc for CoreAccountClient {
         &self,
         username: &str,
         password: &str,
-        authlevel: &str,
+        auth_level: &str,
     ) -> anyhow::Result<bool> {
         let result = self
             .caller
             .rpc_call(DelugeRpcRequest::new("core.create_account").with_args(vec![
                 RencodeValue::Str(username.to_owned()),
                 RencodeValue::Str(password.to_owned()),
-                RencodeValue::Str(authlevel.to_owned()),
+                RencodeValue::Str(auth_level.to_owned()),
             ]))
             .await
             .context("core.create_account RPC failed")?;
@@ -184,8 +184,8 @@ mod tests {
             Vec::<AccountInfo>::deserialize(&value).expect("deserialize");
         assert_eq!(accounts.len(), 1);
         assert_eq!(accounts[0].username, "admin");
-        assert_eq!(accounts[0].authlevel, "ADMIN");
-        assert_eq!(accounts[0].authlevel_int, 10);
+        assert_eq!(accounts[0].auth_level, "ADMIN");
+        assert_eq!(accounts[0].auth_level_int, 10);
     }
 
     #[test]

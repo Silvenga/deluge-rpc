@@ -1,11 +1,13 @@
-pub mod config;
-mod dict_values;
-pub mod misc;
-pub mod plugins;
+mod config;
+mod misc;
+mod plugins;
 mod sentinels;
-pub mod session;
-pub mod torrents;
+mod session;
+mod torrents;
 
-pub use dict_values::deserialize_dict_values;
+pub use config::*;
+pub use misc::*;
 pub use plugins::*;
 pub use sentinels::*;
+pub use session::*;
+pub use torrents::*;
