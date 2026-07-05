@@ -1,0 +1,6351 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-05T01:48:40.242364110+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "daemon.info",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "2.1.2.dev0"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "daemon.get_version",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "2.1.2.dev0"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_free_space",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "none"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "int",
+          "value": 2981235220480
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_torrents_status",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": []
+            },
+            {
+              "type": "list",
+              "value": []
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "diff"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "86f635034839f1ebe81ab96bee4ac59f61db9dde"
+              },
+              "value": {
+                "type": "dict",
+                "value": [
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "active_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952525
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "all_time_download"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 829159353
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "auto_managed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "comment"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "Debian CD from cdimage.debian.org"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "completed_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1771263207
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "creator"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "mktorrent 1.1"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "distributed_copies"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 1.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "download_location"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/working"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "download_payload_rate"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "eta"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "file_priorities"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "int",
+                          "value": 4
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "file_progress"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "float",
+                          "value": 1.0
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "files"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "dict",
+                          "value": [
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "index"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "offset"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "path"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": "debian-13.3.0-amd64-netinst.iso"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "size"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 790626304
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "finished_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952501
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "hash"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "86f635034839f1ebe81ab96bee4ac59f61db9dde"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "is_auto_managed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "is_finished"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "is_seed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "last_seen_complete"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1781687361
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_connections"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": -1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_download_speed"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": -1.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_upload_slots"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": -1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_upload_speed"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": -1.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "message"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "OK"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_completed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_completed_path"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/torrents/completed"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_on_completed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_on_completed_path"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/torrents/completed"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "name"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "debian-13.3.0-amd64-netinst.iso"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "next_announce"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 113
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_files"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_peers"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_pieces"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3016
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_seeds"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "orig_files"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "dict",
+                          "value": [
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "index"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "offset"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "path"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": "debian-13.3.0-amd64-netinst.iso"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "size"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 790626304
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "owner"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "deluge-vpn"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "paused"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "peers"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": []
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "piece_length"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 262144
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "pieces"
+                    },
+                    "value": {
+                      "type": "none"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "prioritize_first_last"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "prioritize_first_last_pieces"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "private"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "progress"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 100.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "queue"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": -1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "ratio"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 5.362529754638672
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "remove_at_ratio"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "save_path"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/working"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seed_mode"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seed_rank"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 5
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seeding_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952501
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seeds_peers_ratio"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 249.3333282470703
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "sequential_download"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "shared"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "state"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "Seeding"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "stop_at_ratio"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "stop_ratio"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 2.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "storage_mode"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "allocate"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "super_seeding"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_added"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1771263183
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_since_download"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952909
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_since_transfer"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 2391555
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_since_upload"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 2391555
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_done"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 790626304
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_payload_download"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_payload_upload"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 83427328
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_peers"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_remaining"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_seeds"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 748
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_size"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 790626304
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_uploaded"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 4239757201
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_wanted"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 790626304
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "tracker"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "http://bttracker.debian.org:6969/announce"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "tracker_host"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "debian.org"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "tracker_status"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "Error: skipping tracker announce (unreachable)"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "trackers"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "dict",
+                          "value": [
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "complete_sent"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "endpoints"
+                              },
+                              "value": {
+                                "type": "list",
+                                "value": []
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "fail_limit"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "fails"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "last_error"
+                              },
+                              "value": {
+                                "type": "dict",
+                                "value": [
+                                  {
+                                    "key": {
+                                      "type": "str",
+                                      "value": "category"
+                                    },
+                                    "value": {
+                                      "type": "str",
+                                      "value": ""
+                                    }
+                                  },
+                                  {
+                                    "key": {
+                                      "type": "str",
+                                      "value": "value"
+                                    },
+                                    "value": {
+                                      "type": "int",
+                                      "value": 0
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "message"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": ""
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "min_announce"
+                              },
+                              "value": {
+                                "type": "none"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "next_announce"
+                              },
+                              "value": {
+                                "type": "none"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "scrape_complete"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "scrape_downloaded"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "scrape_incomplete"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "send_stats"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "source"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 1
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "start_sent"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "tier"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "trackerid"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": ""
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "updating"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "url"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": "http://bttracker.debian.org:6969/announce"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "verified"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "upload_payload_rate"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "c6ee205099093bbe2dffa4e1b2794b7dae0e6046"
+              },
+              "value": {
+                "type": "dict",
+                "value": [
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "active_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952524
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "all_time_download"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3959433591
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "auto_managed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "comment"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "Debian CD from cdimage.debian.org"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "completed_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1771263231
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "creator"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "mktorrent 1.1"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "distributed_copies"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 1.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "download_location"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/working"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "download_payload_rate"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "eta"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "file_priorities"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "int",
+                          "value": 4
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "file_progress"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "float",
+                          "value": 1.0
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "files"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "dict",
+                          "value": [
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "index"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "offset"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "path"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": "debian-13.3.0-amd64-DVD-1.iso"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "size"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 3925868544
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "finished_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952476
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "hash"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "c6ee205099093bbe2dffa4e1b2794b7dae0e6046"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "is_auto_managed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "is_finished"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "is_seed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "last_seen_complete"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1781685462
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_connections"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": -1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_download_speed"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": -1.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_upload_slots"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": -1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "max_upload_speed"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": -1.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "message"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "OK"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_completed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_completed_path"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/torrents/completed"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_on_completed"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "move_on_completed_path"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/torrents/completed"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "name"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "debian-13.3.0-amd64-DVD-1.iso"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "next_announce"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 113
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_files"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_peers"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_pieces"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 14976
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "num_seeds"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "orig_files"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "dict",
+                          "value": [
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "index"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "offset"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "path"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": "debian-13.3.0-amd64-DVD-1.iso"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "size"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 3925868544
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "owner"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "deluge-vpn"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "paused"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "peers"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": []
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "piece_length"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 262144
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "pieces"
+                    },
+                    "value": {
+                      "type": "none"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "prioritize_first_last"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "prioritize_first_last_pieces"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "private"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "progress"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 100.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "queue"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": -1
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "ratio"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 2.0281379222869873
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "remove_at_ratio"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "save_path"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "/working"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seed_mode"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seed_rank"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seeding_time"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952476
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "seeds_peers_ratio"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 390.5
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "sequential_download"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "shared"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "state"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "Seeding"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "stop_at_ratio"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "stop_ratio"
+                    },
+                    "value": {
+                      "type": "float",
+                      "value": 2.0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "storage_mode"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "allocate"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "super_seeding"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_added"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1771263183
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_since_download"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 11952885
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_since_transfer"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1523503
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "time_since_upload"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 1523503
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_done"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3925868544
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_payload_download"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_payload_upload"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3221593172
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_peers"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 2
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_remaining"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_seeds"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 781
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_size"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3925868544
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_uploaded"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 7962203133
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "total_wanted"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 3925868544
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "tracker"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "http://bttracker.debian.org:6969/announce"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "tracker_host"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "debian.org"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "tracker_status"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": "Error: skipping tracker announce (unreachable)"
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "trackers"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": [
+                        {
+                          "type": "dict",
+                          "value": [
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "complete_sent"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "endpoints"
+                              },
+                              "value": {
+                                "type": "list",
+                                "value": []
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "fail_limit"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "fails"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "last_error"
+                              },
+                              "value": {
+                                "type": "dict",
+                                "value": [
+                                  {
+                                    "key": {
+                                      "type": "str",
+                                      "value": "category"
+                                    },
+                                    "value": {
+                                      "type": "str",
+                                      "value": ""
+                                    }
+                                  },
+                                  {
+                                    "key": {
+                                      "type": "str",
+                                      "value": "value"
+                                    },
+                                    "value": {
+                                      "type": "int",
+                                      "value": 0
+                                    }
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "message"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": ""
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "min_announce"
+                              },
+                              "value": {
+                                "type": "none"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "next_announce"
+                              },
+                              "value": {
+                                "type": "none"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "scrape_complete"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "scrape_downloaded"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "scrape_incomplete"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "send_stats"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "source"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 1
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "start_sent"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "tier"
+                              },
+                              "value": {
+                                "type": "int",
+                                "value": 0
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "trackerid"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": ""
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "updating"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "url"
+                              },
+                              "value": {
+                                "type": "str",
+                                "value": "http://bttracker.debian.org:6969/announce"
+                              }
+                            },
+                            {
+                              "key": {
+                                "type": "str",
+                                "value": "verified"
+                              },
+                              "value": {
+                                "type": "bool",
+                                "value": false
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "upload_payload_rate"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_session_status",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": []
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_allocated_observers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_announce_peer_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 495
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_announce_peer_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 69710
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_bytes_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 545771497
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_bytes_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 608367767
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_find_node_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 3583
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_find_node_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_get_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_get_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_get_peers_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 70252
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_get_peers_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 7561589
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_immutable_data"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_invalid_announce"
+              },
+              "value": {
+                "type": "int",
+                "value": 34
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_invalid_find_node"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_invalid_get"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_invalid_get_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_invalid_put"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_invalid_sample_infohashes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_messages_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 3441990
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_messages_in_dropped"
+              },
+              "value": {
+                "type": "int",
+                "value": 38
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_messages_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 6118563
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_messages_out_dropped"
+              },
+              "value": {
+                "type": "int",
+                "value": 3493839
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_mutable_data"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_node_cache"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_nodes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_ping_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 1666210
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_ping_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 240594
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_put_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_put_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_sample_infohashes_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_sample_infohashes_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht.dht_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht_download_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht_upload_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.blocked_disk_jobs"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.disk_blocks_in_use"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.disk_hash_time"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.disk_job_time"
+              },
+              "value": {
+                "type": "int",
+                "value": 2923692771
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.disk_read_time"
+              },
+              "value": {
+                "type": "int",
+                "value": 2923692771
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.disk_write_time"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_blocks_hashed"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_blocks_read"
+              },
+              "value": {
+                "type": "int",
+                "value": 203174
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_blocks_written"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_check_fastresume"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_clear_piece"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_delete_files"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_file_priority"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_flush_hashed"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_flush_piece"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_flush_storage"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_hash"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_load_torrent"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_move_storage"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_read"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_release_files"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_rename_file"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_save_resume_data"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_stop_torrent"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_tick_storage"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_fenced_write"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_jobs"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_read_back"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_read_jobs"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_read_ops"
+              },
+              "value": {
+                "type": "int",
+                "value": 203174
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_running_disk_jobs"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_running_threads"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_write_jobs"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_write_ops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.num_writing_threads"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.queued_disk_jobs"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.queued_write_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "disk.request_latency"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "download_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ip_overhead_download_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ip_overhead_upload_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.has_incoming_connections"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.limiter_down_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.limiter_down_queue"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.limiter_up_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.limiter_up_queue"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_accept_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 5
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_disk_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 128573
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_disk_queue_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_lsd_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 36353
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_lsd_peer_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_read_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 33250510
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_tick_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 10905203
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_udp_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 7788650
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.on_write_counter"
+              },
+              "value": {
+                "type": "int",
+                "value": 34929788
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.recv_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 5662692796
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.recv_failed_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.recv_ip_overhead_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 4004843520
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.recv_payload_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.recv_redundant_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.recv_tracker_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 6453326
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.sent_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 8960685351
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.sent_ip_overhead_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 4929007364
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.sent_payload_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 3305020500
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "net.sent_tracker_bytes"
+              },
+              "value": {
+                "type": "int",
+                "value": 5485454
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "payload_download_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "payload_upload_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.aborted_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.addrinuse_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.banned_for_hash_failure"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.boost_connection_attempts"
+              },
+              "value": {
+                "type": "int",
+                "value": 60
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.broken_pipe_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.buffer_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.cancelled_piece_requests"
+              },
+              "value": {
+                "type": "int",
+                "value": 8
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.choked_piece_requests"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.connaborted_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.connect_timeouts"
+              },
+              "value": {
+                "type": "int",
+                "value": 1315937
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.connection_attempt_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 10150688171
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.connection_attempts"
+              },
+              "value": {
+                "type": "int",
+                "value": 21230250
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.connrefused_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 148338
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.connreset_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 2892617
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.disconnected_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 21719327
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.eof_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 4502789
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.error_encrypted_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 58
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.error_incoming_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 781
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.error_outgoing_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 881714
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.error_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.error_rc4_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.error_tcp_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 774306
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.error_utp_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 108189
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.incoming_connections"
+              },
+              "value": {
+                "type": "int",
+                "value": 488486
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.invalid_arg_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.invalid_piece_requests"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.max_piece_requests"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.missed_connection_attempts"
+              },
+              "value": {
+                "type": "int",
+                "value": 346
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.no_access_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.no_memory_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.no_peer_connection_attempts"
+              },
+              "value": {
+                "type": "int",
+                "value": 22893468
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.notconnected_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_banned_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_http_proxy_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_i2p_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_connected"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_down_disk"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_down_interested"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_down_requests"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_down_unchoked"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_end_game"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_half_open"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_up_disk"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_up_interested"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_up_requests"
+              },
+              "value": {
+                "type": "int",
+                "value": 3
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_up_unchoked"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_up_unchoked_all"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_peers_up_unchoked_optimistic"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_socks5_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_ssl_http_proxy_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_ssl_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_ssl_socks5_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_ssl_utp_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_tcp_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.num_utp_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.perm_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 271800
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.piece_rejects"
+              },
+              "value": {
+                "type": "int",
+                "value": 8
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.piece_requests"
+              },
+              "value": {
+                "type": "int",
+                "value": 203194
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.timeout_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 404
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.too_many_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.transport_timeout_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 781769
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.uninteresting_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 12952759
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer.unreachable_peers"
+              },
+              "value": {
+                "type": "int",
+                "value": 12282
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.end_game_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.hash_fail_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.incoming_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.incoming_redundant_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.interesting_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_busy_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_partial_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_rand_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_rand_start_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_rare_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_reverse_rare_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_sequential_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.piece_picker_suggest_loops"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.reject_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.snubbed_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "picker.unchoke_piece_picks"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "read_hit_ratio"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.non_filter_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_checking_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_downloading_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_error_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_have_pieces"
+              },
+              "value": {
+                "type": "int",
+                "value": 17992
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_allowed_fast"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_bitfield"
+              },
+              "value": {
+                "type": "int",
+                "value": 980
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_cancel"
+              },
+              "value": {
+                "type": "int",
+                "value": 1182
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_choke"
+              },
+              "value": {
+                "type": "int",
+                "value": 15351
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_dht_port"
+              },
+              "value": {
+                "type": "int",
+                "value": 211375
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_ext_handshake"
+              },
+              "value": {
+                "type": "int",
+                "value": 13164756
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_extended"
+              },
+              "value": {
+                "type": "int",
+                "value": 13165324
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_have"
+              },
+              "value": {
+                "type": "int",
+                "value": 377041
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_have_all"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_have_none"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_interested"
+              },
+              "value": {
+                "type": "int",
+                "value": 133
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_metadata"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_not_interested"
+              },
+              "value": {
+                "type": "int",
+                "value": 25
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_pex"
+              },
+              "value": {
+                "type": "int",
+                "value": 273
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_piece"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_reject"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_request"
+              },
+              "value": {
+                "type": "int",
+                "value": 203194
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_suggest"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_incoming_unchoke"
+              },
+              "value": {
+                "type": "int",
+                "value": 190597
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_allowed_fast"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_bitfield"
+              },
+              "value": {
+                "type": "int",
+                "value": 343
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_cancel"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_choke"
+              },
+              "value": {
+                "type": "int",
+                "value": 634472
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_dht_port"
+              },
+              "value": {
+                "type": "int",
+                "value": 15228397
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_ext_handshake"
+              },
+              "value": {
+                "type": "int",
+                "value": 15399186
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_extended"
+              },
+              "value": {
+                "type": "int",
+                "value": 10871
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_hash_reject"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_hash_request"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_hashes"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_have"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_have_all"
+              },
+              "value": {
+                "type": "int",
+                "value": 15399005
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_have_none"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_interested"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_metadata"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_not_interested"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_pex"
+              },
+              "value": {
+                "type": "int",
+                "value": 10749
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_piece"
+              },
+              "value": {
+                "type": "int",
+                "value": 203132
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_reject"
+              },
+              "value": {
+                "type": "int",
+                "value": 8
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_request"
+              },
+              "value": {
+                "type": "int",
+                "value": 211723
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_suggest"
+              },
+              "value": {
+                "type": "int",
+                "value": 13582
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outgoing_unchoke"
+              },
+              "value": {
+                "type": "int",
+                "value": 15399321
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_outstanding_accept"
+              },
+              "value": {
+                "type": "int",
+                "value": 2
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_piece_failed"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_piece_passed"
+              },
+              "value": {
+                "type": "int",
+                "value": 17992
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_queued_download_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_queued_seeding_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_seeding_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 2
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_stopped_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_total_pieces_added"
+              },
+              "value": {
+                "type": "int",
+                "value": 17992
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_unchoke_slots"
+              },
+              "value": {
+                "type": "int",
+                "value": 2000
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.num_upload_only_torrents"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.waste_piece_cancelled"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.waste_piece_closing"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.waste_piece_end_game"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.waste_piece_seed"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.waste_piece_timed_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ses.waste_piece_unknown"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size10"
+              },
+              "value": {
+                "type": "int",
+                "value": 16636
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size11"
+              },
+              "value": {
+                "type": "int",
+                "value": 103
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size12"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size13"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size14"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size15"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size16"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size17"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size18"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size19"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size20"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size3"
+              },
+              "value": {
+                "type": "int",
+                "value": 548436
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size4"
+              },
+              "value": {
+                "type": "int",
+                "value": 1527899
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size5"
+              },
+              "value": {
+                "type": "int",
+                "value": 1550956
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size6"
+              },
+              "value": {
+                "type": "int",
+                "value": 21543618
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size7"
+              },
+              "value": {
+                "type": "int",
+                "value": 11935156
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size8"
+              },
+              "value": {
+                "type": "int",
+                "value": 4824353
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_recv_size9"
+              },
+              "value": {
+                "type": "int",
+                "value": 73189
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size10"
+              },
+              "value": {
+                "type": "int",
+                "value": 150128
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size11"
+              },
+              "value": {
+                "type": "int",
+                "value": 153365
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size12"
+              },
+              "value": {
+                "type": "int",
+                "value": 183524
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size13"
+              },
+              "value": {
+                "type": "int",
+                "value": 63673
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size14"
+              },
+              "value": {
+                "type": "int",
+                "value": 17924
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size15"
+              },
+              "value": {
+                "type": "int",
+                "value": 6907
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size16"
+              },
+              "value": {
+                "type": "int",
+                "value": 1138
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size17"
+              },
+              "value": {
+                "type": "int",
+                "value": 24
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size18"
+              },
+              "value": {
+                "type": "int",
+                "value": 6
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size19"
+              },
+              "value": {
+                "type": "int",
+                "value": 1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size20"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size3"
+              },
+              "value": {
+                "type": "int",
+                "value": 1663337
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size4"
+              },
+              "value": {
+                "type": "int",
+                "value": 6353
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size5"
+              },
+              "value": {
+                "type": "int",
+                "value": 74984
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size6"
+              },
+              "value": {
+                "type": "int",
+                "value": 19196474
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size7"
+              },
+              "value": {
+                "type": "int",
+                "value": 2513707
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size8"
+              },
+              "value": {
+                "type": "int",
+                "value": 9188887
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sock_bufs.socket_send_size9"
+              },
+              "value": {
+                "type": "int",
+                "value": 1709356
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "tracker.num_queued_tracker_announces"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "tracker_download_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "tracker_upload_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "upload_rate"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.num_utp_close_wait"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.num_utp_connected"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.num_utp_deleted"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.num_utp_fin_sent"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.num_utp_idle"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.num_utp_syn_sent"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_fast_retransmit"
+              },
+              "value": {
+                "type": "int",
+                "value": 28900
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_invalid_pkts_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 23
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_packet_loss"
+              },
+              "value": {
+                "type": "int",
+                "value": 15454
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_packet_resend"
+              },
+              "value": {
+                "type": "int",
+                "value": 259903
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_packets_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 4706984
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_packets_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 9013781
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_payload_pkts_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 1056195
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_payload_pkts_out"
+              },
+              "value": {
+                "type": "int",
+                "value": 6144282
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_redundant_pkts_in"
+              },
+              "value": {
+                "type": "int",
+                "value": 5059
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_samples_above_target"
+              },
+              "value": {
+                "type": "int",
+                "value": 359
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_samples_below_target"
+              },
+              "value": {
+                "type": "int",
+                "value": 1956894
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utp.utp_timeout"
+              },
+              "value": {
+                "type": "int",
+                "value": 608861
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "write_hit_ratio"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_config",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "add_paused"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "allow_remote"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "auto_manage_prefer_seeds"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "auto_managed"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "cache_expiry"
+              },
+              "value": {
+                "type": "int",
+                "value": 60
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "cache_size"
+              },
+              "value": {
+                "type": "int",
+                "value": 512
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "copy_torrent_file"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "daemon_port"
+              },
+              "value": {
+                "type": "int",
+                "value": 58846
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "del_copy_torrent_file"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dht"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "dont_count_slow_torrents"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "download_location"
+              },
+              "value": {
+                "type": "str",
+                "value": "/working"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "download_location_paths_list"
+              },
+              "value": {
+                "type": "list",
+                "value": []
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "enabled_plugins"
+              },
+              "value": {
+                "type": "list",
+                "value": [
+                  {
+                    "type": "str",
+                    "value": "ltConfig"
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "enc_in_policy"
+              },
+              "value": {
+                "type": "int",
+                "value": 1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "enc_level"
+              },
+              "value": {
+                "type": "int",
+                "value": 2
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "enc_out_policy"
+              },
+              "value": {
+                "type": "int",
+                "value": 1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "force_proxy"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "geoip_db_location"
+              },
+              "value": {
+                "type": "str",
+                "value": "/usr/share/GeoIP/GeoIP.dat"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "hostname"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ignore_limits_on_local_network"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "info_sent"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "listen_interface"
+              },
+              "value": {
+                "type": "str",
+                "value": "0.0.0.0"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "listen_ports"
+              },
+              "value": {
+                "type": "list",
+                "value": [
+                  {
+                    "type": "int",
+                    "value": 6881
+                  },
+                  {
+                    "type": "int",
+                    "value": 6881
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "listen_random_port"
+              },
+              "value": {
+                "type": "int",
+                "value": 55337
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "listen_reuse_port"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "listen_use_sys_port"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "lsd"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_active_downloading"
+              },
+              "value": {
+                "type": "int",
+                "value": 3
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_active_limit"
+              },
+              "value": {
+                "type": "int",
+                "value": 8
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_active_seeding"
+              },
+              "value": {
+                "type": "int",
+                "value": 5
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_connections_global"
+              },
+              "value": {
+                "type": "int",
+                "value": 200
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_connections_per_second"
+              },
+              "value": {
+                "type": "int",
+                "value": 20
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_connections_per_torrent"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_download_speed"
+              },
+              "value": {
+                "type": "float",
+                "value": 70000.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_download_speed_per_torrent"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_half_open_connections"
+              },
+              "value": {
+                "type": "int",
+                "value": 20
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_upload_slots_global"
+              },
+              "value": {
+                "type": "int",
+                "value": 4
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_upload_slots_per_torrent"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_upload_speed"
+              },
+              "value": {
+                "type": "float",
+                "value": 70000.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_upload_speed_per_torrent"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "move_completed"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "move_completed_path"
+              },
+              "value": {
+                "type": "str",
+                "value": "/torrents/completed"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "move_completed_paths_list"
+              },
+              "value": {
+                "type": "list",
+                "value": []
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "natpmp"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "new_release_check"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "outgoing_interface"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "outgoing_ports"
+              },
+              "value": {
+                "type": "list",
+                "value": [
+                  {
+                    "type": "int",
+                    "value": 0
+                  },
+                  {
+                    "type": "int",
+                    "value": 0
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "password"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "path_chooser_accelerator_string"
+              },
+              "value": {
+                "type": "str",
+                "value": "Tab"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "path_chooser_auto_complete_enabled"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "path_chooser_max_popup_rows"
+              },
+              "value": {
+                "type": "int",
+                "value": 20
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "path_chooser_show_chooser_button_on_localhost"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "path_chooser_show_hidden_files"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "peer_tos"
+              },
+              "value": {
+                "type": "str",
+                "value": "0x00"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "plugins_location"
+              },
+              "value": {
+                "type": "str",
+                "value": "/config/plugins"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "port"
+              },
+              "value": {
+                "type": "int",
+                "value": 8080
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "pre_allocate_storage"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "prioritize_first_last_pieces"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "proxy"
+              },
+              "value": {
+                "type": "dict",
+                "value": [
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "anonymous_mode"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "force_proxy"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": false
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "hostname"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": ""
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "password"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": ""
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "port"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 8080
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "proxy_hostnames"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "proxy_peer_connections"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "proxy_tracker_connections"
+                    },
+                    "value": {
+                      "type": "bool",
+                      "value": true
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "type"
+                    },
+                    "value": {
+                      "type": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "username"
+                    },
+                    "value": {
+                      "type": "str",
+                      "value": ""
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "proxy_hostnames"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "proxy_peer_connections"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "proxy_tracker_connections"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "queue_new_to_top"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "random_outgoing_ports"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "random_port"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "rate_limit_ip_overhead"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "remove_seed_at_ratio"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "seed_time_limit"
+              },
+              "value": {
+                "type": "int",
+                "value": 180
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "seed_time_ratio_limit"
+              },
+              "value": {
+                "type": "float",
+                "value": 7.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "send_info"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "sequential_download"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "share_ratio_limit"
+              },
+              "value": {
+                "type": "float",
+                "value": 2.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "shared"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "stop_seed_at_ratio"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "stop_seed_ratio"
+              },
+              "value": {
+                "type": "float",
+                "value": 2.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "super_seeding"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "torrentfiles_location"
+              },
+              "value": {
+                "type": "str",
+                "value": "/root/Downloads"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "type"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "upnp"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "username"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "utpex"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_enabled_plugins",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "ltConfig"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
