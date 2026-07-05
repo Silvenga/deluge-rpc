@@ -62,11 +62,6 @@ impl CallCommand {
             .await
             .map_err(|e| anyhow::anyhow!("RPC call to '{}' failed: {e}", self.method))?;
 
-        Ok((
-            self.method.clone(),
-            parsed_args,
-            parsed_kwargs,
-            response.clone(),
-        ))
+        Ok((self.method.clone(), parsed_args, parsed_kwargs, response))
     }
 }

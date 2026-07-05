@@ -1,7 +1,7 @@
 use crate::cli_config::CliConfig;
 use crate::commands::{
     CallCommand, CoreCommand, CoreConfigCommand, CoreSessionCommand, CoreTorrentsCommand,
-    DaemonCommand, LabelCommand, PluginsCommand, PluginsListCommand,
+    DaemonCommand, PluginsCommand, PluginsListCommand,
 };
 use crate::helpers::{rencode_from_json_value, rencode_to_plain_json};
 use crate::record::{
@@ -143,9 +143,6 @@ async fn daemon_record_call(
     BTreeMap<RencodeValue, RencodeValue>,
     RencodeValue,
 )> {
-    use BTreeMap;
-    use RencodeValue;
-
     let (method, rpc_args, rpc_kwargs): (
         &str,
         Vec<RencodeValue>,
@@ -169,9 +166,6 @@ async fn core_record_call(
     client: &DelugeClient,
     cmd: &CoreCommand,
 ) -> anyhow::Result<Vec<Interaction>> {
-    use BTreeMap;
-    use RencodeValue;
-
     let mut interactions = Vec::new();
     let args_vec: Vec<RencodeValue>;
     let kwargs: BTreeMap<RencodeValue, RencodeValue>;
@@ -238,9 +232,6 @@ fn core_torrents_record_params(
     Vec<RencodeValue>,
     BTreeMap<RencodeValue, RencodeValue>,
 )> {
-    use BTreeMap;
-    use RencodeValue;
-
     match cmd {
         CoreTorrentsCommand::List { filter, keys } => {
             let filter_value = match filter {
@@ -301,9 +292,6 @@ fn core_config_record_params(
     Vec<RencodeValue>,
     BTreeMap<RencodeValue, RencodeValue>,
 )> {
-    use BTreeMap;
-    use RencodeValue;
-
     match cmd {
         CoreConfigCommand::Get { key: Some(k) } => Ok((
             "core.get_config_value",
@@ -338,9 +326,6 @@ fn core_plugins_record_params(
     Vec<RencodeValue>,
     BTreeMap<RencodeValue, RencodeValue>,
 ) {
-    use BTreeMap;
-    use RencodeValue;
-
     match cmd {
         PluginsListCommand::List => ("core.get_enabled_plugins", vec![], BTreeMap::new()),
         PluginsListCommand::Enable { name } => (
@@ -354,32 +339,6 @@ fn core_plugins_record_params(
             BTreeMap::new(),
         ),
     }
-}
-
-async fn label_record_call(
-    client: &DelugeClient,
-    cmd: &LabelCommand,
-) -> anyhow::Result<(
-    String,
-    Vec<RencodeValue>,
-    BTreeMap<RencodeValue, RencodeValue>,
-    RencodeValue,
-)> {
-    use BTreeMap;
-    use RencodeValue;
-
-    let (method, rpc_args): (&str, Vec<RencodeValue>) = match cmd {
-        LabelCommand::List => ("label.get_labels", vec![]),
-        LabelCommand::Add { id } => ("label.add", vec![RencodeValue::Str(id.clone())]),
-        LabelCommand::Remove { id } => ("label.remove", vec![RencodeValue::Str(id.clone())]),
-    };
-
-    let request = DelugeRpcRequest::new(method)
-        .with_args(rpc_args.clone())
-        .with_kwargs(BTreeMap::new());
-    let response = client.call(request).await?;
-
-    Ok((method.to_owned(), rpc_args, BTreeMap::new(), response))
 }
 
 fn parse_record_keys(keys: &Option<String>) -> Vec<String> {

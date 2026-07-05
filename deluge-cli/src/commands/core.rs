@@ -158,10 +158,10 @@ impl CoreSessionCommand {
                     "read_hit_ratio".to_owned(),
                     JsonValue::from(status.read_hit_ratio),
                 );
-                let mut extra_keys: Vec<&String> = status.extra.keys().collect();
-                extra_keys.sort();
-                for k in extra_keys {
-                    map.insert(k.clone(), rencode_to_plain_json(&status.extra[k]));
+                let mut extra: Vec<_> = status.extra.iter().collect();
+                extra.sort_by_key(|(k, _)| *k);
+                for (k, v) in extra {
+                    map.insert(k.clone(), rencode_to_plain_json(v));
                 }
 
                 Ok(serde_json::to_string_pretty(&JsonValue::Object(map))?)
