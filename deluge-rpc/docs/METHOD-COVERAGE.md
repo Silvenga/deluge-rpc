@@ -210,19 +210,59 @@ return struct, cassette fixture, and test status.
 
 | Fixture           | Methods covered                                                                             | Used by    |
 |-------------------|---------------------------------------------------------------------------------------------|------------|
-| `login_ok`        | `daemon.login` (success)                                                                    | unit + e2e |
-| `login_bad`       | `daemon.login` (error)                                                                      | unit       |
-| `free_space_low`  | `daemon.login` + `core.get_free_space` (5 GB)                                               | unit + e2e |
-| `free_space_high` | `daemon.login` + `core.get_free_space` (30 GB)                                              | unit + e2e |
-| `torrents_list`   | `daemon.login` + `core.get_free_space` + `core.get_torrents_status`                         | unit + e2e |
-| `remove_torrent`  | `daemon.login` + `core.get_free_space` + `core.get_torrents_status` + `core.remove_torrent` | unit + e2e |
+| `login_ok`        | (empty — login auto-served by mock)                                                          | unit + e2e |
+| `login_bad`       | (empty — login auto-served by mock)                                                          | unit       |
+| `free_space_low`  | `core.get_free_space` (5 GB)                                                                | unit + e2e |
+| `free_space_high` | `core.get_free_space` (30 GB)                                                               | unit + e2e |
+| `torrents_list`   | `core.get_torrents_status`                                                                   | unit + e2e |
+| `remove_torrent`  | `core.get_torrents_status` + `core.remove_torrent`                                           | unit + e2e |
+| `live-daemon`     | `daemon.info`, `daemon.get_version`, `core.get_free_space`, `core.get_torrents_status`, `core.get_session_status`, `core.get_config`, `core.get_enabled_plugins` | e2e (recorded from real daemon v2.1.2.dev0) |
+| `torrent-lifecycle` | `core.get_torrent_status`, `core.get_magnet_uri`, `core.remove_torrent`                    | e2e (recorded from real daemon, Debian ISO add→verify→remove cycle) |
+
+## Verification status
+
+Methods verified against a live Deluge daemon (v2.1.2.dev0, libtorrent 2.0.10.0):
+
+| Method                        | Verified | Notes                                                      |
+|-------------------------------|----------|------------------------------------------------------------|
+| `daemon.info`                 | ✅ live  | Returns `"2.1.2.dev0"`                                     |
+| `daemon.login`                | ✅ live  | Auth level 10 (ADMIN)                                      |
+| `daemon.get_version`          | ✅ live  | Returns `"2.1.2.dev0"`                                     |
+| `daemon.get_method_list`      | ✅ live  | 79 methods (includes ltConfig plugin not in spec)          |
+| `daemon.authorized_call`      | ✅ live  | Returns `true` for `core.remove_torrent`                   |
+| `core.get_free_space`         | ✅ live  | Returns ~2.98 TB                                           |
+| `core.get_torrents_status`    | ✅ live  | 2 torrents with full status dict                           |
+| `core.get_torrent_status`     | ✅ live  | Single torrent status (Debian ISO)                         |
+| `core.get_session_state`      | ✅ live  | 2 torrent hashes                                           |
+| `core.get_session_status`     | ✅ live  | Full session metrics (12 typed + ~150 overflow keys)       |
+| `core.get_config`             | ✅ live  | Full config dict (DaemonConfig deserializes with defaults) |
+| `core.get_config_value`       | ✅ live  | Single key lookup (`download_location` → `/working`)       |
+| `core.get_proxy`              | ✅ live  | ProxyConfig (type=0, no proxy)                             |
+| `core.get_available_plugins`  | ✅ live  | 11 plugins                                                 |
+| `core.get_enabled_plugins`    | ✅ live  | `["ltConfig"]`                                             |
+| `core.get_external_ip`        | ✅ live  | `"146.70.117.77"`                                          |
+| `core.get_libtorrent_version` | ✅ live  | `"2.0.10.0"`                                               |
+| `core.get_listen_port`        | ✅ live  | `55337`                                                    |
+| `core.is_session_paused`      | ✅ live  | `false`                                                    |
+| `core.get_filter_tree`        | ✅ live  | Filter tree with state + owner fields                      |
+| `core.get_known_accounts`     | ✅ live  | Account list                                               |
+| `core.get_auth_levels_mappings` | ✅ live | Forward + reverse mappings                                 |
+| `core.add_torrent_magnet`     | ✅ live  | Added Debian 12 ISO, returned torrent hash                 |
+| `core.get_magnet_uri`         | ✅ live  | Reconstructed magnet from torrent hash                     |
+| `core.remove_torrent`         | ✅ live  | Removed Debian ISO torrent, returned `true`                |
+| `core.get_path_size`          | ✅ live  | Path size for `/working`                                   |
+| `core.get_ssl_listen_port`    | ❌ N/A   | Method not available on this daemon version                |
+| `label.get_labels`            | ❌ N/A   | Label plugin not enabled                                    |
+
+All other methods are unit-tested only (not verified against a live daemon).
 
 ## Notes
 
 - All 112 methods are fully implemented in the `deluge-rpc` crate with typed args and return values.
 - All methods have unit tests in their respective `#[cfg(test)] mod tests` blocks.
-- The 6 cassette fixtures cover the 4 methods used by `deluge-retain`: `daemon.login`, `core.get_free_space`,
-  `core.get_torrents_status`, `core.remove_torrent`.
-- Cassette fixtures are built programmatically in `deluge-retain/tests/common/cassettes.rs` and also available as JSON
-  in `deluge-rpc-mock/fixtures/`.
+- 26 methods verified against a live Deluge daemon (v2.1.2.dev0, libtorrent 2.0.10.0) — see "Verification status" above.
+- 2 methods not available on the test daemon: `core.get_ssl_listen_port` (method not registered), `label.get_labels` (Label plugin not enabled).
+- The mock server auto-serves `daemon.login` for any credentials — cassettes never contain login interactions or passwords.
+- Cassettes are built programmatically in `deluge-retain/tests/common/cassettes.rs` and also available as JSON
+  in `deluge-rpc-mock/fixtures/` (including 2 recorded from a live daemon).
 - No gaps or TODOs remain.
