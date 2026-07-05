@@ -121,6 +121,8 @@ impl CoreSessionRpc for CoreSessionClient {
         }
     }
 
+    /// Tests whether the active listen port is open by making an HTTP request to a Deluge
+    /// test service. This call may be slow (network-dependent) and can return None on error.
     async fn test_listen_port(&self) -> anyhow::Result<Option<bool>> {
         let result = self
             .caller

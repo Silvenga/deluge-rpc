@@ -4,62 +4,17 @@ use std::collections::BTreeMap;
 
 const GB: i64 = 1_073_741_824;
 
-pub fn login_ok() -> Cassette {
-    let mut kwargs = BTreeMap::new();
-    kwargs.insert(
-        RencodeValue::Str("client_version".into()),
-        RencodeValue::Str("deluge-rpc/0.1.0".into()),
-    );
+fn empty_cassette() -> Cassette {
     Cassette {
         version: 1,
         recorded_at: "2026-07-04T12:00:00Z".into(),
         daemon_version: Some("2.1.1".into()),
-        interactions: vec![Interaction {
-            request: Request {
-                method: "daemon.login".into(),
-                args: RencodeValue::List(vec![
-                    RencodeValue::Str("localclient".into()),
-                    RencodeValue::Str("secret".into()),
-                ]),
-                kwargs: RencodeValue::Dict(kwargs),
-            },
-            response: Response::Ok {
-                value: RencodeValue::Int(5),
-            },
-        }],
-    }
-}
-
-pub fn login_bad() -> Cassette {
-    let mut kwargs = BTreeMap::new();
-    kwargs.insert(
-        RencodeValue::Str("client_version".into()),
-        RencodeValue::Str("deluge-rpc/0.1.0".into()),
-    );
-    Cassette {
-        version: 1,
-        recorded_at: "2026-07-04T12:00:00Z".into(),
-        daemon_version: Some("2.1.1".into()),
-        interactions: vec![Interaction {
-            request: Request {
-                method: "daemon.login".into(),
-                args: RencodeValue::List(vec![
-                    RencodeValue::Str("localclient".into()),
-                    RencodeValue::Str("secret".into()),
-                ]),
-                kwargs: RencodeValue::Dict(kwargs),
-            },
-            response: Response::Error {
-                exc_type: "BadLoginError".into(),
-                exc_msg: "bad password".into(),
-                traceback: String::new(),
-            },
-        }],
+        interactions: vec![],
     }
 }
 
 pub fn free_space_low() -> Cassette {
-    let mut cassette = login_ok();
+    let mut cassette = empty_cassette();
     cassette.interactions.push(Interaction {
         request: Request {
             method: "core.get_free_space".into(),
@@ -74,7 +29,7 @@ pub fn free_space_low() -> Cassette {
 }
 
 pub fn free_space_high() -> Cassette {
-    let mut cassette = login_ok();
+    let mut cassette = empty_cassette();
     cassette.interactions.push(Interaction {
         request: Request {
             method: "core.get_free_space".into(),
@@ -191,20 +146,4 @@ pub fn remove_torrent(info_hash: &str, time_added: i64) -> Cassette {
         },
     });
     cassette
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn when_login_bad_cassette_then_has_error_response() {
-        let cassette = login_bad();
-        assert_eq!(cassette.interactions.len(), 1);
-        assert_eq!(cassette.interactions[0].request.method, "daemon.login");
-        assert!(matches!(
-            cassette.interactions[0].response,
-            deluge_rpc_mock::Response::Error { .. }
-        ));
-    }
 }

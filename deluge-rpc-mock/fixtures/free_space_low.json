@@ -5,31 +5,6 @@
   "interactions": [
     {
       "request": {
-        "method": "daemon.login",
-        "args": {
-          "type": "list",
-          "value": [
-            {"type": "str", "value": "localclient"},
-            {"type": "str", "value": "secret"}
-          ]
-        },
-        "kwargs": {
-          "type": "dict",
-          "value": [
-            {
-              "key": {"type": "str", "value": "client_version"},
-              "value": {"type": "str", "value": "deluge-rpc/0.1.0"}
-            }
-          ]
-        }
-      },
-      "response": {
-        "type": "ok",
-        "value": {"type": "int", "value": 5}
-      }
-    },
-    {
-      "request": {
         "method": "core.get_free_space",
         "args": {
           "type": "list",

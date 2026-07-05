@@ -184,43 +184,22 @@ mod tests {
     use std::process;
 
     fn make_cassette() -> Cassette {
-        let mut kwargs = BTreeMap::new();
-        kwargs.insert(
-            RencodeValue::Str("client_version".into()),
-            RencodeValue::Str("deluge-rpc/0.1.0".into()),
-        );
-
         Cassette {
             version: 1,
             recorded_at: "2026-07-04T12:00:00Z".into(),
             daemon_version: Some("2.1.1".into()),
-            interactions: vec![
-                Interaction {
-                    request: Request {
-                        method: "daemon.login".into(),
-                        args: RencodeValue::List(vec![
-                            RencodeValue::Str("user".into()),
-                            RencodeValue::Str("pass".into()),
-                        ]),
-                        kwargs: RencodeValue::Dict(kwargs),
-                    },
-                    response: Response::Ok {
-                        value: RencodeValue::Int(10),
-                    },
+            interactions: vec![Interaction {
+                request: Request {
+                    method: "core.get_free_space".into(),
+                    args: RencodeValue::List(vec![RencodeValue::None]),
+                    kwargs: RencodeValue::Dict(BTreeMap::new()),
                 },
-                Interaction {
-                    request: Request {
-                        method: "core.get_free_space".into(),
-                        args: RencodeValue::List(vec![RencodeValue::None]),
-                        kwargs: RencodeValue::Dict(BTreeMap::new()),
-                    },
-                    response: Response::Error {
-                        exc_type: "NotEnoughSpace".into(),
-                        exc_msg: "disk full".into(),
-                        traceback: String::new(),
-                    },
+                response: Response::Error {
+                    exc_type: "NotEnoughSpace".into(),
+                    exc_msg: "disk full".into(),
+                    traceback: String::new(),
                 },
-            ],
+            }],
         }
     }
 

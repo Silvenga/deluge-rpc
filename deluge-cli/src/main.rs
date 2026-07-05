@@ -14,7 +14,7 @@ use commands::{
     CallArgs, CoreCommand, CoreConfigCommand, CoreSessionCommand, CoreTorrentsCommand,
     DaemonCommand, LabelCommand, PluginsListCommand,
 };
-use record::{Cassette, Interaction, Request, Response, write_cassette_atomic};
+use record::{Cassette, Interaction, Request, Response, load_cassette, write_cassette_atomic};
 
 #[derive(Parser, Debug)]
 #[command(
@@ -144,13 +144,27 @@ async fn run() -> anyhow::Result<()> {
     }
 
     if let Some(record_path) = &resolved.record {
+        let path = PathBuf::from(record_path);
+
+        let mut existing = Vec::new();
+        if path.exists() {
+            let cassette = load_cassette(&path).context("failed to load existing cassette")?;
+            existing = cassette
+                .interactions
+                .into_iter()
+                .filter(|i| i.request.method != "daemon.login")
+                .collect::<Vec<_>>();
+        }
+
+        interactions.retain(|i| i.request.method != "daemon.login");
+        existing.extend(interactions);
+
         let cassette = Cassette {
             version: 1,
             recorded_at: chrono::Utc::now().to_rfc3339(),
             daemon_version: None,
-            interactions,
+            interactions: existing,
         };
-        let path = PathBuf::from(record_path);
         write_cassette_atomic(&path, &cassette).context("failed to write cassette file")?;
         tracing::info!("cassette written to {}", record_path);
     }

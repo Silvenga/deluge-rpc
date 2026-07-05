@@ -108,6 +108,9 @@ impl DaemonRpc for DaemonClient {
         }
     }
 
+    /// Shuts down the daemon. The daemon's reactor stops before the response is flushed,
+    /// so this call may time out (30s) waiting for a response that never arrives.
+    /// This is expected behavior per the Deluge spec — do not reduce the timeout.
     async fn shutdown(&self) -> anyhow::Result<()> {
         self.caller
             .rpc_call(DelugeRpcRequest::new("daemon.shutdown"))

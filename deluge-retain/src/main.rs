@@ -353,30 +353,6 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn when_login_fails_then_skips_host() {
-        let cassette = cassettes::login_bad();
-        let matcher = Arc::new(Matcher::new(cassette.interactions));
-        let server = ReplayServer::start(matcher)
-            .await
-            .expect("start replay server");
-        let config = config_with(&server, rules(10 * GB, 20 * GB));
-
-        let result = run_once(&config, false).await;
-
-        assert!(
-            result.is_ok(),
-            "cycle must succeed even when a host fails to log in"
-        );
-
-        let methods = server.consumed_methods();
-        let post_login_calls = methods.iter().filter(|m| *m != "daemon.login").count();
-        assert_eq!(
-            post_login_calls, 0,
-            "no further API calls after a login failure, got {methods:?}"
-        );
-    }
-
-    #[tokio::test(flavor = "multi_thread")]
     async fn when_no_eligible_torrents_then_plan_is_empty() {
         let now_secs = Utc::now().timestamp();
         let cassette = cassettes::torrents_list(

@@ -19,6 +19,12 @@ pub fn write_cassette_atomic(path: &Path, cassette: &Cassette) -> anyhow::Result
     Ok(())
 }
 
+pub fn load_cassette(path: &Path) -> anyhow::Result<Cassette> {
+    let data =
+        fs::read_to_string(path).map_err(|e| anyhow::anyhow!("failed to read cassette: {e}"))?;
+    serde_json::from_str(&data).map_err(|e| anyhow::anyhow!("failed to parse cassette: {e}"))
+}
+
 pub fn response_to_tagged_json(value: &RencodeValue) -> serde_json::Value {
     deluge_rpc::to_json(value)
 }

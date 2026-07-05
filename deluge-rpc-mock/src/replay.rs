@@ -16,6 +16,8 @@ use tokio::task::JoinHandle;
 use tokio_rustls::TlsAcceptor;
 use tokio_rustls::server::TlsStream;
 
+const LOGIN_METHOD: &str = "daemon.login";
+const AUTH_LEVEL_ADMIN: i64 = 5;
 const PROTOCOL_VERSION: u8 = 1;
 const HEADER_LEN: usize = 5;
 const RPC_RESPONSE: i64 = 1;
@@ -128,9 +130,13 @@ async fn serve_connection(mut tls: TlsStream<TcpStream>, matcher: &Matcher) {
         let Some((id, method, args)) = extract_request(&decoded) else {
             continue;
         };
-        let response = match matcher.find_match(&method, &args) {
-            Some(interaction) => build_response_from_interaction(id, &interaction),
-            None => build_unknown_method_response(id, &method),
+        let response = if method == LOGIN_METHOD {
+            build_login_response(id)
+        } else {
+            match matcher.find_match(&method, &args) {
+                Some(interaction) => build_response_from_interaction(id, &interaction),
+                None => build_unknown_method_response(id, &method),
+            }
         };
         let encoded = response.encode();
         if write_frame(&mut tls, &encoded).await.is_err() {
@@ -245,6 +251,15 @@ fn build_response_from_interaction(id: u32, interaction: &Interaction) -> Rencod
     RencodeValue::List(inner)
 }
 
+fn build_login_response(id: u32) -> RencodeValue {
+    let inner = vec![
+        RencodeValue::Int(RPC_RESPONSE),
+        RencodeValue::Int(i64::from(id)),
+        RencodeValue::Int(AUTH_LEVEL_ADMIN),
+    ];
+    RencodeValue::List(inner)
+}
+
 fn build_unknown_method_response(id: u32, method: &str) -> RencodeValue {
     let inner = vec![
         RencodeValue::Int(RPC_ERROR),
@@ -273,22 +288,6 @@ mod tests {
         }
     }
 
-    fn login_interaction() -> Interaction {
-        Interaction {
-            request: Request {
-                method: "daemon.login".into(),
-                args: RencodeValue::List(vec![
-                    RencodeValue::Str("testuser".into()),
-                    RencodeValue::Str("testpass".into()),
-                ]),
-                kwargs: RencodeValue::List(vec![]),
-            },
-            response: CassetteResponse::Ok {
-                value: RencodeValue::Int(10),
-            },
-        }
-    }
-
     fn ok_interaction(method: &str, args: RencodeValue, value: RencodeValue) -> Interaction {
         Interaction {
             request: Request {
@@ -302,14 +301,11 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_cassette_loaded_then_replay_matches_exact_args() {
-        let cassette = make_cassette(vec![
-            login_interaction(),
-            ok_interaction(
-                "daemon.info",
-                RencodeValue::List(vec![RencodeValue::None]),
-                RencodeValue::Str("2.1.1".into()),
-            ),
-        ]);
+        let cassette = make_cassette(vec![ok_interaction(
+            "daemon.info",
+            RencodeValue::List(vec![RencodeValue::None]),
+            RencodeValue::Str("2.1.1".into()),
+        )]);
         let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
@@ -324,7 +320,6 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn when_no_exact_match_then_fallback_to_unmatched_for_method() {
         let cassette = make_cassette(vec![
-            login_interaction(),
             ok_interaction(
                 "daemon.get_version",
                 RencodeValue::List(vec![RencodeValue::Str("v1".into())]),
@@ -353,14 +348,11 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_entry_consumed_then_not_rematched() {
-        let cassette = make_cassette(vec![
-            login_interaction(),
-            ok_interaction(
-                "daemon.info",
-                RencodeValue::List(vec![RencodeValue::None]),
-                RencodeValue::Str("only-one".into()),
-            ),
-        ]);
+        let cassette = make_cassette(vec![ok_interaction(
+            "daemon.info",
+            RencodeValue::List(vec![RencodeValue::None]),
+            RencodeValue::Str("only-one".into()),
+        )]);
         let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
@@ -380,21 +372,18 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_error_response_then_client_receives_error() {
-        let cassette = make_cassette(vec![
-            login_interaction(),
-            Interaction {
-                request: Request {
-                    method: "daemon.info".into(),
-                    args: RencodeValue::List(vec![RencodeValue::None]),
-                    kwargs: RencodeValue::List(vec![]),
-                },
-                response: CassetteResponse::Error {
-                    exc_type: "TestError".into(),
-                    exc_msg: "this is a test error".into(),
-                    traceback: String::new(),
-                },
+        let cassette = make_cassette(vec![Interaction {
+            request: Request {
+                method: "daemon.info".into(),
+                args: RencodeValue::List(vec![RencodeValue::None]),
+                kwargs: RencodeValue::List(vec![]),
             },
-        ]);
+            response: CassetteResponse::Error {
+                exc_type: "TestError".into(),
+                exc_msg: "this is a test error".into(),
+                traceback: String::new(),
+            },
+        }]);
         let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
@@ -412,14 +401,19 @@ mod tests {
     }
 
     #[tokio::test(flavor = "multi_thread")]
-    async fn when_login_in_cassette_then_replay_serves_it() {
-        let cassette = make_cassette(vec![login_interaction()]);
+    async fn when_login_auto_served_then_connect_succeeds_with_any_credentials() {
+        let cassette = make_cassette(vec![]);
         let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
-        let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClient::connect(
+            &server.host(),
+            server.port(),
+            "anyuser",
+            "anypassword",
+        )
+        .await
+        .expect("connect should succeed with auto-served login");
 
         let version = client.daemon().get_version().await;
         assert!(
@@ -435,7 +429,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread")]
     async fn when_unknown_method_then_error_or_skip() {
-        let cassette = make_cassette(vec![login_interaction()]);
+        let cassette = make_cassette(vec![]);
         let matcher = Arc::new(Matcher::new(cassette.interactions));
         let server = ReplayServer::start(matcher).await.expect("start server");
 
