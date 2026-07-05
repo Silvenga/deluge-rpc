@@ -207,38 +207,3 @@ The "Cassette" is the file name of the JSON cassette fixture in `deluge-rpc/fixt
 | toggle        | 2       | `ToggleRpc`        | 2/2         | 2/2         |
 | webui         | 3       | `WebuiRpc`         | 3/3         | 3/3         |
 | **Total**     | **112** | **18 traits**      | **112/112** | **112/112** |
-
-## Verification status
-
-Methods verified against a live Deluge daemon (v2.1.2.dev0, libtorrent 2.0.10.0):
-
-| Method                          | Verified | Notes                                                      |
-|---------------------------------|----------|------------------------------------------------------------|
-| `daemon.info`                   | ✅ live   | Returns `"2.1.2.dev0"`                                     |
-| `daemon.login`                  | ✅ live   | Auth level 10 (ADMIN)                                      |
-| `daemon.get_version`            | ✅ live   | Returns `"2.1.2.dev0"`                                     |
-| `daemon.get_method_list`        | ✅ live   | 79 methods (includes ltConfig plugin not in spec)          |
-| `daemon.authorized_call`        | ✅ live   | Returns `true` for `core.remove_torrent`                   |
-| `core.get_free_space`           | ✅ live   | Returns ~2.98 TB                                           |
-| `core.get_torrents_status`      | ✅ live   | 2 torrents with full status dict                           |
-| `core.get_torrent_status`       | ✅ live   | Single torrent status (Debian ISO)                         |
-| `core.get_session_state`        | ✅ live   | 2 torrent hashes                                           |
-| `core.get_session_status`       | ✅ live   | Full session metrics (12 typed + ~150 overflow keys)       |
-| `core.get_config`               | ✅ live   | Full config dict (DaemonConfig deserializes with defaults) |
-| `core.get_config_value`         | ✅ live   | Single key lookup (`download_location` → `/working`)       |
-| `core.get_proxy`                | ✅ live   | ProxyConfig (type=0, no proxy)                             |
-| `core.get_available_plugins`    | ✅ live   | 11 plugins                                                 |
-| `core.get_enabled_plugins`      | ✅ live   | `["ltConfig"]`                                             |
-| `core.get_external_ip`          | ✅ live   | `"146.70.117.77"`                                          |
-| `core.get_libtorrent_version`   | ✅ live   | `"2.0.10.0"`                                               |
-| `core.get_listen_port`          | ✅ live   | `55337`                                                    |
-| `core.is_session_paused`        | ✅ live   | `false`                                                    |
-| `core.get_filter_tree`          | ✅ live   | Filter tree with state + owner fields                      |
-| `core.get_known_accounts`       | ✅ live   | Account list                                               |
-| `core.get_auth_levels_mappings` | ✅ live   | Forward + reverse mappings                                 |
-| `core.add_torrent_magnet`       | ✅ live   | Added Debian 12 ISO, returned torrent hash                 |
-| `core.get_magnet_uri`           | ✅ live   | Reconstructed magnet from torrent hash                     |
-| `core.remove_torrent`           | ✅ live   | Removed Debian ISO torrent, returned `true`                |
-| `core.get_path_size`            | ✅ live   | Path size for `/working`                                   |
-| `core.get_ssl_listen_port`      | ❌ N/A    | Method not available on this daemon version                |
-| `label.get_labels`              | ❌ N/A    | Label plugin not enabled                                   |

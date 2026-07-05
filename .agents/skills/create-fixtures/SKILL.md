@@ -14,6 +14,10 @@ Record real Deluge daemon responses into cassette fixtures and write e2e tests t
 - `deluge-cli` built: `cargo build -p deluge-cli`
 - Access to a live Deluge daemon (host, port, user, password). The User will provide these connection settings.
 
+## Step 0: Ensure CLI Sub-Command Exists
+
+- Ensure
+
 ## Step 1: Record a cassette
 
 Use `deluge-cli --record` to capture RPC responses. The recorder appends to an existing cassette, so run multiple

@@ -9,23 +9,25 @@ pub enum DaemonCommand {
     Shutdown,
 }
 
-pub async fn run_daemon(client: &DelugeClient, cmd: &DaemonCommand) -> anyhow::Result<String> {
-    match cmd {
-        DaemonCommand::Info => {
-            let info = client.daemon().info().await?;
-            Ok(serde_json::to_string_pretty(&info)?)
-        }
-        DaemonCommand::Version => {
-            let version = client.daemon().get_version().await?;
-            Ok(serde_json::to_string_pretty(&version)?)
-        }
-        DaemonCommand::Methods => {
-            let methods = client.daemon().get_method_list().await?;
-            Ok(serde_json::to_string_pretty(&methods)?)
-        }
-        DaemonCommand::Shutdown => {
-            client.daemon().shutdown().await?;
-            Ok("Shutdown requested.".to_owned())
+impl DaemonCommand {
+    pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
+        match self {
+            DaemonCommand::Info => {
+                let info = client.daemon().info().await?;
+                Ok(serde_json::to_string_pretty(&info)?)
+            }
+            DaemonCommand::Version => {
+                let version = client.daemon().get_version().await?;
+                Ok(serde_json::to_string_pretty(&version)?)
+            }
+            DaemonCommand::Methods => {
+                let methods = client.daemon().get_method_list().await?;
+                Ok(serde_json::to_string_pretty(&methods)?)
+            }
+            DaemonCommand::Shutdown => {
+                client.daemon().shutdown().await?;
+                Ok("Shutdown requested.".to_owned())
+            }
         }
     }
 }

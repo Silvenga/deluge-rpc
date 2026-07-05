@@ -1,11 +1,9 @@
-pub mod call;
-pub mod core;
-pub mod daemon;
-pub mod plugins;
+mod call;
+mod core;
+mod daemon;
+mod plugins;
 
-pub use call::CallArgs;
-pub use core::{
-    CoreCommand, CoreConfigCommand, CoreSessionCommand, CoreTorrentsCommand, PluginsListCommand,
-};
-pub use daemon::DaemonCommand;
-pub use plugins::LabelCommand;
+pub use call::*;
+pub use core::*;
+pub use daemon::*;
+pub use plugins::*;
