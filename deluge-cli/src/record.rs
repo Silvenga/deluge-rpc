@@ -25,10 +25,6 @@ pub fn load_cassette(path: &Path) -> anyhow::Result<Cassette> {
     serde_json::from_str(&data).map_err(|e| anyhow::anyhow!("failed to parse cassette: {e}"))
 }
 
-pub fn response_to_tagged_json(value: &RencodeValue) -> serde_json::Value {
-    deluge_rpc::to_json(value)
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Cassette {
     pub version: u32,

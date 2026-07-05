@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 /// Contains 10 keys. The `core.get_proxy()` method returns a subset of 8 keys
 /// (excluding `force_proxy` and `anonymous_mode`) read from live libtorrent
 /// session settings.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
+#[serde(default)]
 pub struct ProxyConfig {
     /// Proxy type: 0=None, 1=Socks4, 2=Socks5, 3=Socks5+Auth, 4=HTTP, 5=HTTP+Auth, 6=I2P
     #[serde(rename = "type")]

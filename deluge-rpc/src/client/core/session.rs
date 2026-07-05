@@ -14,10 +14,20 @@ pub trait CoreSessionRpc: Send + Sync {
     async fn resume_session(&self) -> anyhow::Result<()>;
     async fn is_session_paused(&self) -> anyhow::Result<bool>;
     async fn get_listen_port(&self) -> anyhow::Result<i64>;
+    /// Returns the active SSL listen port.
+    ///
+    /// **Availability**: This method may not exist on all daemon versions.
+    /// On Deluge v2.1.2.dev0 it is absent from `daemon.get_method_list()`.
+    /// Callers should handle `RpcError::MethodNotFound`.
     async fn get_ssl_listen_port(&self) -> anyhow::Result<i64>;
     async fn get_external_ip(&self) -> anyhow::Result<String>;
     async fn get_libtorrent_version(&self) -> anyhow::Result<String>;
     async fn test_listen_port(&self) -> anyhow::Result<Option<bool>>;
+    /// Returns libtorrent session statistics for the requested keys.
+    ///
+    /// `keys` is a required positional argument. Pass an empty slice `&[]`
+    /// to request all available keys. The daemon returns a flat dict of
+    /// `{key: value}` where values are `int` or `float`.
     async fn get_session_status(&self, keys: &[String]) -> anyhow::Result<SessionStatus>;
     async fn get_free_space(&self, path: Option<String>) -> anyhow::Result<i64>;
 }

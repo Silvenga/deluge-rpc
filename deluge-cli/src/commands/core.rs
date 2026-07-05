@@ -1,4 +1,4 @@
-use crate::commands::call::rencode_from_json_value;
+use crate::commands::call::{rencode_from_json_value, rencode_to_plain_json};
 use clap::Subcommand;
 use deluge_rpc::models::torrents::FilterDict;
 use deluge_rpc::{CoreConfigRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc, DelugeClient};
@@ -131,7 +131,57 @@ async fn run_core_session(
         CoreSessionCommand::Status { keys } => {
             let keys_list = parse_keys(keys);
             let status = client.core().session.get_session_status(&keys_list).await?;
-            Ok(serde_json::to_string_pretty(&status)?)
+
+            let mut map = serde_json::Map::new();
+            map.insert("download_rate".to_owned(), JsonValue::from(status.download_rate));
+            map.insert("upload_rate".to_owned(), JsonValue::from(status.upload_rate));
+            map.insert(
+                "payload_download_rate".to_owned(),
+                JsonValue::from(status.payload_download_rate),
+            );
+            map.insert(
+                "payload_upload_rate".to_owned(),
+                JsonValue::from(status.payload_upload_rate),
+            );
+            map.insert(
+                "ip_overhead_download_rate".to_owned(),
+                JsonValue::from(status.ip_overhead_download_rate),
+            );
+            map.insert(
+                "ip_overhead_upload_rate".to_owned(),
+                JsonValue::from(status.ip_overhead_upload_rate),
+            );
+            map.insert(
+                "tracker_download_rate".to_owned(),
+                JsonValue::from(status.tracker_download_rate),
+            );
+            map.insert(
+                "tracker_upload_rate".to_owned(),
+                JsonValue::from(status.tracker_upload_rate),
+            );
+            map.insert(
+                "dht_download_rate".to_owned(),
+                JsonValue::from(status.dht_download_rate),
+            );
+            map.insert(
+                "dht_upload_rate".to_owned(),
+                JsonValue::from(status.dht_upload_rate),
+            );
+            map.insert(
+                "write_hit_ratio".to_owned(),
+                JsonValue::from(status.write_hit_ratio),
+            );
+            map.insert(
+                "read_hit_ratio".to_owned(),
+                JsonValue::from(status.read_hit_ratio),
+            );
+            let mut extra_keys: Vec<&String> = status.extra.keys().collect();
+            extra_keys.sort();
+            for k in extra_keys {
+                map.insert(k.clone(), rencode_to_plain_json(&status.extra[k]));
+            }
+
+            Ok(serde_json::to_string_pretty(&JsonValue::Object(map))?)
         }
     }
 }

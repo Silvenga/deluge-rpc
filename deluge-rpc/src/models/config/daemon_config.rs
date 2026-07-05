@@ -11,7 +11,8 @@ use crate::models::sentinels::{deserialize_unlimited_f64, deserialize_unlimited_
 ///
 /// Sentinel values (`-1` / `-1.0` meaning "unlimited") are deserialized as
 /// `None` via `deserialize_unlimited_i64` / `deserialize_unlimited_f64`.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
+#[serde(default)]
 pub struct DaemonConfig {
     // --- Info / telemetry ---
     pub send_info: bool,
@@ -670,5 +671,21 @@ mod tests {
         assert_eq!(result.max_download_speed_per_torrent, None);
         assert_eq!(result.max_half_open_connections, None);
         assert_eq!(result.max_connections_per_second, None);
+    }
+
+    #[test]
+    fn when_empty_config_dict_then_all_fields_default() {
+        let empty = RencodeValue::Dict(BTreeMap::new());
+
+        let result: DaemonConfig = DaemonConfig::deserialize(&empty).expect("deserialize");
+
+        assert!(!result.send_info);
+        assert!((result.info_sent - 0.0).abs() < f64::EPSILON);
+        assert_eq!(result.daemon_port, 0);
+        assert!(!result.allow_remote);
+        assert!(!result.ssl_torrents);
+        assert_eq!(result.listen_ports, Vec::<i64>::new());
+        assert_eq!(result.download_location, "");
+        assert_eq!(result.proxy.proxy_type, 0);
     }
 }

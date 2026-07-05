@@ -16,7 +16,7 @@
 | `core.get_external_ip`        | `()`                 | `str`                          | NORMAL | Returns the external IP address as determined by libtorrent.                                                                                            |
 | `core.get_libtorrent_version` | `()`                 | `str`                          | NORMAL | Returns the libtorrent version string.                                                                                                                  |
 | `core.test_listen_port`       | `()`                 | `Deferred[Optional[bool]]`     | NORMAL | Tests whether the active listen port is open by making an HTTP request to a Deluge test service. Returns `True`/`False`/`None` (on error). May be slow. |
-| `core.get_session_status`     | `(keys: List[str])`  | `Dict[str, Union[int, float]]` | NORMAL | Returns libtorrent session statistics for the requested keys. Empty `keys` returns all. See "Session status keys".                                      |
+| `core.get_session_status`     | `(keys: List[str])`  | `Dict[str, Union[int, float]]` | NORMAL | Returns libtorrent session statistics for the requested keys. `keys` is a required positional argument — pass an empty list `[]` to return all keys. See "Session status keys".                                      |
 | `core.get_free_space`         | `(path: str = None)` | `int` (bytes)                  | NORMAL | Returns free space in bytes at `path`. Negative on error. `None` uses the default download location.                                                    |
 
 ### Config
@@ -288,7 +288,7 @@ All original input keys are passed through unchanged.
 
 ## Session status keys
 
-Returned by `core.get_session_status(keys)`. Empty `keys` returns the full dict.
+Returned by `core.get_session_status(keys)`. `keys` is required — pass `[]` to return the full dict.
 
 Three key sources: libtorrent session metrics (all `int`), rate keys (all `float`, bytes/sec), and cache hit ratios (all
 `float`, 0.0–1.0).
