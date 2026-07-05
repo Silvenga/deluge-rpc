@@ -166,7 +166,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.add_torrent_file RPC failed")?;
-        let value = extract_single(&result, "core.add_torrent_file")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(Some(s)),
             RencodeValue::None => Ok(None),
@@ -202,7 +202,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.add_torrent_file_async RPC failed")?;
-        let value = extract_single(&result, "core.add_torrent_file_async")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(Some(s)),
             RencodeValue::None => Ok(None),
@@ -233,7 +233,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.add_torrent_files RPC failed")?;
-        let value = extract_single(&result, "core.add_torrent_files")?;
+        let value = extract_single(&result)?;
         AddTorrentFilesResult::deserialize(&value).context("deserializing add torrent files result")
     }
 
@@ -258,7 +258,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.add_torrent_url RPC failed")?;
-        let value = extract_single(&result, "core.add_torrent_url")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(Some(s)),
             RencodeValue::None => Ok(None),
@@ -282,7 +282,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.add_torrent_magnet RPC failed")?;
-        let value = extract_single(&result, "core.add_torrent_magnet")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
             other => Err(anyhow!(
@@ -309,7 +309,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.prefetch_magnet_metadata RPC failed")?;
-        let value = extract_single(&result, "core.prefetch_magnet_metadata")?;
+        let value = extract_single(&result)?;
         PrefetchMagnetResult::deserialize(&value).context("deserializing prefetch magnet result")
     }
 
@@ -322,7 +322,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             ]))
             .await
             .context("core.remove_torrent RPC failed")?;
-        let value = extract_single(&result, "core.remove_torrent")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -350,7 +350,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.remove_torrents RPC failed")?;
-        let value = extract_single(&result, "core.remove_torrents")?;
+        let value = extract_single(&result)?;
         RemoveTorrentsResult::deserialize(&value).context("deserializing remove torrents result")
     }
 
@@ -538,7 +538,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.get_torrent_status RPC failed")?;
-        let value = extract_single(&result, "core.get_torrent_status")?;
+        let value = extract_single(&result)?;
         TorrentStatus::deserialize(&value).context("deserializing torrent status")
     }
 
@@ -606,7 +606,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .rpc_call(DelugeRpcRequest::new("core.get_filter_tree").with_kwargs(kwargs))
             .await
             .context("core.get_filter_tree RPC failed")?;
-        let value = extract_single(&result, "core.get_filter_tree")?;
+        let value = extract_single(&result)?;
         FilterTree::deserialize(&value).context("deserializing filter tree")
     }
 
@@ -616,7 +616,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .rpc_call(DelugeRpcRequest::new("core.get_session_state"))
             .await
             .context("core.get_session_state RPC failed")?;
-        let value = extract_single(&result, "core.get_session_state")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
                 let mut out = Vec::with_capacity(items.len());
@@ -647,7 +647,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             )
             .await
             .context("core.get_magnet_uri RPC failed")?;
-        let value = extract_single(&result, "core.get_magnet_uri")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
             other => Err(anyhow!(

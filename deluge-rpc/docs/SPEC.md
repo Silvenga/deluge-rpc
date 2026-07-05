@@ -28,9 +28,22 @@ Rencode, not JSON/Bencode.
 
 ## 2. Message envelope
 
-Every message is a 1-element outer list wrapping an inner list whose first element is a type tag.
+### Client request (outer-wrapped)
 
-### Message type tags
+Requests are a 1-element outer list wrapping a list of 4-tuples:
+
+```
+[[(request_id: int, method: str, args: list, kwargs: dict), ...]]
+```
+
+Multiple calls per envelope are supported (batched). Each call validated to length 4. `args` defaults to `[None]` when
+empty; `kwargs` defaults to `{}`.
+
+### Server response (bare tuple)
+
+Responses are bare tuples. Only requests use the outer 1-element list wrapping.
+
+The inner tuple is discriminated by a type tag at position 0:
 
 | Tag | Constant       | Direction      | Inner shape                                                                                  |
 |-----|----------------|----------------|----------------------------------------------------------------------------------------------|
@@ -38,14 +51,7 @@ Every message is a 1-element outer list wrapping an inner list whose first eleme
 | `2` | `RPC_ERROR`    | server->client | `(2, request_id: int, exc_type_name: str, exc_args: list, exc_kwargs: dict, traceback: str)` |
 | `3` | `RPC_EVENT`    | server->client | `(3, event_name: str, event_args: list)`                                                     |
 
-### Client request
-
-```
-[[(request_id: int, method: str, args: list, kwargs: dict), ...]]
-```
-
-1-element outer list wrapping a list of 4-tuples. Multiple calls per envelope are supported (batched). Each call
-validated to length 4. `args` defaults to `[None]` when empty; `kwargs` defaults to `{}`.
+> **Note**: Return values in `RPC_RESPONSE` are bare — `daemon.login` returns `10`, not `[10]`.
 
 ## 3. Auth levels
 

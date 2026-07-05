@@ -47,21 +47,21 @@ fn self_signed_server_config() -> Arc<ServerConfig> {
 }
 
 fn login_response_frame(request_id: u32) -> Vec<u8> {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![
+    let response = RencodeValue::List(vec![
         RencodeValue::Int(1),
         RencodeValue::Int(i64::from(request_id)),
-        RencodeValue::List(vec![RencodeValue::Int(10)]),
-    ])]);
+        RencodeValue::Int(10),
+    ]);
     let payload = response.encode();
     frame_encode(&payload)
 }
 
 fn rpc_response_frame(request_id: u32, return_value: RencodeValue) -> Vec<u8> {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![
+    let response = RencodeValue::List(vec![
         RencodeValue::Int(1),
         RencodeValue::Int(i64::from(request_id)),
-        RencodeValue::List(vec![return_value]),
-    ])]);
+        return_value,
+    ]);
     let payload = response.encode();
     frame_encode(&payload)
 }

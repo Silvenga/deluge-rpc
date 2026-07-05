@@ -12,10 +12,10 @@ use std::collections::BTreeMap;
 
 #[test]
 fn when_add_torrent_file_response_str_then_some() {
-    let response = RencodeValue::List(vec![RencodeValue::Str(
+    let response = RencodeValue::Str(
         "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into(),
-    )]);
-    let value = extract_single(&response, "core.add_torrent_file").expect("extract");
+    );
+    let value = extract_single(&response).expect("extract");
     let result: AddTorrentFileResult = match value {
         RencodeValue::Str(s) => Some(s),
         RencodeValue::None => None,
@@ -29,8 +29,8 @@ fn when_add_torrent_file_response_str_then_some() {
 
 #[test]
 fn when_add_torrent_file_response_none_then_none() {
-    let response = RencodeValue::List(vec![RencodeValue::None]);
-    let value = extract_single(&response, "core.add_torrent_file").expect("extract");
+    let response = RencodeValue::None;
+    let value = extract_single(&response).expect("extract");
     let result: AddTorrentFileResult = match value {
         RencodeValue::Str(s) => Some(s),
         RencodeValue::None => None,
@@ -43,8 +43,8 @@ fn when_add_torrent_file_response_none_then_none() {
 
 #[test]
 fn when_add_torrent_files_response_empty_then_all_succeeded() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![])]);
-    let value = extract_single(&response, "core.add_torrent_files").expect("extract");
+    let response = RencodeValue::List(vec![]);
+    let value = extract_single(&response).expect("extract");
     let result: AddTorrentFilesResult =
         AddTorrentFilesResult::deserialize(&value).expect("deserialize");
     assert!(result.is_empty());
@@ -52,10 +52,10 @@ fn when_add_torrent_files_response_empty_then_all_succeeded() {
 
 #[test]
 fn when_add_torrent_files_response_errors_then_deserialized() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::Str(
+    let response = RencodeValue::List(vec![RencodeValue::Str(
         "failed to add torrent".into(),
-    )])]);
-    let value = extract_single(&response, "core.add_torrent_files").expect("extract");
+    )]);
+    let value = extract_single(&response).expect("extract");
     let result: AddTorrentFilesResult =
         AddTorrentFilesResult::deserialize(&value).expect("deserialize");
     assert_eq!(result, vec!["failed to add torrent"]);
@@ -65,10 +65,10 @@ fn when_add_torrent_files_response_errors_then_deserialized() {
 
 #[test]
 fn when_add_torrent_magnet_response_str_then_ok() {
-    let response = RencodeValue::List(vec![RencodeValue::Str(
+    let response = RencodeValue::Str(
         "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into(),
-    )]);
-    let value = extract_single(&response, "core.add_torrent_magnet").expect("extract");
+    );
+    let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::Str(s) => assert_eq!(s, "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111"),
         other => panic!("expected str, got {other:?}"),
@@ -79,11 +79,11 @@ fn when_add_torrent_magnet_response_str_then_ok() {
 
 #[test]
 fn when_prefetch_magnet_metadata_response_tuple_then_deserialized() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![
+    let response = RencodeValue::List(vec![
         RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()),
         RencodeValue::Bytes(b"bencoded-data".to_vec()),
-    ])]);
-    let value = extract_single(&response, "core.prefetch_magnet_metadata").expect("extract");
+    ]);
+    let value = extract_single(&response).expect("extract");
     let result: PrefetchMagnetResult =
         PrefetchMagnetResult::deserialize(&value).expect("deserialize");
     assert_eq!(
@@ -97,8 +97,8 @@ fn when_prefetch_magnet_metadata_response_tuple_then_deserialized() {
 
 #[test]
 fn when_remove_torrent_response_true_then_bool() {
-    let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-    let value = extract_single(&response, "core.remove_torrent").expect("extract");
+    let response = RencodeValue::Bool(true);
+    let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::Bool(b) => assert!(b),
         other => panic!("expected bool, got {other:?}"),
@@ -107,8 +107,8 @@ fn when_remove_torrent_response_true_then_bool() {
 
 #[test]
 fn when_remove_torrent_response_false_then_bool() {
-    let response = RencodeValue::List(vec![RencodeValue::Bool(false)]);
-    let value = extract_single(&response, "core.remove_torrent").expect("extract");
+    let response = RencodeValue::Bool(false);
+    let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::Bool(b) => assert!(!b),
         other => panic!("expected bool, got {other:?}"),
@@ -119,8 +119,8 @@ fn when_remove_torrent_response_false_then_bool() {
 
 #[test]
 fn when_remove_torrents_response_empty_then_all_succeeded() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![])]);
-    let value = extract_single(&response, "core.remove_torrents").expect("extract");
+    let response = RencodeValue::List(vec![]);
+    let value = extract_single(&response).expect("extract");
     let result: RemoveTorrentsResult =
         RemoveTorrentsResult::deserialize(&value).expect("deserialize");
     assert!(result.is_empty());
@@ -128,11 +128,11 @@ fn when_remove_torrents_response_empty_then_all_succeeded() {
 
 #[test]
 fn when_remove_torrents_response_errors_then_deserialized() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::List(vec![
+    let response = RencodeValue::List(vec![RencodeValue::List(vec![
         RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()),
         RencodeValue::Str("torrent not found".into()),
-    ])])]);
-    let value = extract_single(&response, "core.remove_torrents").expect("extract");
+    ])]);
+    let value = extract_single(&response).expect("extract");
     let result: RemoveTorrentsResult =
         RemoveTorrentsResult::deserialize(&value).expect("deserialize");
     assert_eq!(result.len(), 1);
@@ -203,9 +203,9 @@ fn when_get_torrent_status_response_dict_then_torrent_status() {
         RencodeValue::Str("max_upload_speed".into()),
         RencodeValue::Float(-1.0),
     );
-    let response = RencodeValue::List(vec![RencodeValue::Dict(map)]);
+    let response = RencodeValue::Dict(map);
 
-    let value = extract_single(&response, "core.get_torrent_status").expect("extract");
+    let value = extract_single(&response).expect("extract");
     let status: TorrentStatus = TorrentStatus::deserialize(&value).expect("deserialize");
 
     assert_eq!(status.name, "test-torrent");
@@ -297,7 +297,7 @@ fn when_get_torrents_status_response_dict_then_vec_torrent_entry() {
             "bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222",
         )),
     );
-    let response = RencodeValue::List(vec![RencodeValue::Dict(result_dict)]);
+    let response = RencodeValue::Dict(result_dict);
 
     let result_dict = extract_single_dict(&response, "core.get_torrents_status").expect("extract");
 
@@ -327,7 +327,7 @@ fn when_get_torrents_status_response_dict_then_vec_torrent_entry() {
 
 #[test]
 fn when_get_torrents_status_response_empty_dict_then_empty_vec() {
-    let response = RencodeValue::List(vec![RencodeValue::Dict(BTreeMap::new())]);
+    let response = RencodeValue::Dict(BTreeMap::new());
 
     let result_dict = extract_single_dict(&response, "core.get_torrents_status").expect("extract");
     assert!(result_dict.is_empty());
@@ -351,9 +351,9 @@ fn when_get_filter_tree_response_dict_then_filter_tree() {
         RencodeValue::List(state_entries),
     );
 
-    let response = RencodeValue::List(vec![RencodeValue::Dict(filter_dict)]);
+    let response = RencodeValue::Dict(filter_dict);
 
-    let value = extract_single(&response, "core.get_filter_tree").expect("extract");
+    let value = extract_single(&response).expect("extract");
     let tree: FilterTree = FilterTree::deserialize(&value).expect("deserialize");
 
     let state = tree.get("state").expect("state key");
@@ -368,11 +368,11 @@ fn when_get_filter_tree_response_dict_then_filter_tree() {
 
 #[test]
 fn when_get_session_state_response_list_then_vec_string() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![
+    let response = RencodeValue::List(vec![
         RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into()),
         RencodeValue::Str("bbbb2222bbbb2222bbbb2222bbbb2222bbbb2222".into()),
-    ])]);
-    let value = extract_single(&response, "core.get_session_state").expect("extract");
+    ]);
+    let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::List(items) => {
             let mut out = Vec::with_capacity(items.len());
@@ -392,8 +392,8 @@ fn when_get_session_state_response_list_then_vec_string() {
 
 #[test]
 fn when_get_session_state_response_empty_list_then_empty_vec() {
-    let response = RencodeValue::List(vec![RencodeValue::List(vec![])]);
-    let value = extract_single(&response, "core.get_session_state").expect("extract");
+    let response = RencodeValue::List(vec![]);
+    let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::List(items) => assert!(items.is_empty()),
         other => panic!("expected list, got {other:?}"),
@@ -404,10 +404,10 @@ fn when_get_session_state_response_empty_list_then_empty_vec() {
 
 #[test]
 fn when_get_magnet_uri_response_str_then_string() {
-    let response = RencodeValue::List(vec![RencodeValue::Str(
+    let response = RencodeValue::Str(
         "magnet:?xt=urn:btih:aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into(),
-    )]);
-    let value = extract_single(&response, "core.get_magnet_uri").expect("extract");
+    );
+    let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::Str(s) => {
             assert_eq!(
@@ -423,7 +423,7 @@ fn when_get_magnet_uri_response_str_then_string() {
 
 #[test]
 fn when_get_path_size_response_int_then_i64() {
-    let response = RencodeValue::List(vec![RencodeValue::Int(1_073_741_824)]);
+    let response = RencodeValue::Int(1_073_741_824);
     let bytes = extract_single_int(&response, "core.get_path_size").expect("extract");
     assert_eq!(bytes, 1_073_741_824);
 }

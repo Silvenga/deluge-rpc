@@ -64,7 +64,7 @@ impl CoreSessionRpc for CoreSessionClient {
             .rpc_call(DelugeRpcRequest::new("core.is_session_paused"))
             .await
             .context("core.is_session_paused RPC failed")?;
-        let value = extract_single(&result, "core.is_session_paused")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -97,7 +97,7 @@ impl CoreSessionRpc for CoreSessionClient {
             .rpc_call(DelugeRpcRequest::new("core.get_external_ip"))
             .await
             .context("core.get_external_ip RPC failed")?;
-        let value = extract_single(&result, "core.get_external_ip")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
             other => Err(anyhow!(
@@ -112,7 +112,7 @@ impl CoreSessionRpc for CoreSessionClient {
             .rpc_call(DelugeRpcRequest::new("core.get_libtorrent_version"))
             .await
             .context("core.get_libtorrent_version RPC failed")?;
-        let value = extract_single(&result, "core.get_libtorrent_version")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
             other => Err(anyhow!(
@@ -127,7 +127,7 @@ impl CoreSessionRpc for CoreSessionClient {
             .rpc_call(DelugeRpcRequest::new("core.test_listen_port"))
             .await
             .context("core.test_listen_port RPC failed")?;
-        let value = extract_single(&result, "core.test_listen_port")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(Some(b)),
             RencodeValue::None => Ok(None),
@@ -148,7 +148,7 @@ impl CoreSessionRpc for CoreSessionClient {
             )
             .await
             .context("core.get_session_status RPC failed")?;
-        let value = extract_single(&result, "core.get_session_status")?;
+        let value = extract_single(&result)?;
         SessionStatus::deserialize(&value).context("deserializing session status")
     }
 
@@ -174,15 +174,15 @@ mod tests {
 
     #[test]
     fn when_core_get_free_space_then_i64() {
-        let response = RencodeValue::List(vec![RencodeValue::Int(1_073_741_824)]);
+        let response = RencodeValue::Int(1_073_741_824);
         let bytes = extract_single_int(&response, "core.get_free_space").expect("extract");
         assert_eq!(bytes, 1_073_741_824);
     }
 
     #[test]
     fn when_core_is_session_paused_then_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(false)]);
-        let value = extract_single(&response, "core.is_session_paused").expect("extract");
+        let response = RencodeValue::Bool(false);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(!b),
             other => panic!("expected bool, got {other:?}"),
@@ -191,15 +191,15 @@ mod tests {
 
     #[test]
     fn when_core_get_listen_port_then_int() {
-        let response = RencodeValue::List(vec![RencodeValue::Int(6881)]);
+        let response = RencodeValue::Int(6881);
         let port = extract_single_int(&response, "core.get_listen_port").expect("extract");
         assert_eq!(port, 6881);
     }
 
     #[test]
     fn when_core_get_external_ip_then_string() {
-        let response = RencodeValue::List(vec![RencodeValue::Str("1.2.3.4".into())]);
-        let value = extract_single(&response, "core.get_external_ip").expect("extract");
+        let response = RencodeValue::Str("1.2.3.4".into());
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Str(s) => assert_eq!(s, "1.2.3.4"),
             other => panic!("expected str, got {other:?}"),
@@ -208,8 +208,8 @@ mod tests {
 
     #[test]
     fn when_core_test_listen_port_some_then_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-        let value = extract_single(&response, "core.test_listen_port").expect("extract");
+        let response = RencodeValue::Bool(true);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),
@@ -218,8 +218,8 @@ mod tests {
 
     #[test]
     fn when_core_test_listen_port_none_then_none() {
-        let response = RencodeValue::List(vec![RencodeValue::None]);
-        let value = extract_single(&response, "core.test_listen_port").expect("extract");
+        let response = RencodeValue::None;
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::None => {}
             other => panic!("expected None, got {other:?}"),
@@ -277,9 +277,9 @@ mod tests {
             RencodeValue::Str("read_hit_ratio".into()),
             RencodeValue::Float(0.88),
         );
-        let response = RencodeValue::List(vec![RencodeValue::Dict(map)]);
+        let response = RencodeValue::Dict(map);
 
-        let value = extract_single(&response, "core.get_session_status").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let status: SessionStatus = SessionStatus::deserialize(&value).expect("deserialize");
 
         assert!((status.download_rate - 1024.0).abs() < f64::EPSILON);

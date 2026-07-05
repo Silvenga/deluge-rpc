@@ -61,15 +61,17 @@ A one-element list wrapping a 4-tuple: id (int), method name (str), positional a
 
 ### Response
 
+Responses are bare tuples (only requests use the outer 1-element list).
+
 Three message types, discriminated by the first int:
 
-| Type           | Tag | Shape                               |
-|----------------|-----|-------------------------------------|
-| `RPC_RESPONSE` | `1` | `[1, request_id, [return_value]]`   |
-| `RPC_ERROR`    | `2` | `[2, exc_type, exc_msg, traceback]` |
-| `RPC_EVENT`    | `3` | `[3, event_name, [args...]]`        |
+| Type           | Tag | Shape                                                        |
+|----------------|-----|--------------------------------------------------------------|
+| `RPC_RESPONSE` | `1` | `[1, request_id, return_value]`                              |
+| `RPC_ERROR`    | `2` | `[2, request_id, exc_type, exc_args, exc_kwargs, traceback]` |
+| `RPC_EVENT`    | `3` | `[3, event_name, [args...]]`                                 |
 
-Events are logged and skipped. Responses are matched by `request_id`. Return values are wrapped in a one-element list.
+Responses are matched by `request_id`. Return values are bare - `daemon.login` returns `10`, not `[10]`.
 
 ## Methods
 

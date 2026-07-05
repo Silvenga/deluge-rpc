@@ -53,7 +53,7 @@ impl DaemonRpc for DaemonClient {
             .rpc_call(DelugeRpcRequest::new("daemon.info"))
             .await
             .context("daemon.info RPC failed")?;
-        let value = extract_single(&result, "daemon.info")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
             other => Err(anyhow!("daemon.info returned non-str value: {other:?}")),
@@ -99,7 +99,7 @@ impl DaemonRpc for DaemonClient {
             )
             .await
             .context("daemon.set_event_interest RPC failed")?;
-        let value = extract_single(&result, "daemon.set_event_interest")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -122,7 +122,7 @@ impl DaemonRpc for DaemonClient {
             .rpc_call(DelugeRpcRequest::new("daemon.get_method_list"))
             .await
             .context("daemon.get_method_list RPC failed")?;
-        let value = extract_single(&result, "daemon.get_method_list")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
                 let mut out = Vec::with_capacity(items.len());
@@ -150,7 +150,7 @@ impl DaemonRpc for DaemonClient {
             .rpc_call(DelugeRpcRequest::new("daemon.get_version"))
             .await
             .context("daemon.get_version RPC failed")?;
-        let value = extract_single(&result, "daemon.get_version")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
             other => Err(anyhow!(
@@ -168,7 +168,7 @@ impl DaemonRpc for DaemonClient {
             )
             .await
             .context("daemon.authorized_call RPC failed")?;
-        let value = extract_single(&result, "daemon.authorized_call")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -186,8 +186,8 @@ mod tests {
 
     #[test]
     fn when_daemon_info_then_string() {
-        let response = RencodeValue::List(vec![RencodeValue::Str("2.1.1".into())]);
-        let value = extract_single(&response, "daemon.info").expect("extract");
+        let response = RencodeValue::Str("2.1.1".into());
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Str(s) => assert_eq!(s, "2.1.1"),
             other => panic!("expected str, got {other:?}"),
@@ -196,15 +196,15 @@ mod tests {
 
     #[test]
     fn when_daemon_login_then_int() {
-        let response = RencodeValue::List(vec![RencodeValue::Int(10)]);
+        let response = RencodeValue::Int(10);
         let level = extract_single_int(&response, "daemon.login").expect("extract");
         assert_eq!(level, 10);
     }
 
     #[test]
     fn when_daemon_set_event_interest_then_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-        let value = extract_single(&response, "daemon.set_event_interest").expect("extract");
+        let response = RencodeValue::Bool(true);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),
@@ -213,11 +213,11 @@ mod tests {
 
     #[test]
     fn when_daemon_get_method_list_then_vec_string() {
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+        let response = RencodeValue::List(vec![
             RencodeValue::Str("core.add_torrent_file".into()),
             RencodeValue::Str("core.get_free_space".into()),
-        ])]);
-        let value = extract_single(&response, "daemon.get_method_list").expect("extract");
+        ]);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::List(items) => {
                 assert_eq!(items.len(), 2);
@@ -230,8 +230,8 @@ mod tests {
 
     #[test]
     fn when_daemon_get_version_then_string() {
-        let response = RencodeValue::List(vec![RencodeValue::Str("2.1.1".into())]);
-        let value = extract_single(&response, "daemon.get_version").expect("extract");
+        let response = RencodeValue::Str("2.1.1".into());
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Str(s) => assert_eq!(s, "2.1.1"),
             other => panic!("expected str, got {other:?}"),
@@ -240,8 +240,8 @@ mod tests {
 
     #[test]
     fn when_daemon_authorized_call_then_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-        let value = extract_single(&response, "daemon.authorized_call").expect("extract");
+        let response = RencodeValue::Bool(true);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),

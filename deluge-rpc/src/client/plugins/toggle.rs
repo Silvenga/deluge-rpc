@@ -38,7 +38,7 @@ impl ToggleRpc for ToggleClient {
             .rpc_call(DelugeRpcRequest::new("toggle.get_status"))
             .await
             .context("toggle.get_status RPC failed")?;
-        let value = extract_single(&result, "toggle.get_status")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!("toggle.get_status returned non-bool: {other:?}")),
@@ -51,7 +51,7 @@ impl ToggleRpc for ToggleClient {
             .rpc_call(DelugeRpcRequest::new("toggle.toggle"))
             .await
             .context("toggle.toggle RPC failed")?;
-        let value = extract_single(&result, "toggle.toggle")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!("toggle.toggle returned non-bool: {other:?}")),
@@ -66,9 +66,9 @@ mod tests {
 
     #[test]
     fn when_toggle_get_status_response_then_deserializes_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(false)]);
+        let response = RencodeValue::Bool(false);
 
-        let value = extract_single(&response, "toggle.get_status").expect("extract");
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(!b),
             other => panic!("expected bool, got {other:?}"),

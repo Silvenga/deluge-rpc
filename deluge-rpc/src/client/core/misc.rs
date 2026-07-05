@@ -122,7 +122,7 @@ impl CoreMiscRpc for CoreMiscClient {
             )
             .await
             .context("core.create_torrent RPC failed")?;
-        let value = extract_single(&result, "core.create_torrent")?;
+        let value = extract_single(&result)?;
         CreateTorrentResult::deserialize(&value).context("deserializing create torrent result")
     }
 
@@ -135,7 +135,7 @@ impl CoreMiscRpc for CoreMiscClient {
             )
             .await
             .context("core.glob RPC failed")?;
-        let value = extract_single(&result, "core.glob")?;
+        let value = extract_single(&result)?;
         GlobResult::deserialize(&value).context("deserializing glob result")
     }
 
@@ -162,7 +162,7 @@ impl CoreMiscRpc for CoreMiscClient {
             )
             .await
             .context("core.get_completion_paths RPC failed")?;
-        let value = extract_single(&result, "core.get_completion_paths")?;
+        let value = extract_single(&result)?;
         CompletionPaths::deserialize(&value).context("deserializing completion paths")
     }
 }
@@ -174,11 +174,11 @@ mod tests {
 
     #[test]
     fn when_core_glob_then_vec_string() {
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+        let response = RencodeValue::List(vec![
             RencodeValue::Str("/downloads/file1.mkv".into()),
             RencodeValue::Str("/downloads/file2.mkv".into()),
-        ])]);
-        let value = extract_single(&response, "core.glob").expect("extract");
+        ]);
+        let value = extract_single(&response).expect("extract");
         let result: GlobResult = GlobResult::deserialize(&value).expect("deserialize");
         assert_eq!(result.len(), 2);
         assert_eq!(result[0], "/downloads/file1.mkv");
@@ -186,11 +186,11 @@ mod tests {
 
     #[test]
     fn when_core_create_torrent_then_result() {
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+        let response = RencodeValue::List(vec![
             RencodeValue::Str("my.torrent".into()),
             RencodeValue::Str("base64data".into()),
-        ])]);
-        let value = extract_single(&response, "core.create_torrent").expect("extract");
+        ]);
+        let value = extract_single(&response).expect("extract");
         let result: CreateTorrentResult =
             CreateTorrentResult::deserialize(&value).expect("deserialize");
         assert_eq!(result.filename, "my.torrent");

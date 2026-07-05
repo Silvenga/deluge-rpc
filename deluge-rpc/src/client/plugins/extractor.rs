@@ -48,7 +48,7 @@ impl ExtractorRpc for ExtractorClient {
             .rpc_call(DelugeRpcRequest::new("extractor.get_config"))
             .await
             .context("extractor.get_config RPC failed")?;
-        let value = extract_single(&result, "extractor.get_config")?;
+        let value = extract_single(&result)?;
         ExtractorConfig::deserialize(&value).context("deserializing extractor config")
     }
 }
@@ -70,12 +70,12 @@ mod tests {
 
     #[test]
     fn when_extractor_get_config_response_then_deserializes() {
-        let response = RencodeValue::List(vec![make_dict(vec![
+        let response = make_dict(vec![
             ("extract_path", RencodeValue::Str("/tmp/extract".into())),
             ("use_name_folder", RencodeValue::Bool(false)),
-        ])]);
+        ]);
 
-        let value = extract_single(&response, "extractor.get_config").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let config: ExtractorConfig = ExtractorConfig::deserialize(&value).expect("deserialize");
 
         assert_eq!(config.extract_path, "/tmp/extract");

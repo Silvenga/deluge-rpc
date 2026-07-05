@@ -45,7 +45,7 @@ impl BlocklistRpc for BlocklistClient {
             )
             .await
             .context("blocklist.check_import RPC failed")?;
-        let value = extract_single(&result, "blocklist.check_import")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::None => Ok(None),
             RencodeValue::Str(s) => Ok(Some(s)),
@@ -61,7 +61,7 @@ impl BlocklistRpc for BlocklistClient {
             .rpc_call(DelugeRpcRequest::new("blocklist.get_config"))
             .await
             .context("blocklist.get_config RPC failed")?;
-        let value = extract_single(&result, "blocklist.get_config")?;
+        let value = extract_single(&result)?;
         BlocklistConfig::deserialize(&value).context("deserializing blocklist config")
     }
 
@@ -79,7 +79,7 @@ impl BlocklistRpc for BlocklistClient {
             .rpc_call(DelugeRpcRequest::new("blocklist.get_status"))
             .await
             .context("blocklist.get_status RPC failed")?;
-        let value = extract_single(&result, "blocklist.get_status")?;
+        let value = extract_single(&result)?;
         BlocklistStatus::deserialize(&value).context("deserializing blocklist status")
     }
 }
@@ -101,7 +101,7 @@ mod tests {
 
     #[test]
     fn when_blocklist_get_status_response_then_deserializes() {
-        let response = RencodeValue::List(vec![make_dict(vec![
+        let response = make_dict(vec![
             ("state", RencodeValue::Str("Idle".into())),
             ("up_to_date", RencodeValue::Bool(true)),
             ("num_whited", RencodeValue::Int(10)),
@@ -118,9 +118,9 @@ mod tests {
                 "whitelisted",
                 RencodeValue::List(vec![RencodeValue::Str("10.0.0.1".into())]),
             ),
-        ])]);
+        ]);
 
-        let value = extract_single(&response, "blocklist.get_status").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let status: BlocklistStatus = BlocklistStatus::deserialize(&value).expect("deserialize");
 
         assert_eq!(status.state, "Idle");

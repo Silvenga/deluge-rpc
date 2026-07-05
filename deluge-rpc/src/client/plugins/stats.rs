@@ -57,7 +57,7 @@ impl StatsRpc for StatsClient {
             ]))
             .await
             .context("stats.get_stats RPC failed")?;
-        let value = extract_single(&result, "stats.get_stats")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::None => Ok(None),
             other => StatsGetStatsResult::deserialize(&other)
@@ -72,7 +72,7 @@ impl StatsRpc for StatsClient {
             .rpc_call(DelugeRpcRequest::new("stats.get_totals"))
             .await
             .context("stats.get_totals RPC failed")?;
-        let value = extract_single(&result, "stats.get_totals")?;
+        let value = extract_single(&result)?;
         StatsTotals::deserialize(&value).context("deserializing stats totals")
     }
 
@@ -82,7 +82,7 @@ impl StatsRpc for StatsClient {
             .rpc_call(DelugeRpcRequest::new("stats.get_session_totals"))
             .await
             .context("stats.get_session_totals RPC failed")?;
-        let value = extract_single(&result, "stats.get_session_totals")?;
+        let value = extract_single(&result)?;
         StatsTotals::deserialize(&value).context("deserializing session totals")
     }
 
@@ -100,7 +100,7 @@ impl StatsRpc for StatsClient {
             .rpc_call(DelugeRpcRequest::new("stats.get_config"))
             .await
             .context("stats.get_config RPC failed")?;
-        let value = extract_single(&result, "stats.get_config")?;
+        let value = extract_single(&result)?;
         StatsConfig::deserialize(&value).context("deserializing stats config")
     }
 
@@ -110,7 +110,7 @@ impl StatsRpc for StatsClient {
             .rpc_call(DelugeRpcRequest::new("stats.get_intervals"))
             .await
             .context("stats.get_intervals RPC failed")?;
-        let value = extract_single(&result, "stats.get_intervals")?;
+        let value = extract_single(&result)?;
         Vec::<i64>::deserialize(&value).context("deserializing intervals")
     }
 }
@@ -123,14 +123,14 @@ mod tests {
 
     #[test]
     fn when_stats_get_intervals_response_then_deserializes() {
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+        let response = RencodeValue::List(vec![
             RencodeValue::Int(1),
             RencodeValue::Int(5),
             RencodeValue::Int(30),
             RencodeValue::Int(300),
-        ])]);
+        ]);
 
-        let value = extract_single(&response, "stats.get_intervals").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let intervals: Vec<i64> = Vec::<i64>::deserialize(&value).expect("deserialize");
 
         assert_eq!(intervals, vec![1, 5, 30, 300]);

@@ -46,7 +46,7 @@ impl LabelRpc for LabelClient {
             .rpc_call(DelugeRpcRequest::new("label.get_labels"))
             .await
             .context("label.get_labels RPC failed")?;
-        let value = extract_single(&result, "label.get_labels")?;
+        let value = extract_single(&result)?;
         Vec::<String>::deserialize(&value).context("deserializing labels")
     }
 
@@ -90,7 +90,7 @@ impl LabelRpc for LabelClient {
             )
             .await
             .context("label.get_options RPC failed")?;
-        let value = extract_single(&result, "label.get_options")?;
+        let value = extract_single(&result)?;
         LabelOptions::deserialize(&value).context("deserializing label options")
     }
 
@@ -110,7 +110,7 @@ impl LabelRpc for LabelClient {
             .rpc_call(DelugeRpcRequest::new("label.get_config"))
             .await
             .context("label.get_config RPC failed")?;
-        let value = extract_single(&result, "label.get_config")?;
+        let value = extract_single(&result)?;
         LabelConfig::deserialize(&value).context("deserializing label config")
     }
 
@@ -131,12 +131,12 @@ mod tests {
 
     #[test]
     fn when_label_get_labels_response_then_deserializes() {
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+        let response = RencodeValue::List(vec![
             RencodeValue::Str("movies".into()),
             RencodeValue::Str("music".into()),
-        ])]);
+        ]);
 
-        let value = extract_single(&response, "label.get_labels").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let labels: Vec<String> = Vec::<String>::deserialize(&value).expect("deserialize");
 
         assert_eq!(labels, vec!["movies", "music"]);

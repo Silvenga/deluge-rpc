@@ -48,7 +48,7 @@ impl CoreConfigRpc for CoreConfigClient {
             .rpc_call(DelugeRpcRequest::new("core.get_config"))
             .await
             .context("core.get_config RPC failed")?;
-        let value = extract_single(&result, "core.get_config")?;
+        let value = extract_single(&result)?;
         DaemonConfig::deserialize(&value).context("deserializing daemon config")
     }
 
@@ -61,7 +61,7 @@ impl CoreConfigRpc for CoreConfigClient {
             )
             .await
             .context("core.get_config_value RPC failed")?;
-        extract_single(&result, "core.get_config_value")
+        extract_single(&result)
     }
 
     async fn get_config_values(
@@ -78,7 +78,7 @@ impl CoreConfigRpc for CoreConfigClient {
             )
             .await
             .context("core.get_config_values RPC failed")?;
-        let value = extract_single(&result, "core.get_config_values")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Dict(map) => {
                 let mut out = BTreeMap::new();
@@ -123,7 +123,7 @@ impl CoreConfigRpc for CoreConfigClient {
             .rpc_call(DelugeRpcRequest::new("core.get_proxy"))
             .await
             .context("core.get_proxy RPC failed")?;
-        let value = extract_single(&result, "core.get_proxy")?;
+        let value = extract_single(&result)?;
         ProxyConfig::deserialize(&value).context("deserializing proxy config")
     }
 }
@@ -136,8 +136,8 @@ mod tests {
 
     #[test]
     fn when_core_get_config_value_then_rencode_value() {
-        let response = RencodeValue::List(vec![RencodeValue::Str("/downloads".into())]);
-        let value = extract_single(&response, "core.get_config_value").expect("extract");
+        let response = RencodeValue::Str("/downloads".into());
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Str(s) => assert_eq!(s, "/downloads"),
             other => panic!("expected str, got {other:?}"),
@@ -155,9 +155,9 @@ mod tests {
             RencodeValue::Str("daemon_port".into()),
             RencodeValue::Int(58846),
         );
-        let response = RencodeValue::List(vec![RencodeValue::Dict(map)]);
+        let response = RencodeValue::Dict(map);
 
-        let value = extract_single(&response, "core.get_config_values").expect("extract");
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Dict(m) => {
                 assert_eq!(m.len(), 2);

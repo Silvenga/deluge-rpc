@@ -42,7 +42,7 @@ impl CorePluginRpc for CorePluginClient {
             .rpc_call(DelugeRpcRequest::new("core.get_available_plugins"))
             .await
             .context("core.get_available_plugins RPC failed")?;
-        let value = extract_single(&result, "core.get_available_plugins")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
                 let mut out = Vec::with_capacity(items.len());
@@ -70,7 +70,7 @@ impl CorePluginRpc for CorePluginClient {
             .rpc_call(DelugeRpcRequest::new("core.get_enabled_plugins"))
             .await
             .context("core.get_enabled_plugins RPC failed")?;
-        let value = extract_single(&result, "core.get_enabled_plugins")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
                 let mut out = Vec::with_capacity(items.len());
@@ -101,7 +101,7 @@ impl CorePluginRpc for CorePluginClient {
             )
             .await
             .context("core.enable_plugin RPC failed")?;
-        let value = extract_single(&result, "core.enable_plugin")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -119,7 +119,7 @@ impl CorePluginRpc for CorePluginClient {
             )
             .await
             .context("core.disable_plugin RPC failed")?;
-        let value = extract_single(&result, "core.disable_plugin")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -155,11 +155,11 @@ mod tests {
 
     #[test]
     fn when_core_get_available_plugins_then_vec_string() {
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+        let response = RencodeValue::List(vec![
             RencodeValue::Str("Label".into()),
             RencodeValue::Str("Blocklist".into()),
-        ])]);
-        let value = extract_single(&response, "core.get_available_plugins").expect("extract");
+        ]);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::List(items) => {
                 assert_eq!(items.len(), 2);
@@ -172,8 +172,8 @@ mod tests {
 
     #[test]
     fn when_core_enable_plugin_then_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-        let value = extract_single(&response, "core.enable_plugin").expect("extract");
+        let response = RencodeValue::Bool(true);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),

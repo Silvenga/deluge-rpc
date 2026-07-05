@@ -41,7 +41,7 @@ impl WebuiRpc for WebuiClient {
             .rpc_call(DelugeRpcRequest::new("webui.got_deluge_web"))
             .await
             .context("webui.got_deluge_web RPC failed")?;
-        let value = extract_single(&result, "webui.got_deluge_web")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!("webui.got_deluge_web returned non-bool: {other:?}")),
@@ -62,7 +62,7 @@ impl WebuiRpc for WebuiClient {
             .rpc_call(DelugeRpcRequest::new("webui.get_config"))
             .await
             .context("webui.get_config RPC failed")?;
-        let value = extract_single(&result, "webui.get_config")?;
+        let value = extract_single(&result)?;
         WebUiConfig::deserialize(&value).context("deserializing webui config")
     }
 }
@@ -74,9 +74,9 @@ mod tests {
 
     #[test]
     fn when_webui_got_deluge_web_response_then_deserializes_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
+        let response = RencodeValue::Bool(true);
 
-        let value = extract_single(&response, "webui.got_deluge_web").expect("extract");
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),

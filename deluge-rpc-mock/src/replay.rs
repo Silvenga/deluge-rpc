@@ -228,7 +228,7 @@ fn build_response_from_interaction(id: u32, interaction: &Interaction) -> Rencod
         CassetteResponse::Ok { value } => vec![
             RencodeValue::Int(RPC_RESPONSE),
             RencodeValue::Int(i64::from(id)),
-            RencodeValue::List(vec![value.clone()]),
+            value.clone(),
         ],
         CassetteResponse::Error {
             exc_type,
@@ -242,7 +242,7 @@ fn build_response_from_interaction(id: u32, interaction: &Interaction) -> Rencod
             RencodeValue::Str(traceback.clone()),
         ],
     };
-    RencodeValue::List(vec![RencodeValue::List(inner)])
+    RencodeValue::List(inner)
 }
 
 fn build_unknown_method_response(id: u32, method: &str) -> RencodeValue {
@@ -253,7 +253,7 @@ fn build_unknown_method_response(id: u32, method: &str) -> RencodeValue {
         RencodeValue::Str(format!("no cassette entry for method '{method}'")),
         RencodeValue::Str(String::new()),
     ];
-    RencodeValue::List(vec![RencodeValue::List(inner)])
+    RencodeValue::List(inner)
 }
 
 #[cfg(test)]

@@ -49,7 +49,7 @@ impl SchedulerRpc for SchedulerClient {
             .rpc_call(DelugeRpcRequest::new("scheduler.get_config"))
             .await
             .context("scheduler.get_config RPC failed")?;
-        let value = extract_single(&result, "scheduler.get_config")?;
+        let value = extract_single(&result)?;
         SchedulerConfig::deserialize(&value).context("deserializing scheduler config")
     }
 
@@ -59,7 +59,7 @@ impl SchedulerRpc for SchedulerClient {
             .rpc_call(DelugeRpcRequest::new("scheduler.get_state"))
             .await
             .context("scheduler.get_state RPC failed")?;
-        let value = extract_single(&result, "scheduler.get_state")?;
+        let value = extract_single(&result)?;
         SchedulerState::deserialize(&value).context("deserializing scheduler state")
     }
 }
@@ -72,9 +72,9 @@ mod tests {
 
     #[test]
     fn when_scheduler_get_state_response_then_deserializes() {
-        let response = RencodeValue::List(vec![RencodeValue::Str("Green".into())]);
+        let response = RencodeValue::Str("Green".into());
 
-        let value = extract_single(&response, "scheduler.get_state").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let state: SchedulerState = SchedulerState::deserialize(&value).expect("deserialize");
 
         assert_eq!(state, SchedulerState::Green);

@@ -51,7 +51,7 @@ impl NotificationsRpc for NotificationsClient {
             .rpc_call(DelugeRpcRequest::new("notifications.get_config"))
             .await
             .context("notifications.get_config RPC failed")?;
-        let value = extract_single(&result, "notifications.get_config")?;
+        let value = extract_single(&result)?;
         NotificationsConfig::deserialize(&value).context("deserializing notifications config")
     }
 
@@ -61,7 +61,7 @@ impl NotificationsRpc for NotificationsClient {
             .rpc_call(DelugeRpcRequest::new("notifications.get_handled_events"))
             .await
             .context("notifications.get_handled_events RPC failed")?;
-        let value = extract_single(&result, "notifications.get_handled_events")?;
+        let value = extract_single(&result)?;
         Vec::<HandledEvent>::deserialize(&value).context("deserializing handled events")
     }
 }
@@ -75,12 +75,12 @@ mod tests {
     #[test]
     fn when_notifications_get_handled_events_response_then_deserializes() {
         let response =
-            RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::List(vec![
+            RencodeValue::List(vec![RencodeValue::List(vec![
                 RencodeValue::Str("TorrentFinishedEvent".into()),
                 RencodeValue::Str("Emitted when a torrent finishes downloading.".into()),
-            ])])]);
+            ])]);
 
-        let value = extract_single(&response, "notifications.get_handled_events").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let events: Vec<HandledEvent> =
             Vec::<HandledEvent>::deserialize(&value).expect("deserialize");
 

@@ -56,7 +56,7 @@ impl CoreAccountRpc for CoreAccountClient {
             .rpc_call(DelugeRpcRequest::new("core.get_known_accounts"))
             .await
             .context("core.get_known_accounts RPC failed")?;
-        let value = extract_single(&result, "core.get_known_accounts")?;
+        let value = extract_single(&result)?;
         Vec::<AccountInfo>::deserialize(&value).context("deserializing accounts")
     }
 
@@ -75,7 +75,7 @@ impl CoreAccountRpc for CoreAccountClient {
             ]))
             .await
             .context("core.create_account RPC failed")?;
-        let value = extract_single(&result, "core.create_account")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -99,7 +99,7 @@ impl CoreAccountRpc for CoreAccountClient {
             ]))
             .await
             .context("core.update_account RPC failed")?;
-        let value = extract_single(&result, "core.update_account")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -117,7 +117,7 @@ impl CoreAccountRpc for CoreAccountClient {
             )
             .await
             .context("core.remove_account RPC failed")?;
-        let value = extract_single(&result, "core.remove_account")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -134,7 +134,7 @@ impl CoreAccountRpc for CoreAccountClient {
             .rpc_call(DelugeRpcRequest::new("core.get_auth_levels_mappings"))
             .await
             .context("core.get_auth_levels_mappings RPC failed")?;
-        let value = extract_single(&result, "core.get_auth_levels_mappings")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) if items.len() == 2 => {
                 let name_to_int: BTreeMap<String, i64> =
@@ -177,10 +177,9 @@ mod tests {
             RencodeValue::Str("authlevel_int".into()),
             RencodeValue::Int(10),
         );
-        let response =
-            RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::Dict(account)])]);
+        let response = RencodeValue::List(vec![RencodeValue::Dict(account)]);
 
-        let value = extract_single(&response, "core.get_known_accounts").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let accounts: Vec<AccountInfo> =
             Vec::<AccountInfo>::deserialize(&value).expect("deserialize");
         assert_eq!(accounts.len(), 1);
@@ -191,8 +190,8 @@ mod tests {
 
     #[test]
     fn when_core_create_account_then_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-        let value = extract_single(&response, "core.create_account").expect("extract");
+        let response = RencodeValue::Bool(true);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),
@@ -207,12 +206,12 @@ mod tests {
         let mut int_to_name = BTreeMap::new();
         int_to_name.insert(RencodeValue::Int(0), RencodeValue::Str("NONE".into()));
         int_to_name.insert(RencodeValue::Int(10), RencodeValue::Str("ADMIN".into()));
-        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+        let response = RencodeValue::List(vec![
             RencodeValue::Dict(name_to_int),
             RencodeValue::Dict(int_to_name),
-        ])]);
+        ]);
 
-        let value = extract_single(&response, "core.get_auth_levels_mappings").expect("extract");
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::List(items) => {
                 assert_eq!(items.len(), 2);

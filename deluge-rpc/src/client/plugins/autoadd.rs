@@ -97,7 +97,7 @@ impl AutoaddRpc for AutoaddClient {
             .rpc_call(DelugeRpcRequest::new("autoadd.get_config"))
             .await
             .context("autoadd.get_config RPC failed")?;
-        let value = extract_single(&result, "autoadd.get_config")?;
+        let value = extract_single(&result)?;
         AutoAddConfig::deserialize(&value).context("deserializing autoadd config")
     }
 
@@ -107,7 +107,7 @@ impl AutoaddRpc for AutoaddClient {
             .rpc_call(DelugeRpcRequest::new("autoadd.get_watchdirs"))
             .await
             .context("autoadd.get_watchdirs RPC failed")?;
-        let value = extract_single(&result, "autoadd.get_watchdirs")?;
+        let value = extract_single(&result)?;
         BTreeMap::<String, WatchdirOptions>::deserialize(&value).context("deserializing watchdirs")
     }
 
@@ -141,7 +141,7 @@ impl AutoaddRpc for AutoaddClient {
             .rpc_call(DelugeRpcRequest::new("autoadd.is_admin_level"))
             .await
             .context("autoadd.is_admin_level RPC failed")?;
-        let value = extract_single(&result, "autoadd.is_admin_level")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
             other => Err(anyhow!(
@@ -156,7 +156,7 @@ impl AutoaddRpc for AutoaddClient {
             .rpc_call(DelugeRpcRequest::new("autoadd.get_auth_user"))
             .await
             .context("autoadd.get_auth_user RPC failed")?;
-        let value = extract_single(&result, "autoadd.get_auth_user")?;
+        let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
             other => Err(anyhow!("autoadd.get_auth_user returned non-str: {other:?}")),
@@ -227,12 +227,12 @@ mod tests {
             ]),
         );
 
-        let response = RencodeValue::List(vec![make_dict(vec![
+        let response = make_dict(vec![
             ("watchdirs", RencodeValue::Dict(watchdirs)),
             ("next_id", RencodeValue::Int(2)),
-        ])]);
+        ]);
 
-        let value = extract_single(&response, "autoadd.get_config").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let config: AutoAddConfig = AutoAddConfig::deserialize(&value).expect("deserialize");
 
         assert_eq!(config.next_id, 2);
@@ -241,8 +241,8 @@ mod tests {
 
     #[test]
     fn when_autoadd_is_admin_level_response_then_deserializes_bool() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-        let value = extract_single(&response, "autoadd.is_admin_level").expect("extract");
+        let response = RencodeValue::Bool(true);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),

@@ -25,16 +25,9 @@ pub enum DelugeRpcMessage {
 }
 
 pub fn decode_message(decoded: &RencodeValue) -> anyhow::Result<DelugeRpcMessage> {
-    let outer = match decoded {
-        RencodeValue::List(items) if items.len() == 1 => {
-            items.first().expect("len == 1 checked above")
-        }
-        other => bail!("unexpected RPC envelope shape (not a 1-element list): {other:?}"),
-    };
-
-    let inner = match outer {
-        RencodeValue::List(parts) => parts,
-        other => bail!("unexpected RPC message shape (not a list): {other:?}"),
+    let inner = match decoded {
+        RencodeValue::List(items) => items,
+        other => bail!("unexpected RPC envelope shape (not a list): {other:?}"),
     };
 
     if inner.is_empty() {
@@ -96,19 +89,12 @@ pub fn decode_message(decoded: &RencodeValue) -> anyhow::Result<DelugeRpcMessage
     }
 }
 
-pub fn extract_single(value: &RencodeValue, method: &str) -> anyhow::Result<RencodeValue> {
-    match value {
-        RencodeValue::List(items) if items.len() == 1 => {
-            Ok(items.first().expect("len == 1 checked above").clone())
-        }
-        other => Err(anyhow!(
-            "{method} returned unexpected return shape (expected 1-element list): {other:?}"
-        )),
-    }
+pub fn extract_single(value: &RencodeValue) -> anyhow::Result<RencodeValue> {
+    Ok(value.clone())
 }
 
 pub fn extract_single_int(value: &RencodeValue, method: &str) -> anyhow::Result<i64> {
-    let single = extract_single(value, method)?;
+    let single = extract_single(value)?;
     match single {
         RencodeValue::Int(i) => Ok(i),
         other => Err(anyhow!("{method} returned non-int value: {other:?}")),
@@ -120,14 +106,8 @@ pub fn extract_single_dict<'a>(
     method: &str,
 ) -> anyhow::Result<&'a BTreeMap<RencodeValue, RencodeValue>> {
     match value {
-        RencodeValue::List(items) if items.len() == 1 => match items.first() {
-            Some(RencodeValue::Dict(map)) => Ok(map),
-            Some(other) => Err(anyhow!("{method} returned non-dict value: {other:?}")),
-            None => Err(anyhow!("{method} returned empty return list")),
-        },
-        other => Err(anyhow!(
-            "{method} returned unexpected return shape (expected 1-element list): {other:?}"
-        )),
+        RencodeValue::Dict(map) => Ok(map),
+        other => Err(anyhow!("{method} returned non-dict value: {other:?}")),
     }
 }
 
@@ -146,20 +126,17 @@ mod tests {
 
     #[test]
     fn when_response_message_then_id_and_value_extracted() {
-        let message = RencodeValue::List(vec![RencodeValue::List(vec![
+        let message = RencodeValue::List(vec![
             RencodeValue::Int(RPC_RESPONSE),
             RencodeValue::Int(5),
-            RencodeValue::List(vec![RencodeValue::Int(42)]),
-        ])]);
+            RencodeValue::Int(10),
+        ]);
 
         let msg = decode_message(&message).expect("decode");
         match msg {
             DelugeRpcMessage::Response { id, value } => {
                 assert_eq!(id, 5);
-                match value {
-                    RencodeValue::List(items) => assert_eq!(items, vec![RencodeValue::Int(42)]),
-                    other => panic!("expected list value, got {other:?}"),
-                }
+                assert_eq!(value, RencodeValue::Int(10));
             }
             other => panic!("expected Response, got {other:?}"),
         }
@@ -167,14 +144,14 @@ mod tests {
 
     #[test]
     fn when_error_message_then_fields_extracted() {
-        let message = RencodeValue::List(vec![RencodeValue::List(vec![
+        let message = RencodeValue::List(vec![
             RencodeValue::Int(RPC_ERROR),
             RencodeValue::Int(7),
             RencodeValue::Str(String::from("BadLoginError")),
             RencodeValue::List(vec![RencodeValue::Str(String::from("bad password"))]),
             RencodeValue::Dict(BTreeMap::new()),
             RencodeValue::Str(String::from("traceback here")),
-        ])]);
+        ]);
 
         let msg = decode_message(&message).expect("decode");
         match msg {
@@ -195,11 +172,11 @@ mod tests {
 
     #[test]
     fn when_event_message_then_name_and_args_extracted() {
-        let message = RencodeValue::List(vec![RencodeValue::List(vec![
+        let message = RencodeValue::List(vec![
             RencodeValue::Int(RPC_EVENT),
             RencodeValue::Str(String::from("TorrentAddedEvent")),
             RencodeValue::List(vec![RencodeValue::Int(123)]),
-        ])]);
+        ]);
 
         let msg = decode_message(&message).expect("decode");
         match msg {
@@ -213,10 +190,10 @@ mod tests {
 
     #[test]
     fn when_event_with_no_args_then_empty_list() {
-        let message = RencodeValue::List(vec![RencodeValue::List(vec![
+        let message = RencodeValue::List(vec![
             RencodeValue::Int(RPC_EVENT),
             RencodeValue::Str(String::from("ConfigValueChanged")),
-        ])]);
+        ]);
 
         let msg = decode_message(&message).expect("decode");
         match msg {
@@ -227,7 +204,7 @@ mod tests {
 
     #[test]
     fn when_unknown_type_then_error() {
-        let message = RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::Int(99)])]);
+        let message = RencodeValue::List(vec![RencodeValue::Int(99)]);
 
         let result = decode_message(&message);
         assert!(result.is_err());
@@ -235,18 +212,52 @@ mod tests {
 
     #[test]
     fn when_extract_single_int_then_returns_value() {
-        let response = RencodeValue::List(vec![RencodeValue::Int(1_073_741_824)]);
+        let response = RencodeValue::Int(1_073_741_824);
         let bytes = extract_single_int(&response, "core.get_free_space").expect("extract");
         assert_eq!(bytes, 1_073_741_824);
     }
 
     #[test]
     fn when_extract_single_bool_then_returns_value() {
-        let response = RencodeValue::List(vec![RencodeValue::Bool(true)]);
-        let value = extract_single(&response, "core.remove_torrent").expect("extract");
+        let response = RencodeValue::Bool(true);
+        let value = extract_single(&response).expect("extract");
         match value {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn when_extract_single_str_then_returns_value() {
+        let response = RencodeValue::Str("2.1.1".into());
+        let value = extract_single(&response).expect("extract");
+        match value {
+            RencodeValue::Str(s) => assert_eq!(s, "2.1.1"),
+            other => panic!("expected str, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn when_extract_single_dict_then_returns_dict() {
+        let mut map = BTreeMap::new();
+        map.insert(
+            RencodeValue::Str("key".into()),
+            RencodeValue::Str("value".into()),
+        );
+        let response = RencodeValue::Dict(map.clone());
+
+        let result = extract_single_dict(&response, "core.get_torrents_status").expect("extract");
+        assert_eq!(result.len(), 1);
+        assert_eq!(
+            result.get(&RencodeValue::Str("key".into())),
+            Some(&RencodeValue::Str("value".into()))
+        );
+    }
+
+    #[test]
+    fn when_empty_list_envelope_then_error() {
+        let message = RencodeValue::List(vec![]);
+        let result = decode_message(&message);
+        assert!(result.is_err());
     }
 }

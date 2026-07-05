@@ -58,7 +58,7 @@ impl ExecuteRpc for ExecuteClient {
             .rpc_call(DelugeRpcRequest::new("execute.get_commands"))
             .await
             .context("execute.get_commands RPC failed")?;
-        let value = extract_single(&result, "execute.get_commands")?;
+        let value = extract_single(&result)?;
         Vec::<ExecuteCommand>::deserialize(&value).context("deserializing execute commands")
     }
 
@@ -101,13 +101,13 @@ mod tests {
     #[test]
     fn when_execute_get_commands_response_then_deserializes() {
         let response =
-            RencodeValue::List(vec![RencodeValue::List(vec![RencodeValue::List(vec![
+            RencodeValue::List(vec![RencodeValue::List(vec![
                 RencodeValue::Str("abc123".into()),
                 RencodeValue::Str("complete".into()),
                 RencodeValue::Str("echo done".into()),
-            ])])]);
+            ])]);
 
-        let value = extract_single(&response, "execute.get_commands").expect("extract");
+        let value = extract_single(&response).expect("extract");
         let commands: Vec<ExecuteCommand> =
             Vec::<ExecuteCommand>::deserialize(&value).expect("deserialize");
 
