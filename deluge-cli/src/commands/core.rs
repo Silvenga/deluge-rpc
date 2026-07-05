@@ -130,11 +130,7 @@ async fn run_core_session(
     match cmd {
         CoreSessionCommand::Status { keys } => {
             let keys_list = parse_keys(keys);
-            let status = client
-                .core()
-                .session
-                .get_session_status(&keys_list)
-                .await?;
+            let status = client.core().session.get_session_status(&keys_list).await?;
             Ok(serde_json::to_string_pretty(&status)?)
         }
     }
@@ -190,16 +186,13 @@ async fn run_core_plugins(
     }
 }
 
-fn parse_filter_dict(
-    filter: &Option<String>,
-) -> anyhow::Result<FilterDict> {
+fn parse_filter_dict(filter: &Option<String>) -> anyhow::Result<FilterDict> {
     match filter {
         Some(f) => {
             let json: JsonValue = serde_json::from_str(f)
                 .map_err(|e| anyhow::anyhow!("failed to parse filter JSON: {e}"))?;
-            let filter_dict: FilterDict =
-                serde_json::from_value(json)
-                    .map_err(|e| anyhow::anyhow!("failed to deserialize filter dict: {e}"))?;
+            let filter_dict: FilterDict = serde_json::from_value(json)
+                .map_err(|e| anyhow::anyhow!("failed to deserialize filter dict: {e}"))?;
             Ok(filter_dict)
         }
         None => Ok(Default::default()),

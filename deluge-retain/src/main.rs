@@ -287,7 +287,9 @@ mod tests {
             old_timestamp(),
         );
         let matcher = Arc::new(Matcher::new(cassette.interactions));
-        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let server = ReplayServer::start(matcher)
+            .await
+            .expect("start replay server");
         let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, true).await;
@@ -310,7 +312,9 @@ mod tests {
         let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
         let cassette = cassettes::remove_torrent(info_hash, old_timestamp());
         let matcher = Arc::new(Matcher::new(cassette.interactions));
-        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let server = ReplayServer::start(matcher)
+            .await
+            .expect("start replay server");
         let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
@@ -332,7 +336,9 @@ mod tests {
     async fn when_free_space_above_low_water_mark_then_no_torrent_query() {
         let cassette = cassettes::free_space_high();
         let matcher = Arc::new(Matcher::new(cassette.interactions));
-        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let server = ReplayServer::start(matcher)
+            .await
+            .expect("start replay server");
         let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
@@ -350,7 +356,9 @@ mod tests {
     async fn when_login_fails_then_skips_host() {
         let cassette = cassettes::login_bad();
         let matcher = Arc::new(Matcher::new(cassette.interactions));
-        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let server = ReplayServer::start(matcher)
+            .await
+            .expect("start replay server");
         let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, false).await;
@@ -377,7 +385,9 @@ mod tests {
             now_secs,
         );
         let matcher = Arc::new(Matcher::new(cassette.interactions));
-        let server = ReplayServer::start(matcher).await.expect("start replay server");
+        let server = ReplayServer::start(matcher)
+            .await
+            .expect("start replay server");
         let config = config_with(&server, rules(10 * GB, 20 * GB));
 
         let result = run_once(&config, true).await;

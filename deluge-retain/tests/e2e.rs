@@ -43,7 +43,9 @@ async fn when_once_dry_run_then_logs_plan_and_makes_no_remove_calls() {
     let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
     let cassette = cassettes::torrents_list(info_hash, "old-torrent", old_timestamp());
     let matcher = Arc::new(Matcher::new(cassette.interactions));
-    let server = ReplayServer::start(matcher).await.expect("start replay server");
+    let server = ReplayServer::start(matcher)
+        .await
+        .expect("start replay server");
     let config = write_config(&server.host(), server.port(), "10 GiB", "20 GiB");
 
     let output = Command::cargo_bin("deluge-retain")
@@ -87,7 +89,9 @@ async fn when_once_live_then_calls_remove_torrent() {
     let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
     let cassette = cassettes::remove_torrent(info_hash, old_timestamp());
     let matcher = Arc::new(Matcher::new(cassette.interactions));
-    let server = ReplayServer::start(matcher).await.expect("start replay server");
+    let server = ReplayServer::start(matcher)
+        .await
+        .expect("start replay server");
     let config = write_config(&server.host(), server.port(), "10 GiB", "20 GiB");
 
     let output = Command::cargo_bin("deluge-retain")
@@ -124,7 +128,9 @@ async fn when_once_live_then_calls_remove_torrent() {
 async fn when_free_space_above_low_water_mark_then_logs_ok() {
     let cassette = cassettes::free_space_high();
     let matcher = Arc::new(Matcher::new(cassette.interactions));
-    let server = ReplayServer::start(matcher).await.expect("start replay server");
+    let server = ReplayServer::start(matcher)
+        .await
+        .expect("start replay server");
     let config = write_config(&server.host(), server.port(), "10 GiB", "20 GiB");
 
     let output = Command::cargo_bin("deluge-retain")

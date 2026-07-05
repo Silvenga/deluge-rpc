@@ -12,9 +12,7 @@ use std::collections::BTreeMap;
 
 #[test]
 fn when_add_torrent_file_response_str_then_some() {
-    let response = RencodeValue::Str(
-        "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into(),
-    );
+    let response = RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into());
     let value = extract_single(&response).expect("extract");
     let result: AddTorrentFileResult = match value {
         RencodeValue::Str(s) => Some(s),
@@ -52,9 +50,7 @@ fn when_add_torrent_files_response_empty_then_all_succeeded() {
 
 #[test]
 fn when_add_torrent_files_response_errors_then_deserialized() {
-    let response = RencodeValue::List(vec![RencodeValue::Str(
-        "failed to add torrent".into(),
-    )]);
+    let response = RencodeValue::List(vec![RencodeValue::Str("failed to add torrent".into())]);
     let value = extract_single(&response).expect("extract");
     let result: AddTorrentFilesResult =
         AddTorrentFilesResult::deserialize(&value).expect("deserialize");
@@ -65,9 +61,7 @@ fn when_add_torrent_files_response_errors_then_deserialized() {
 
 #[test]
 fn when_add_torrent_magnet_response_str_then_ok() {
-    let response = RencodeValue::Str(
-        "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into(),
-    );
+    let response = RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into());
     let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::Str(s) => assert_eq!(s, "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111"),
@@ -404,9 +398,8 @@ fn when_get_session_state_response_empty_list_then_empty_vec() {
 
 #[test]
 fn when_get_magnet_uri_response_str_then_string() {
-    let response = RencodeValue::Str(
-        "magnet:?xt=urn:btih:aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into(),
-    );
+    let response =
+        RencodeValue::Str("magnet:?xt=urn:btih:aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into());
     let value = extract_single(&response).expect("extract");
     match value {
         RencodeValue::Str(s) => {

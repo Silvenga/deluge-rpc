@@ -100,12 +100,11 @@ mod tests {
 
     #[test]
     fn when_execute_get_commands_response_then_deserializes() {
-        let response =
-            RencodeValue::List(vec![RencodeValue::List(vec![
-                RencodeValue::Str("abc123".into()),
-                RencodeValue::Str("complete".into()),
-                RencodeValue::Str("echo done".into()),
-            ])]);
+        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+            RencodeValue::Str("abc123".into()),
+            RencodeValue::Str("complete".into()),
+            RencodeValue::Str("echo done".into()),
+        ])]);
 
         let value = extract_single(&response).expect("extract");
         let commands: Vec<ExecuteCommand> =

@@ -38,24 +38,23 @@ pub async fn run_call(
         None => vec![],
     };
 
-    let parsed_kwargs: BTreeMap<RencodeValue, RencodeValue> =
-        match &args.kwargs_json {
-            Some(json_str) => {
-                let json: JsonValue = serde_json::from_str(json_str)
-                    .map_err(|e| anyhow::anyhow!("failed to parse kwargs JSON: {e}"))?;
-                let obj = json
-                    .as_object()
-                    .ok_or_else(|| anyhow::anyhow!("kwargs must be a JSON object"))?;
-                let mut map = BTreeMap::new();
-                for (k, v) in obj {
-                    let key = RencodeValue::Str(k.clone());
-                    let val = rencode_from_json_value(v)?;
-                    map.insert(key, val);
-                }
-                map
+    let parsed_kwargs: BTreeMap<RencodeValue, RencodeValue> = match &args.kwargs_json {
+        Some(json_str) => {
+            let json: JsonValue = serde_json::from_str(json_str)
+                .map_err(|e| anyhow::anyhow!("failed to parse kwargs JSON: {e}"))?;
+            let obj = json
+                .as_object()
+                .ok_or_else(|| anyhow::anyhow!("kwargs must be a JSON object"))?;
+            let mut map = BTreeMap::new();
+            for (k, v) in obj {
+                let key = RencodeValue::Str(k.clone());
+                let val = rencode_from_json_value(v)?;
+                map.insert(key, val);
             }
-            None => BTreeMap::new(),
-        };
+            map
+        }
+        None => BTreeMap::new(),
+    };
 
     let request = deluge_rpc::DelugeRpcRequest::new(&args.method)
         .with_args(parsed_args.clone())

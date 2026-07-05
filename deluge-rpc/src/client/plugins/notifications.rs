@@ -74,11 +74,10 @@ mod tests {
 
     #[test]
     fn when_notifications_get_handled_events_response_then_deserializes() {
-        let response =
-            RencodeValue::List(vec![RencodeValue::List(vec![
-                RencodeValue::Str("TorrentFinishedEvent".into()),
-                RencodeValue::Str("Emitted when a torrent finishes downloading.".into()),
-            ])]);
+        let response = RencodeValue::List(vec![RencodeValue::List(vec![
+            RencodeValue::Str("TorrentFinishedEvent".into()),
+            RencodeValue::Str("Emitted when a torrent finishes downloading.".into()),
+        ])]);
 
         let value = extract_single(&response).expect("extract");
         let events: Vec<HandledEvent> =

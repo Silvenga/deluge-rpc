@@ -1,4 +1,8 @@
-#![expect(clippy::print_stdout, clippy::print_stderr, reason = "CLI outputs to stdout/stderr")]
+#![expect(
+    clippy::print_stdout,
+    clippy::print_stderr,
+    reason = "CLI outputs to stdout/stderr"
+)]
 
 use anyhow::Context;
 use clap::{Parser, Subcommand};
@@ -12,11 +16,18 @@ mod commands;
 mod record;
 
 use cli_config::CliConfig;
-use commands::{CallArgs, CoreCommand, CoreConfigCommand, CoreSessionCommand, CoreTorrentsCommand, DaemonCommand, LabelCommand, PluginsListCommand};
+use commands::{
+    CallArgs, CoreCommand, CoreConfigCommand, CoreSessionCommand, CoreTorrentsCommand,
+    DaemonCommand, LabelCommand, PluginsListCommand,
+};
 use record::{Cassette, Interaction, Request, Response, write_cassette_atomic};
 
 #[derive(Parser, Debug)]
-#[command(name = "deluge-cli", version, about = "CLI client for the Deluge daemon RPC protocol")]
+#[command(
+    name = "deluge-cli",
+    version,
+    about = "CLI client for the Deluge daemon RPC protocol"
+)]
 struct Cli {
     #[command(flatten)]
     config: CliConfig,
@@ -84,9 +95,7 @@ async fn run() -> anyhow::Result<()> {
                         args: RencodeValue::List(parsed_args),
                         kwargs: RencodeValue::Dict(parsed_kwargs),
                     },
-                    response: Response::Ok {
-                        value: response,
-                    },
+                    response: Response::Ok { value: response },
                 });
             }
         }
@@ -114,8 +123,7 @@ async fn run() -> anyhow::Result<()> {
             println!("{output}");
 
             if resolved.record.is_some() {
-                let interactions_from_core =
-                    core_record_call(&caller, cmd).await?;
+                let interactions_from_core = core_record_call(&caller, cmd).await?;
                 interactions.extend(interactions_from_core);
             }
         }
@@ -148,8 +156,7 @@ async fn run() -> anyhow::Result<()> {
             interactions,
         };
         let path = PathBuf::from(record_path);
-        write_cassette_atomic(&path, &cassette)
-            .context("failed to write cassette file")?;
+        write_cassette_atomic(&path, &cassette).context("failed to write cassette file")?;
         tracing::info!("cassette written to {}", record_path);
     }
 
@@ -159,11 +166,20 @@ async fn run() -> anyhow::Result<()> {
 async fn daemon_record_call(
     caller: &RpcCaller,
     cmd: &DaemonCommand,
-) -> anyhow::Result<(String, Vec<RencodeValue>, BTreeMap<RencodeValue, RencodeValue>, RencodeValue)> {
-    use RencodeValue;
+) -> anyhow::Result<(
+    String,
+    Vec<RencodeValue>,
+    BTreeMap<RencodeValue, RencodeValue>,
+    RencodeValue,
+)> {
     use BTreeMap;
+    use RencodeValue;
 
-    let (method, rpc_args, rpc_kwargs): (&str, Vec<RencodeValue>, BTreeMap<RencodeValue, RencodeValue>) = match cmd {
+    let (method, rpc_args, rpc_kwargs): (
+        &str,
+        Vec<RencodeValue>,
+        BTreeMap<RencodeValue, RencodeValue>,
+    ) = match cmd {
         DaemonCommand::Info => ("daemon.info", vec![], BTreeMap::new()),
         DaemonCommand::Version => ("daemon.get_version", vec![], BTreeMap::new()),
         DaemonCommand::Methods => ("daemon.get_method_list", vec![], BTreeMap::new()),
@@ -182,8 +198,8 @@ async fn core_record_call(
     caller: &RpcCaller,
     cmd: &CoreCommand,
 ) -> anyhow::Result<Vec<Interaction>> {
-    use RencodeValue;
     use BTreeMap;
+    use RencodeValue;
 
     let mut interactions = Vec::new();
     let args_vec: Vec<RencodeValue>;
@@ -238,9 +254,7 @@ async fn core_record_call(
             args: RencodeValue::List(args_vec),
             kwargs: RencodeValue::Dict(kwargs),
         },
-        response: Response::Ok {
-            value: response,
-        },
+        response: Response::Ok { value: response },
     });
 
     Ok(interactions)
@@ -248,9 +262,13 @@ async fn core_record_call(
 
 fn core_torrents_record_params(
     cmd: &CoreTorrentsCommand,
-) -> anyhow::Result<(&'static str, Vec<RencodeValue>, BTreeMap<RencodeValue, RencodeValue>)> {
-    use RencodeValue;
+) -> anyhow::Result<(
+    &'static str,
+    Vec<RencodeValue>,
+    BTreeMap<RencodeValue, RencodeValue>,
+)> {
     use BTreeMap;
+    use RencodeValue;
 
     match cmd {
         CoreTorrentsCommand::List { filter, keys } => {
@@ -284,44 +302,49 @@ fn core_torrents_record_params(
             kwargs.insert(RencodeValue::Str("diff".into()), RencodeValue::Bool(false));
             Ok((
                 "core.get_torrent_status",
-                vec![RencodeValue::Str(torrent_id.clone()), RencodeValue::List(keys_list)],
+                vec![
+                    RencodeValue::Str(torrent_id.clone()),
+                    RencodeValue::List(keys_list),
+                ],
                 kwargs,
             ))
         }
-        CoreTorrentsCommand::Remove { torrent_id, keep_data } => {
-            Ok((
-                "core.remove_torrent",
-                vec![
-                    RencodeValue::Str(torrent_id.clone()),
-                    RencodeValue::Bool(!keep_data),
-                ],
-                BTreeMap::new(),
-            ))
-        }
+        CoreTorrentsCommand::Remove {
+            torrent_id,
+            keep_data,
+        } => Ok((
+            "core.remove_torrent",
+            vec![
+                RencodeValue::Str(torrent_id.clone()),
+                RencodeValue::Bool(!keep_data),
+            ],
+            BTreeMap::new(),
+        )),
     }
 }
 
 fn core_config_record_params(
     cmd: &CoreConfigCommand,
-) -> anyhow::Result<(&'static str, Vec<RencodeValue>, BTreeMap<RencodeValue, RencodeValue>)> {
-    use RencodeValue;
+) -> anyhow::Result<(
+    &'static str,
+    Vec<RencodeValue>,
+    BTreeMap<RencodeValue, RencodeValue>,
+)> {
     use BTreeMap;
+    use RencodeValue;
 
     match cmd {
-        CoreConfigCommand::Get { key: Some(k) } => {
-            Ok((
-                "core.get_config_value",
-                vec![RencodeValue::Str(k.clone())],
-                BTreeMap::new(),
-            ))
-        }
-        CoreConfigCommand::Get { key: None } => {
-            Ok(("core.get_config", vec![], BTreeMap::new()))
-        }
+        CoreConfigCommand::Get { key: Some(k) } => Ok((
+            "core.get_config_value",
+            vec![RencodeValue::Str(k.clone())],
+            BTreeMap::new(),
+        )),
+        CoreConfigCommand::Get { key: None } => Ok(("core.get_config", vec![], BTreeMap::new())),
         CoreConfigCommand::Set { json } => {
             let parsed: serde_json::Value = serde_json::from_str(json)
                 .map_err(|e| anyhow::anyhow!("failed to parse config JSON: {e}"))?;
-            let obj = parsed.as_object()
+            let obj = parsed
+                .as_object()
                 .ok_or_else(|| anyhow::anyhow!("config set value must be a JSON object"))?;
             let mut config = BTreeMap::new();
             for (k, v) in obj {
@@ -339,29 +362,40 @@ fn core_config_record_params(
 
 fn core_plugins_record_params(
     cmd: &PluginsListCommand,
-) -> (&'static str, Vec<RencodeValue>, BTreeMap<RencodeValue, RencodeValue>) {
-    use RencodeValue;
+) -> (
+    &'static str,
+    Vec<RencodeValue>,
+    BTreeMap<RencodeValue, RencodeValue>,
+) {
     use BTreeMap;
+    use RencodeValue;
 
     match cmd {
-        PluginsListCommand::List => {
-            ("core.get_enabled_plugins", vec![], BTreeMap::new())
-        }
-        PluginsListCommand::Enable { name } => {
-            ("core.enable_plugin", vec![RencodeValue::Str(name.clone())], BTreeMap::new())
-        }
-        PluginsListCommand::Disable { name } => {
-            ("core.disable_plugin", vec![RencodeValue::Str(name.clone())], BTreeMap::new())
-        }
+        PluginsListCommand::List => ("core.get_enabled_plugins", vec![], BTreeMap::new()),
+        PluginsListCommand::Enable { name } => (
+            "core.enable_plugin",
+            vec![RencodeValue::Str(name.clone())],
+            BTreeMap::new(),
+        ),
+        PluginsListCommand::Disable { name } => (
+            "core.disable_plugin",
+            vec![RencodeValue::Str(name.clone())],
+            BTreeMap::new(),
+        ),
     }
 }
 
 async fn label_record_call(
     caller: &RpcCaller,
     cmd: &LabelCommand,
-) -> anyhow::Result<(String, Vec<RencodeValue>, BTreeMap<RencodeValue, RencodeValue>, RencodeValue)> {
-    use RencodeValue;
+) -> anyhow::Result<(
+    String,
+    Vec<RencodeValue>,
+    BTreeMap<RencodeValue, RencodeValue>,
+    RencodeValue,
+)> {
     use BTreeMap;
+    use RencodeValue;
 
     let (method, rpc_args): (&str, Vec<RencodeValue>) = match cmd {
         LabelCommand::List => ("label.get_labels", vec![]),

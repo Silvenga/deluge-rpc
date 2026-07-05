@@ -93,7 +93,9 @@ async fn rpc_call_reconnect(
             drop(state);
             let mut state = inner.state.lock().await;
             *state = ConnectionState::Disconnected;
-            return Err(anyhow!("connection lost after sending RPC request `{method}`"));
+            return Err(anyhow!(
+                "connection lost after sending RPC request `{method}`"
+            ));
         }
     }
 

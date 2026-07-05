@@ -132,7 +132,9 @@ async fn handle_connection(mut tls: TlsStream<TcpStream>) {
             break;
         }
 
-        let Some(decoded) = decode_frame(&body) else { break };
+        let Some(decoded) = decode_frame(&body) else {
+            break;
+        };
 
         let (request_id, is_login, method) = extract_request_info(&decoded);
 
@@ -155,30 +157,72 @@ async fn handle_connection(mut tls: TlsStream<TcpStream>) {
                 "core.get_torrent_status" => RencodeValue::Dict(BTreeMap::new()),
                 "core.get_session_status" => {
                     let mut map = BTreeMap::new();
-                    map.insert(RencodeValue::Str("download_rate".into()), RencodeValue::Float(1024.0));
-                    map.insert(RencodeValue::Str("upload_rate".into()), RencodeValue::Float(512.0));
-                    map.insert(RencodeValue::Str("payload_download_rate".into()), RencodeValue::Float(1000.0));
-                    map.insert(RencodeValue::Str("payload_upload_rate".into()), RencodeValue::Float(500.0));
-                    map.insert(RencodeValue::Str("ip_overhead_download_rate".into()), RencodeValue::Float(10.0));
-                    map.insert(RencodeValue::Str("ip_overhead_upload_rate".into()), RencodeValue::Float(5.0));
-                    map.insert(RencodeValue::Str("tracker_download_rate".into()), RencodeValue::Float(0.0));
-                    map.insert(RencodeValue::Str("tracker_upload_rate".into()), RencodeValue::Float(0.0));
-                    map.insert(RencodeValue::Str("dht_download_rate".into()), RencodeValue::Float(14.0));
-                    map.insert(RencodeValue::Str("dht_upload_rate".into()), RencodeValue::Float(7.0));
-                    map.insert(RencodeValue::Str("write_hit_ratio".into()), RencodeValue::Float(0.95));
-                    map.insert(RencodeValue::Str("read_hit_ratio".into()), RencodeValue::Float(0.88));
+                    map.insert(
+                        RencodeValue::Str("download_rate".into()),
+                        RencodeValue::Float(1024.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("upload_rate".into()),
+                        RencodeValue::Float(512.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("payload_download_rate".into()),
+                        RencodeValue::Float(1000.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("payload_upload_rate".into()),
+                        RencodeValue::Float(500.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("ip_overhead_download_rate".into()),
+                        RencodeValue::Float(10.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("ip_overhead_upload_rate".into()),
+                        RencodeValue::Float(5.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("tracker_download_rate".into()),
+                        RencodeValue::Float(0.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("tracker_upload_rate".into()),
+                        RencodeValue::Float(0.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("dht_download_rate".into()),
+                        RencodeValue::Float(14.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("dht_upload_rate".into()),
+                        RencodeValue::Float(7.0),
+                    );
+                    map.insert(
+                        RencodeValue::Str("write_hit_ratio".into()),
+                        RencodeValue::Float(0.95),
+                    );
+                    map.insert(
+                        RencodeValue::Str("read_hit_ratio".into()),
+                        RencodeValue::Float(0.88),
+                    );
                     RencodeValue::Dict(map)
                 }
                 "core.get_config_value" => RencodeValue::Str("/downloads".into()),
                 "core.get_config" => {
                     let mut map = BTreeMap::new();
-                    map.insert(RencodeValue::Str("download_location".into()), RencodeValue::Str("/downloads".into()));
-                    map.insert(RencodeValue::Str("max_upload_speed".into()), RencodeValue::Float(-1.0));
+                    map.insert(
+                        RencodeValue::Str("download_location".into()),
+                        RencodeValue::Str("/downloads".into()),
+                    );
+                    map.insert(
+                        RencodeValue::Str("max_upload_speed".into()),
+                        RencodeValue::Float(-1.0),
+                    );
                     RencodeValue::Dict(map)
                 }
-                "core.get_enabled_plugins" => RencodeValue::List(vec![
-                    RencodeValue::Str("Label".into()),
-                ]),
+                "core.get_enabled_plugins" => {
+                    RencodeValue::List(vec![RencodeValue::Str("Label".into())])
+                }
                 "label.get_labels" => RencodeValue::List(vec![
                     RencodeValue::Str("movies".into()),
                     RencodeValue::Str("music".into()),
@@ -196,23 +240,21 @@ async fn handle_connection(mut tls: TlsStream<TcpStream>) {
 
 fn extract_request_info(decoded: &RencodeValue) -> (u32, bool, String) {
     match decoded {
-        RencodeValue::List(items) if items.len() == 1 => {
-            match &items[0] {
-                RencodeValue::List(inner) if inner.len() >= 2 => {
-                    let id = match &inner[0] {
-                        RencodeValue::Int(i) => u32::try_from(*i).unwrap_or(0),
-                        _ => 0,
-                    };
-                    let method = match &inner[1] {
-                        RencodeValue::Str(s) => s.clone(),
-                        _ => String::new(),
-                    };
-                    let is_login = method == "daemon.login";
-                    (id, is_login, method)
-                }
-                _ => (0, false, String::new()),
+        RencodeValue::List(items) if items.len() == 1 => match &items[0] {
+            RencodeValue::List(inner) if inner.len() >= 2 => {
+                let id = match &inner[0] {
+                    RencodeValue::Int(i) => u32::try_from(*i).unwrap_or(0),
+                    _ => 0,
+                };
+                let method = match &inner[1] {
+                    RencodeValue::Str(s) => s.clone(),
+                    _ => String::new(),
+                };
+                let is_login = method == "daemon.login";
+                (id, is_login, method)
             }
-        }
+            _ => (0, false, String::new()),
+        },
         _ => (0, false, String::new()),
     }
 }
@@ -240,7 +282,10 @@ async fn when_record_fails_then_cassette_not_modified() {
         .failure();
 
     let content = fs::read_to_string(&cassette_path).expect("read cassette");
-    assert_eq!(content, "existing content", "cassette should not be modified on failure");
+    assert_eq!(
+        content, "existing content",
+        "cassette should not be modified on failure"
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -268,9 +313,18 @@ async fn when_record_overwrites_then_old_content_replaced() {
         .success();
 
     let content = fs::read_to_string(&cassette_path).expect("read cassette");
-    assert!(!content.contains("old data"), "cassette should be overwritten");
-    assert!(content.contains("\"version\""), "cassette should contain version field");
-    assert!(content.contains("\"interactions\""), "cassette should contain interactions");
+    assert!(
+        !content.contains("old data"),
+        "cassette should be overwritten"
+    );
+    assert!(
+        content.contains("\"version\""),
+        "cassette should contain version field"
+    );
+    assert!(
+        content.contains("\"interactions\""),
+        "cassette should contain interactions"
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -300,8 +354,13 @@ async fn when_record_flag_then_cassette_written() {
     let content = fs::read_to_string(&cassette_path).expect("read cassette");
     let parsed: serde_json::Value = serde_json::from_str(&content).expect("valid JSON");
     assert_eq!(parsed["version"], 1);
-    let interactions = parsed["interactions"].as_array().expect("interactions array");
-    assert!(!interactions.is_empty(), "should have at least one interaction");
+    let interactions = parsed["interactions"]
+        .as_array()
+        .expect("interactions array");
+    assert!(
+        !interactions.is_empty(),
+        "should have at least one interaction"
+    );
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -323,5 +382,8 @@ async fn when_typed_free_space_then_pretty_output() {
         .success();
 
     let stdout = String::from_utf8(output.get_output().stdout.clone()).expect("utf8");
-    assert!(stdout.contains("1073741824"), "should contain free space bytes: {stdout}");
+    assert!(
+        stdout.contains("1073741824"),
+        "should contain free space bytes: {stdout}"
+    );
 }
