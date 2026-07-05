@@ -36,7 +36,7 @@ impl ExtractorRpc for ExtractorClient {
     async fn set_config(&self, config: &ExtractorConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing extractor config")?;
         self.caller
-            .rpc_call(DelugeRpcRequest::new("extractor.set_config").with_args(vec![config_value]))
+            .dispatch(DelugeRpcRequest::new("extractor.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -44,7 +44,7 @@ impl ExtractorRpc for ExtractorClient {
     async fn get_config(&self) -> anyhow::Result<ExtractorConfig> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("extractor.get_config"))
+            .dispatch(DelugeRpcRequest::new("extractor.get_config"))
             .await
             .context("extractor.get_config RPC failed")?;
         let value = extract_single(&result)?;

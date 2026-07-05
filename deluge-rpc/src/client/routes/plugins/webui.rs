@@ -38,7 +38,7 @@ impl WebUiRpc for WebUiClient {
     async fn got_deluge_web(&self) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("webui.got_deluge_web"))
+            .dispatch(DelugeRpcRequest::new("webui.got_deluge_web"))
             .await
             .context("webui.got_deluge_web RPC failed")?;
         let value = extract_single(&result)?;
@@ -51,7 +51,7 @@ impl WebUiRpc for WebUiClient {
     async fn set_config(&self, config: &WebUiConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing webui config")?;
         self.caller
-            .rpc_call(DelugeRpcRequest::new("webui.set_config").with_args(vec![config_value]))
+            .dispatch(DelugeRpcRequest::new("webui.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -59,7 +59,7 @@ impl WebUiRpc for WebUiClient {
     async fn get_config(&self) -> anyhow::Result<WebUiConfig> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("webui.get_config"))
+            .dispatch(DelugeRpcRequest::new("webui.get_config"))
             .await
             .context("webui.get_config RPC failed")?;
         let value = extract_single(&result)?;

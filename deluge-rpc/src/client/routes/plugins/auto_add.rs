@@ -53,7 +53,7 @@ impl AutoAddRpc for AutoAddClient {
     ) -> anyhow::Result<()> {
         let options_value = to_rencode_value(options).context("serializing watchdir options")?;
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("autoadd.set_options")
                     .with_args(vec![RencodeValue::Int(watch_dir_id), options_value]),
             )
@@ -63,7 +63,7 @@ impl AutoAddRpc for AutoAddClient {
 
     async fn enable_watch_dir(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("autoadd.enable_watchdir")
                     .with_args(vec![RencodeValue::Int(watchdir_id)]),
             )
@@ -73,7 +73,7 @@ impl AutoAddRpc for AutoAddClient {
 
     async fn disable_watch_dir(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("autoadd.disable_watchdir")
                     .with_args(vec![RencodeValue::Int(watchdir_id)]),
             )
@@ -84,7 +84,7 @@ impl AutoAddRpc for AutoAddClient {
     async fn set_config(&self, config: &AutoAddConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing autoadd config")?;
         self.caller
-            .rpc_call(DelugeRpcRequest::new("autoadd.set_config").with_args(vec![config_value]))
+            .dispatch(DelugeRpcRequest::new("autoadd.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -92,7 +92,7 @@ impl AutoAddRpc for AutoAddClient {
     async fn get_config(&self) -> anyhow::Result<AutoAddConfig> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("autoadd.get_config"))
+            .dispatch(DelugeRpcRequest::new("autoadd.get_config"))
             .await
             .context("autoadd.get_config RPC failed")?;
         let value = extract_single(&result)?;
@@ -102,7 +102,7 @@ impl AutoAddRpc for AutoAddClient {
     async fn get_watch_dirs(&self) -> anyhow::Result<BTreeMap<String, WatchDirOptions>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("autoadd.get_watchdirs"))
+            .dispatch(DelugeRpcRequest::new("autoadd.get_watchdirs"))
             .await
             .context("autoadd.get_watchdirs RPC failed")?;
         let value = extract_single(&result)?;
@@ -116,7 +116,7 @@ impl AutoAddRpc for AutoAddClient {
         };
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("autoadd.add").with_args(args))
+            .dispatch(DelugeRpcRequest::new("autoadd.add").with_args(args))
             .await
             .context("autoadd.add RPC failed")?;
         let id = extract_single_int(&result, "autoadd.add")?;
@@ -125,7 +125,7 @@ impl AutoAddRpc for AutoAddClient {
 
     async fn remove(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("autoadd.remove")
                     .with_args(vec![RencodeValue::Int(watchdir_id)]),
             )
@@ -136,7 +136,7 @@ impl AutoAddRpc for AutoAddClient {
     async fn is_admin_level(&self) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("autoadd.is_admin_level"))
+            .dispatch(DelugeRpcRequest::new("autoadd.is_admin_level"))
             .await
             .context("autoadd.is_admin_level RPC failed")?;
         let value = extract_single(&result)?;
@@ -151,7 +151,7 @@ impl AutoAddRpc for AutoAddClient {
     async fn get_auth_user(&self) -> anyhow::Result<String> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("autoadd.get_auth_user"))
+            .dispatch(DelugeRpcRequest::new("autoadd.get_auth_user"))
             .await
             .context("autoadd.get_auth_user RPC failed")?;
         let value = extract_single(&result)?;

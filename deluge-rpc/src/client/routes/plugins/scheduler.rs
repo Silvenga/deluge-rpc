@@ -37,7 +37,7 @@ impl SchedulerRpc for SchedulerClient {
     async fn set_config(&self, config: &SchedulerConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing scheduler config")?;
         self.caller
-            .rpc_call(DelugeRpcRequest::new("scheduler.set_config").with_args(vec![config_value]))
+            .dispatch(DelugeRpcRequest::new("scheduler.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -45,7 +45,7 @@ impl SchedulerRpc for SchedulerClient {
     async fn get_config(&self) -> anyhow::Result<SchedulerConfig> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("scheduler.get_config"))
+            .dispatch(DelugeRpcRequest::new("scheduler.get_config"))
             .await
             .context("scheduler.get_config RPC failed")?;
         let value = extract_single(&result)?;
@@ -55,7 +55,7 @@ impl SchedulerRpc for SchedulerClient {
     async fn get_state(&self) -> anyhow::Result<SchedulerState> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("scheduler.get_state"))
+            .dispatch(DelugeRpcRequest::new("scheduler.get_state"))
             .await
             .context("scheduler.get_state RPC failed")?;
         let value = extract_single(&result)?;

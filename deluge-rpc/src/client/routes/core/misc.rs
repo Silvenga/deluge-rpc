@@ -109,7 +109,7 @@ impl CoreMiscRpc for CoreMiscClient {
 
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("core.create_torrent")
                     .with_args(vec![
                         RencodeValue::Str(path.to_owned()),
@@ -127,7 +127,7 @@ impl CoreMiscRpc for CoreMiscClient {
     async fn glob(&self, path: &str) -> anyhow::Result<GlobResult> {
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("core.glob")
                     .with_args(vec![RencodeValue::Str(path.to_owned())]),
             )
@@ -155,7 +155,7 @@ impl CoreMiscRpc for CoreMiscClient {
 
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("core.get_completion_paths").with_args(vec![args_value]),
             )
             .await

@@ -53,7 +53,7 @@ impl CoreAccountRpc for CoreAccountClient {
     async fn get_known_accounts(&self) -> anyhow::Result<Vec<AccountInfo>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_known_accounts"))
+            .dispatch(DelugeRpcRequest::new("core.get_known_accounts"))
             .await
             .context("core.get_known_accounts RPC failed")?;
         let value = extract_single(&result)?;
@@ -68,7 +68,7 @@ impl CoreAccountRpc for CoreAccountClient {
     ) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.create_account").with_args(vec![
+            .dispatch(DelugeRpcRequest::new("core.create_account").with_args(vec![
                 RencodeValue::Str(username.to_owned()),
                 RencodeValue::Str(password.to_owned()),
                 RencodeValue::Str(auth_level.to_owned()),
@@ -92,7 +92,7 @@ impl CoreAccountRpc for CoreAccountClient {
     ) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.update_account").with_args(vec![
+            .dispatch(DelugeRpcRequest::new("core.update_account").with_args(vec![
                 RencodeValue::Str(username.to_owned()),
                 RencodeValue::Str(password.to_owned()),
                 RencodeValue::Str(authlevel.to_owned()),
@@ -111,7 +111,7 @@ impl CoreAccountRpc for CoreAccountClient {
     async fn remove_account(&self, username: &str) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("core.remove_account")
                     .with_args(vec![RencodeValue::Str(username.to_owned())]),
             )
@@ -131,7 +131,7 @@ impl CoreAccountRpc for CoreAccountClient {
     ) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_auth_levels_mappings"))
+            .dispatch(DelugeRpcRequest::new("core.get_auth_levels_mappings"))
             .await
             .context("core.get_auth_levels_mappings RPC failed")?;
         let value = extract_single(&result)?;

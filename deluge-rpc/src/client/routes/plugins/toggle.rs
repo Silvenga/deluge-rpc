@@ -34,7 +34,7 @@ impl ToggleRpc for ToggleClient {
     async fn get_status(&self) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("toggle.get_status"))
+            .dispatch(DelugeRpcRequest::new("toggle.get_status"))
             .await
             .context("toggle.get_status RPC failed")?;
         let value = extract_single(&result)?;
@@ -47,7 +47,7 @@ impl ToggleRpc for ToggleClient {
     async fn toggle(&self) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("toggle.toggle"))
+            .dispatch(DelugeRpcRequest::new("toggle.toggle"))
             .await
             .context("toggle.toggle RPC failed")?;
         let value = extract_single(&result)?;

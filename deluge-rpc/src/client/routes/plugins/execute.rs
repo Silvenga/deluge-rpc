@@ -43,7 +43,7 @@ impl ExecuteRpc for ExecuteClient {
     async fn add_command(&self, event: &ExecuteEvent, command: &str) -> anyhow::Result<()> {
         let event_value = to_rencode_value(event).context("serializing execute event")?;
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("execute.add_command")
                     .with_args(vec![event_value, RencodeValue::Str(command.to_owned())]),
             )
@@ -54,7 +54,7 @@ impl ExecuteRpc for ExecuteClient {
     async fn get_commands(&self) -> anyhow::Result<Vec<ExecuteCommand>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("execute.get_commands"))
+            .dispatch(DelugeRpcRequest::new("execute.get_commands"))
             .await
             .context("execute.get_commands RPC failed")?;
         let value = extract_single(&result)?;
@@ -63,7 +63,7 @@ impl ExecuteRpc for ExecuteClient {
 
     async fn remove_command(&self, command_id: &str) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("execute.remove_command")
                     .with_args(vec![RencodeValue::Str(command_id.to_owned())]),
             )
@@ -79,7 +79,7 @@ impl ExecuteRpc for ExecuteClient {
     ) -> anyhow::Result<()> {
         let event_value = to_rencode_value(event).context("serializing execute event")?;
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("execute.save_command").with_args(vec![
                     RencodeValue::Str(command_id.to_owned()),
                     event_value,

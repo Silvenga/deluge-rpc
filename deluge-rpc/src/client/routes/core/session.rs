@@ -49,7 +49,7 @@ impl Clone for CoreSessionClient {
 impl CoreSessionRpc for CoreSessionClient {
     async fn pause_session(&self) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(DelugeRpcRequest::new("core.pause_session"))
+            .dispatch(DelugeRpcRequest::new("core.pause_session"))
             .await
             .context("core.pause_session RPC failed")?;
         Ok(())
@@ -57,7 +57,7 @@ impl CoreSessionRpc for CoreSessionClient {
 
     async fn resume_session(&self) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(DelugeRpcRequest::new("core.resume_session"))
+            .dispatch(DelugeRpcRequest::new("core.resume_session"))
             .await
             .context("core.resume_session RPC failed")?;
         Ok(())
@@ -66,7 +66,7 @@ impl CoreSessionRpc for CoreSessionClient {
     async fn is_session_paused(&self) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.is_session_paused"))
+            .dispatch(DelugeRpcRequest::new("core.is_session_paused"))
             .await
             .context("core.is_session_paused RPC failed")?;
         let value = extract_single(&result)?;
@@ -81,7 +81,7 @@ impl CoreSessionRpc for CoreSessionClient {
     async fn get_listen_port(&self) -> anyhow::Result<i64> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_listen_port"))
+            .dispatch(DelugeRpcRequest::new("core.get_listen_port"))
             .await
             .context("core.get_listen_port RPC failed")?;
         extract_single_int(&result, "core.get_listen_port")
@@ -90,7 +90,7 @@ impl CoreSessionRpc for CoreSessionClient {
     async fn get_ssl_listen_port(&self) -> anyhow::Result<i64> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_ssl_listen_port"))
+            .dispatch(DelugeRpcRequest::new("core.get_ssl_listen_port"))
             .await
             .context("core.get_ssl_listen_port RPC failed")?;
         extract_single_int(&result, "core.get_ssl_listen_port")
@@ -99,7 +99,7 @@ impl CoreSessionRpc for CoreSessionClient {
     async fn get_external_ip(&self) -> anyhow::Result<String> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_external_ip"))
+            .dispatch(DelugeRpcRequest::new("core.get_external_ip"))
             .await
             .context("core.get_external_ip RPC failed")?;
         let value = extract_single(&result)?;
@@ -114,7 +114,7 @@ impl CoreSessionRpc for CoreSessionClient {
     async fn get_libtorrent_version(&self) -> anyhow::Result<String> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_libtorrent_version"))
+            .dispatch(DelugeRpcRequest::new("core.get_libtorrent_version"))
             .await
             .context("core.get_libtorrent_version RPC failed")?;
         let value = extract_single(&result)?;
@@ -131,7 +131,7 @@ impl CoreSessionRpc for CoreSessionClient {
     async fn test_listen_port(&self) -> anyhow::Result<Option<bool>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.test_listen_port"))
+            .dispatch(DelugeRpcRequest::new("core.test_listen_port"))
             .await
             .context("core.test_listen_port RPC failed")?;
         let value = extract_single(&result)?;
@@ -149,7 +149,7 @@ impl CoreSessionRpc for CoreSessionClient {
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("core.get_session_status")
                     .with_args(vec![RencodeValue::List(key_values)]),
             )
@@ -166,7 +166,7 @@ impl CoreSessionRpc for CoreSessionClient {
         };
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_free_space").with_args(args))
+            .dispatch(DelugeRpcRequest::new("core.get_free_space").with_args(args))
             .await
             .context("core.get_free_space RPC failed")?;
         extract_single_int(&result, "core.get_free_space")

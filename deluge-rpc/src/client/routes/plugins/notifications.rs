@@ -37,7 +37,7 @@ impl NotificationsRpc for NotificationsClient {
     async fn set_config(&self, config: &NotificationsConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing notifications config")?;
         self.caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("notifications.set_config").with_args(vec![config_value]),
             )
             .await?;
@@ -47,7 +47,7 @@ impl NotificationsRpc for NotificationsClient {
     async fn get_config(&self) -> anyhow::Result<NotificationsConfig> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("notifications.get_config"))
+            .dispatch(DelugeRpcRequest::new("notifications.get_config"))
             .await
             .context("notifications.get_config RPC failed")?;
         let value = extract_single(&result)?;
@@ -57,7 +57,7 @@ impl NotificationsRpc for NotificationsClient {
     async fn get_handled_events(&self) -> anyhow::Result<Vec<HandledEvent>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("notifications.get_handled_events"))
+            .dispatch(DelugeRpcRequest::new("notifications.get_handled_events"))
             .await
             .context("notifications.get_handled_events RPC failed")?;
         let value = extract_single(&result)?;

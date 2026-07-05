@@ -50,7 +50,7 @@ impl StatsRpc for StatsClient {
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("stats.get_stats").with_args(vec![
+            .dispatch(DelugeRpcRequest::new("stats.get_stats").with_args(vec![
                 RencodeValue::List(keys_list),
                 RencodeValue::Int(interval),
             ]))
@@ -68,7 +68,7 @@ impl StatsRpc for StatsClient {
     async fn get_totals(&self) -> anyhow::Result<StatsTotals> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("stats.get_totals"))
+            .dispatch(DelugeRpcRequest::new("stats.get_totals"))
             .await
             .context("stats.get_totals RPC failed")?;
         let value = extract_single(&result)?;
@@ -78,7 +78,7 @@ impl StatsRpc for StatsClient {
     async fn get_session_totals(&self) -> anyhow::Result<StatsTotals> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("stats.get_session_totals"))
+            .dispatch(DelugeRpcRequest::new("stats.get_session_totals"))
             .await
             .context("stats.get_session_totals RPC failed")?;
         let value = extract_single(&result)?;
@@ -88,7 +88,7 @@ impl StatsRpc for StatsClient {
     async fn set_config(&self, config: &StatsConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing stats config")?;
         self.caller
-            .rpc_call(DelugeRpcRequest::new("stats.set_config").with_args(vec![config_value]))
+            .dispatch(DelugeRpcRequest::new("stats.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -96,7 +96,7 @@ impl StatsRpc for StatsClient {
     async fn get_config(&self) -> anyhow::Result<StatsConfig> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("stats.get_config"))
+            .dispatch(DelugeRpcRequest::new("stats.get_config"))
             .await
             .context("stats.get_config RPC failed")?;
         let value = extract_single(&result)?;
@@ -106,7 +106,7 @@ impl StatsRpc for StatsClient {
     async fn get_intervals(&self) -> anyhow::Result<Vec<i64>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("stats.get_intervals"))
+            .dispatch(DelugeRpcRequest::new("stats.get_intervals"))
             .await
             .context("stats.get_intervals RPC failed")?;
         let value = extract_single(&result)?;

@@ -38,7 +38,7 @@ impl BlocklistRpc for BlocklistClient {
     async fn check_import(&self, force: bool) -> anyhow::Result<Option<String>> {
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("blocklist.check_import")
                     .with_args(vec![RencodeValue::Bool(force)]),
             )
@@ -57,7 +57,7 @@ impl BlocklistRpc for BlocklistClient {
     async fn get_config(&self) -> anyhow::Result<BlocklistConfig> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("blocklist.get_config"))
+            .dispatch(DelugeRpcRequest::new("blocklist.get_config"))
             .await
             .context("blocklist.get_config RPC failed")?;
         let value = extract_single(&result)?;
@@ -67,7 +67,7 @@ impl BlocklistRpc for BlocklistClient {
     async fn set_config(&self, config: &BlocklistConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing blocklist config")?;
         self.caller
-            .rpc_call(DelugeRpcRequest::new("blocklist.set_config").with_args(vec![config_value]))
+            .dispatch(DelugeRpcRequest::new("blocklist.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
@@ -75,7 +75,7 @@ impl BlocklistRpc for BlocklistClient {
     async fn get_status(&self) -> anyhow::Result<BlocklistStatus> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("blocklist.get_status"))
+            .dispatch(DelugeRpcRequest::new("blocklist.get_status"))
             .await
             .context("blocklist.get_status RPC failed")?;
         let value = extract_single(&result)?;

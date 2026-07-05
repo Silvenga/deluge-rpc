@@ -38,7 +38,7 @@ impl DaemonRpc for DaemonClient {
     async fn info(&self) -> anyhow::Result<String> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("daemon.info"))
+            .dispatch(DelugeRpcRequest::new("daemon.info"))
             .await
             .context("daemon.info RPC failed")?;
         let value = extract_single(&result)?;
@@ -61,7 +61,7 @@ impl DaemonRpc for DaemonClient {
         );
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("daemon.login")
                     .with_args(vec![
                         RencodeValue::Str(username.to_owned()),
@@ -81,7 +81,7 @@ impl DaemonRpc for DaemonClient {
             .collect();
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("daemon.set_event_interest")
                     .with_args(vec![RencodeValue::List(names)]),
             )
@@ -101,7 +101,7 @@ impl DaemonRpc for DaemonClient {
     /// This is expected behavior per the Deluge spec — do not reduce the timeout.
     async fn shutdown(&self) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(DelugeRpcRequest::new("daemon.shutdown"))
+            .dispatch(DelugeRpcRequest::new("daemon.shutdown"))
             .await
             .context("daemon.shutdown RPC failed")?;
         Ok(())
@@ -110,7 +110,7 @@ impl DaemonRpc for DaemonClient {
     async fn get_method_list(&self) -> anyhow::Result<Vec<String>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("daemon.get_method_list"))
+            .dispatch(DelugeRpcRequest::new("daemon.get_method_list"))
             .await
             .context("daemon.get_method_list RPC failed")?;
         let value = extract_single(&result)?;
@@ -138,7 +138,7 @@ impl DaemonRpc for DaemonClient {
     async fn get_version(&self) -> anyhow::Result<String> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("daemon.get_version"))
+            .dispatch(DelugeRpcRequest::new("daemon.get_version"))
             .await
             .context("daemon.get_version RPC failed")?;
         let value = extract_single(&result)?;
@@ -153,7 +153,7 @@ impl DaemonRpc for DaemonClient {
     async fn authorized_call(&self, rpc: &str) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("daemon.authorized_call")
                     .with_args(vec![RencodeValue::Str(rpc.to_owned())]),
             )

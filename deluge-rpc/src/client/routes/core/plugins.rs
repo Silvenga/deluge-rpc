@@ -39,7 +39,7 @@ impl CorePluginRpc for CorePluginClient {
     async fn get_available_plugins(&self) -> anyhow::Result<Vec<String>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_available_plugins"))
+            .dispatch(DelugeRpcRequest::new("core.get_available_plugins"))
             .await
             .context("core.get_available_plugins RPC failed")?;
         let value = extract_single(&result)?;
@@ -67,7 +67,7 @@ impl CorePluginRpc for CorePluginClient {
     async fn get_enabled_plugins(&self) -> anyhow::Result<Vec<String>> {
         let result = self
             .caller
-            .rpc_call(DelugeRpcRequest::new("core.get_enabled_plugins"))
+            .dispatch(DelugeRpcRequest::new("core.get_enabled_plugins"))
             .await
             .context("core.get_enabled_plugins RPC failed")?;
         let value = extract_single(&result)?;
@@ -95,7 +95,7 @@ impl CorePluginRpc for CorePluginClient {
     async fn enable_plugin(&self, plugin: &str) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("core.enable_plugin")
                     .with_args(vec![RencodeValue::Str(plugin.to_owned())]),
             )
@@ -113,7 +113,7 @@ impl CorePluginRpc for CorePluginClient {
     async fn disable_plugin(&self, plugin: &str) -> anyhow::Result<bool> {
         let result = self
             .caller
-            .rpc_call(
+            .dispatch(
                 DelugeRpcRequest::new("core.disable_plugin")
                     .with_args(vec![RencodeValue::Str(plugin.to_owned())]),
             )
@@ -130,7 +130,7 @@ impl CorePluginRpc for CorePluginClient {
 
     async fn upload_plugin(&self, filename: &str, filedump: &str) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(DelugeRpcRequest::new("core.upload_plugin").with_args(vec![
+            .dispatch(DelugeRpcRequest::new("core.upload_plugin").with_args(vec![
                 RencodeValue::Str(filename.to_owned()),
                 RencodeValue::Str(filedump.to_owned()),
             ]))
@@ -141,7 +141,7 @@ impl CorePluginRpc for CorePluginClient {
 
     async fn rescan_plugins(&self) -> anyhow::Result<()> {
         self.caller
-            .rpc_call(DelugeRpcRequest::new("core.rescan_plugins"))
+            .dispatch(DelugeRpcRequest::new("core.rescan_plugins"))
             .await
             .context("core.rescan_plugins RPC failed")?;
         Ok(())

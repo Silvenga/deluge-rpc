@@ -1,4 +1,5 @@
-use crate::client::{ConnectionState, DelugeClientInner};
+use crate::client::connection::ConnectionState;
+use crate::client::inner::DelugeClientInner;
 use crate::{DelugeRpcMessage, DelugeRpcRequest, RencodeValue};
 use anyhow::{anyhow, Context};
 use std::sync::atomic::Ordering;
@@ -11,6 +12,7 @@ use tokio::time::timeout;
 
 const RPC_TIMEOUT: Duration = Duration::from_secs(30);
 
+#[derive(Clone)]
 pub struct RpcCaller {
     inner: Arc<DelugeClientInner>,
 }
@@ -39,67 +41,56 @@ impl RpcCaller {
         }
     }
 
-    pub async fn rpc_call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
-        rpc_call_reconnect(&self.inner, request).await
-    }
-}
+    pub async fn dispatch(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+        let method = request.method.clone();
 
-impl Clone for RpcCaller {
-    fn clone(&self) -> Self {
-        Self {
-            inner: Arc::clone(&self.inner),
-        }
-    }
-}
-
-async fn rpc_call_reconnect(
-    inner: &DelugeClientInner,
-    request: DelugeRpcRequest,
-) -> anyhow::Result<RencodeValue> {
-    let method = request.method.clone();
-
-    let (writer, mut rx) = {
-        let mut state = inner.state.lock().await;
-        state
-            .ensure_connected(&inner.host, inner.port, &inner.username, &inner.password)
-            .await
-            .with_context(|| format!("reconnect failed for RPC `{method}`"))?;
-        state
-            .writer_and_rx()
-            .ok_or_else(|| anyhow!("connection lost after reconnect for RPC `{method}`"))?
-    };
-
-    let id = inner.next_id.fetch_add(1, Ordering::Relaxed);
-    let encoded = request.encode(id);
-
-    {
-        let mut writer = writer.lock().await;
-        if let Err(e) = writer.send(&encoded).await {
-            let mut state = inner.state.lock().await;
-            *state = ConnectionState::Disconnected;
-            return Err(anyhow!("failed to send RPC request `{method}`: {e}"));
-        }
-    }
-
-    {
-        let state = inner.state.lock().await;
-        let dead = match &*state {
-            ConnectionState::Connected { reader_handle, .. } => reader_handle.is_finished(),
-            ConnectionState::Disconnected => true,
+        let (writer, mut rx) = {
+            let mut state = self.inner.state.lock().await;
+            state
+                .ensure_connected(
+                    &self.inner.host,
+                    self.inner.port,
+                    &self.inner.username,
+                    &self.inner.password,
+                )
+                .await
+                .with_context(|| format!("reconnect failed for RPC `{method}`"))?;
+            state
+                .writer_and_rx()
+                .ok_or_else(|| anyhow!("connection lost after reconnect for RPC `{method}`"))?
         };
-        if dead {
-            drop(state);
-            let mut state = inner.state.lock().await;
-            *state = ConnectionState::Disconnected;
-            return Err(anyhow!(
-                "connection lost after sending RPC request `{method}`"
-            ));
-        }
-    }
 
-    let deadline = timeout(RPC_TIMEOUT, async {
-        loop {
-            tokio::select! {
+        let id = self.inner.next_id.fetch_add(1, Ordering::Relaxed);
+        let rencode_value = request.into_rencode_value(id);
+
+        {
+            let mut writer = writer.lock().await;
+            if let Err(e) = writer.send(&rencode_value.encode()).await {
+                let mut state = self.inner.state.lock().await;
+                *state = ConnectionState::Disconnected;
+                return Err(anyhow!("failed to send RPC request `{method}`: {e}"));
+            }
+        }
+
+        {
+            let state = self.inner.state.lock().await;
+            let dead = match &*state {
+                ConnectionState::Connected { reader_handle, .. } => reader_handle.is_finished(),
+                ConnectionState::Disconnected => true,
+            };
+            if dead {
+                drop(state);
+                let mut state = self.inner.state.lock().await;
+                *state = ConnectionState::Disconnected;
+                return Err(anyhow!(
+                    "connection lost after sending RPC request `{method}`"
+                ));
+            }
+        }
+
+        let deadline = timeout(RPC_TIMEOUT, async {
+            loop {
+                tokio::select! {
                 recv_result = rx.recv() => {
                     match recv_result {
                         Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
@@ -128,14 +119,14 @@ async fn rpc_call_reconnect(
                     }
                 }
                 _ = sleep(Duration::from_millis(50)) => {
-                    let state = inner.state.lock().await;
+                    let state = self.inner.state.lock().await;
                     let dead = match &*state {
                         ConnectionState::Connected { reader_handle, .. } => reader_handle.is_finished(),
                         ConnectionState::Disconnected => true,
                     };
                     if dead {
                         drop(state);
-                        let mut state = inner.state.lock().await;
+                        let mut state = self.inner.state.lock().await;
                         *state = ConnectionState::Disconnected;
                         return Err(anyhow!(
                             "connection lost while waiting for RPC response `{method}`"
@@ -143,16 +134,17 @@ async fn rpc_call_reconnect(
                     }
                 }
             }
-        }
-    })
-    .await;
+            }
+        })
+            .await;
 
-    match deadline {
-        Ok(result) => result,
-        Err(_) => {
-            let mut state = inner.state.lock().await;
-            *state = ConnectionState::Disconnected;
-            Err(anyhow!("timed out waiting for RPC response `{method}`"))
+        match deadline {
+            Ok(result) => result,
+            Err(_) => {
+                let mut state = self.inner.state.lock().await;
+                *state = ConnectionState::Disconnected;
+                Err(anyhow!("timed out waiting for RPC response `{method}`"))
+            }
         }
     }
 }
