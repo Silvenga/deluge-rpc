@@ -11,7 +11,7 @@ impl DelugeRpcRequest {
     pub fn new(method: impl Into<String>) -> Self {
         DelugeRpcRequest {
             method: method.into(),
-            args: vec![RencodeValue::None],
+            args: Vec::new(),
             kwargs: BTreeMap::new(),
         }
     }
@@ -45,20 +45,19 @@ mod tests {
     use super::*;
 
     #[test]
-    fn when_arg_is_empty_then_args_is_none() {
-        let request = DelugeRpcRequest::new("core.get_free_space").into_rencode_value(2);
+    fn when_no_args_then_args_is_empty_list() {
+        let request = DelugeRpcRequest::new("daemon.get_version").into_rencode_value(2);
         let parts = unwrap_request(&request);
         assert_eq!(parts[0], RencodeValue::Int(2));
         match &parts[2] {
             RencodeValue::List(args) => {
-                assert_eq!(args.len(), 1);
-                assert_eq!(args[0], RencodeValue::None);
+                assert!(args.is_empty(), "args should be empty, got {args:?}")
             }
-            _ => panic!("args is not a list"),
+            other => panic!("args is not a list: {other:?}"),
         }
         match &parts[3] {
             RencodeValue::Dict(map) => assert!(map.is_empty()),
-            _ => panic!("kwargs is not a dict"),
+            other => panic!("kwargs is not a dict: {other:?}"),
         }
     }
 

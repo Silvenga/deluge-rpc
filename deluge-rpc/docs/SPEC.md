@@ -36,8 +36,9 @@ Requests are a 1-element outer list wrapping a list of 4-tuples:
 [[(request_id: int, method: str, args: list, kwargs: dict), ...]]
 ```
 
-Multiple calls per envelope are supported (batched). Each call validated to length 4. `args` defaults to `[None]` when
-empty; `kwargs` defaults to `{}`.
+Multiple calls per envelope are supported (batched). Each call validated to length 4. `args` is an empty list `[]` when
+no positional arguments are passed; `kwargs` defaults to `{}`. Do NOT send `[None]` as args — `@export` methods with
+no positional parameters will reject it with a `WrappedException` (TypeError).
 
 ### Server response (bare tuple)
 
