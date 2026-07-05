@@ -1,12 +1,6 @@
 use assert_cmd::Command;
 use assert_fs::TempDir;
 use deluge_rpc::RencodeValue;
-use std::fs;
-use std::io::{Read, Write};
-use std::net::SocketAddr;
-use std::sync::Once;
-use std::time::Duration;
-
 use flate2::Compression;
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
@@ -14,7 +8,12 @@ use rustls::crypto::ring;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 use rustls::server::ServerConfig;
 use std::collections::BTreeMap;
+use std::fs;
+use std::io::{Read, Write};
+use std::net::SocketAddr;
 use std::sync::Arc;
+use std::sync::Once;
+use std::time::Duration;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio_rustls::server::TlsStream;

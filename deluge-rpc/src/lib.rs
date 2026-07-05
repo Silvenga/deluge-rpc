@@ -1,9 +1,7 @@
 mod client;
-mod connection;
 pub mod models;
 mod protocol;
 mod rencode;
-mod shared;
 mod transport;
 
 pub use client::RpcCaller;
@@ -14,7 +12,12 @@ pub use client::core::{
 };
 pub use client::daemon::{DaemonClient, DaemonRpc};
 pub use client::deluge_client::{CoreClient, DelugeClient, PluginsClient};
-pub use client::plugins::{LabelClient, LabelRpc};
+pub use client::plugins::{
+    AutoaddClient, AutoaddRpc, BlocklistClient, BlocklistRpc, ExecuteClient, ExecuteRpc,
+    ExtractorClient, ExtractorRpc, LabelClient, LabelRpc, NotificationsClient, NotificationsRpc,
+    SchedulerClient, SchedulerRpc, StatsClient, StatsRpc, ToggleClient, ToggleRpc, WebuiClient,
+    WebuiRpc,
+};
 pub use protocol::{
     DelugeRpcMessage, DelugeRpcRequest, extract_single, extract_single_dict, extract_single_int,
 };
@@ -31,3 +34,8 @@ pub use client::core::{
 };
 #[cfg(any(test, feature = "mock"))]
 pub use client::daemon::MockDaemonRpc;
+#[cfg(any(test, feature = "mock"))]
+pub use client::plugins::{
+    MockAutoaddRpc, MockBlocklistRpc, MockExecuteRpc, MockExtractorRpc, MockLabelRpc,
+    MockNotificationsRpc, MockSchedulerRpc, MockStatsRpc, MockToggleRpc, MockWebuiRpc,
+};

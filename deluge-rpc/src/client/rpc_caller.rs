@@ -1,3 +1,4 @@
+use super::deluge_client::{ConnectionState, DelugeClientInner};
 use crate::protocol::DelugeRpcMessage;
 use crate::protocol::DelugeRpcRequest;
 use crate::rencode::RencodeValue;
@@ -9,8 +10,6 @@ use tokio::sync::broadcast;
 use tokio::sync::broadcast::error::RecvError;
 use tokio::time::sleep;
 use tokio::time::timeout;
-
-use super::deluge_client::{ConnectionState, DelugeClientInner};
 
 const RPC_TIMEOUT: Duration = Duration::from_secs(30);
 

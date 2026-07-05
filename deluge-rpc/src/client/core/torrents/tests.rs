@@ -8,8 +8,6 @@ use crate::rencode::RencodeValue;
 use mockall::predicate;
 use std::collections::BTreeMap;
 
-// --- add_torrent_file / add_torrent_file_async / add_torrent_url ---
-
 #[test]
 fn when_add_torrent_file_response_str_then_some() {
     let response = RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into());
@@ -37,8 +35,6 @@ fn when_add_torrent_file_response_none_then_none() {
     assert_eq!(result, None);
 }
 
-// --- add_torrent_files ---
-
 #[test]
 fn when_add_torrent_files_response_empty_then_all_succeeded() {
     let response = RencodeValue::List(vec![]);
@@ -57,8 +53,6 @@ fn when_add_torrent_files_response_errors_then_deserialized() {
     assert_eq!(result, vec!["failed to add torrent"]);
 }
 
-// --- add_torrent_magnet ---
-
 #[test]
 fn when_add_torrent_magnet_response_str_then_ok() {
     let response = RencodeValue::Str("aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111".into());
@@ -68,8 +62,6 @@ fn when_add_torrent_magnet_response_str_then_ok() {
         other => panic!("expected str, got {other:?}"),
     }
 }
-
-// --- prefetch_magnet_metadata ---
 
 #[test]
 fn when_prefetch_magnet_metadata_response_tuple_then_deserialized() {
@@ -86,8 +78,6 @@ fn when_prefetch_magnet_metadata_response_tuple_then_deserialized() {
     );
     assert_eq!(result.metadata, b"bencoded-data");
 }
-
-// --- remove_torrent ---
 
 #[test]
 fn when_remove_torrent_response_true_then_bool() {
@@ -108,8 +98,6 @@ fn when_remove_torrent_response_false_then_bool() {
         other => panic!("expected bool, got {other:?}"),
     }
 }
-
-// --- remove_torrents ---
 
 #[test]
 fn when_remove_torrents_response_empty_then_all_succeeded() {
@@ -133,8 +121,6 @@ fn when_remove_torrents_response_errors_then_deserialized() {
     assert_eq!(result[0].0, "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111");
     assert_eq!(result[0].1, "torrent not found");
 }
-
-// --- get_torrent_status ---
 
 #[test]
 fn when_get_torrent_status_response_dict_then_torrent_status() {
@@ -208,8 +194,6 @@ fn when_get_torrent_status_response_dict_then_torrent_status() {
     assert_eq!(status.ratio, None);
     assert_eq!(status.eta, None);
 }
-
-// --- get_torrents_status ---
 
 fn make_torrent_entry_dict(name: &str, hash: &str) -> BTreeMap<RencodeValue, RencodeValue> {
     let mut map = BTreeMap::new();
@@ -327,8 +311,6 @@ fn when_get_torrents_status_response_empty_dict_then_empty_vec() {
     assert!(result_dict.is_empty());
 }
 
-// --- get_filter_tree ---
-
 #[test]
 fn when_get_filter_tree_response_dict_then_filter_tree() {
     let state_entries = vec![
@@ -357,8 +339,6 @@ fn when_get_filter_tree_response_dict_then_filter_tree() {
     assert_eq!(state[1].value, "Seeding");
     assert_eq!(state[1].count, 10);
 }
-
-// --- get_session_state ---
 
 #[test]
 fn when_get_session_state_response_list_then_vec_string() {
@@ -394,8 +374,6 @@ fn when_get_session_state_response_empty_list_then_empty_vec() {
     }
 }
 
-// --- get_magnet_uri ---
-
 #[test]
 fn when_get_magnet_uri_response_str_then_string() {
     let response =
@@ -412,16 +390,12 @@ fn when_get_magnet_uri_response_str_then_string() {
     }
 }
 
-// --- get_path_size ---
-
 #[test]
 fn when_get_path_size_response_int_then_i64() {
     let response = RencodeValue::Int(1_073_741_824);
     let bytes = extract_single_int(&response, "core.get_path_size").expect("extract");
     assert_eq!(bytes, 1_073_741_824);
 }
-
-// --- MockCoreTorrentRpc ---
 
 #[tokio::test]
 async fn when_mock_core_torrent_rpc_then_expectations_met() {

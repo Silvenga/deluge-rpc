@@ -1,3 +1,5 @@
+use super::connection::reader_loop;
+use super::shared::Shared;
 use crate::client::RpcCaller;
 use crate::client::core::{
     CoreAccountClient, CoreConfigClient, CoreMiscClient, CorePluginClient, CoreSessionClient,
@@ -8,11 +10,9 @@ use crate::client::plugins::{
     AutoaddClient, BlocklistClient, ExecuteClient, ExtractorClient, LabelClient,
     NotificationsClient, SchedulerClient, StatsClient, ToggleClient, WebuiClient,
 };
-use crate::connection::reader_loop;
 use crate::protocol::DelugeRpcMessage;
 use crate::protocol::DelugeRpcRequest;
 use crate::rencode::RencodeValue;
-use crate::shared::Shared;
 use crate::transport::{DelugeTransport, DelugeWriter};
 use anyhow::{Context, anyhow};
 use std::collections::BTreeMap;
@@ -350,19 +350,6 @@ mod tests {
         let payload = response.encode();
         let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
         enc.write_all(&payload).expect("compress");
-        let compressed = enc.finish().expect("finish");
-        let len = compressed.len() as u32;
-        let mut frame = Vec::with_capacity(HEADER_LEN + compressed.len());
-        frame.push(PROTOCOL_VERSION);
-        frame.extend_from_slice(&len.to_be_bytes());
-        frame.extend_from_slice(&compressed);
-        frame
-    }
-
-    #[expect(dead_code, reason = "test helper available for future test scenarios")]
-    fn echo_frame(data: &[u8]) -> Vec<u8> {
-        let mut enc = ZlibEncoder::new(Vec::new(), Compression::default());
-        enc.write_all(data).expect("compress");
         let compressed = enc.finish().expect("finish");
         let len = compressed.len() as u32;
         let mut frame = Vec::with_capacity(HEADER_LEN + compressed.len());

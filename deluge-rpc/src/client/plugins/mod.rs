@@ -1,6 +1,3 @@
-#![expect(dead_code, reason = "plugin clients wired in task 11")]
-#![expect(unused_imports, reason = "plugin clients wired in task 11")]
-
 mod autoadd;
 mod blocklist;
 mod execute;

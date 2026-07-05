@@ -1,9 +1,3 @@
-#![expect(
-    clippy::print_stdout,
-    clippy::print_stderr,
-    reason = "CLI outputs to stdout/stderr"
-)]
-
 use anyhow::Context;
 use clap::{Parser, Subcommand};
 use deluge_rpc::{DelugeClient, RencodeValue, RpcCaller};
@@ -61,11 +55,12 @@ async fn main() {
         .init();
 
     if let Err(e) = run().await {
-        eprintln!("error: {e:#}");
+        tracing::error!("error: {e:#}");
         process::exit(1);
     }
 }
 
+#[expect(clippy::print_stdout, reason = "CLI prints command output to stdout")]
 async fn run() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let resolved = cli.config.resolve()?;

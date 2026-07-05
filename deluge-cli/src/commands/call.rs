@@ -72,6 +72,7 @@ pub async fn run_call(
     ))
 }
 
+#[expect(clippy::print_stdout, reason = "CLI prints call result to stdout")]
 pub fn print_call_result(response: &RencodeValue) {
     let tagged = response_to_tagged_json(response);
     let output = serde_json::to_string_pretty(&tagged).unwrap_or_else(|_| "{}".to_owned());

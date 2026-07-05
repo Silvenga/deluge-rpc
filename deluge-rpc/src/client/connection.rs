@@ -1,6 +1,6 @@
+use super::shared::Shared;
 use crate::protocol::decode_message;
 use crate::rencode::RencodeValue;
-use crate::shared::Shared;
 use crate::transport::DelugeReader;
 use std::sync::Arc;
 
