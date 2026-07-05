@@ -144,11 +144,10 @@ pub fn rencode_to_plain_json(value: &RencodeValue) -> JsonValue {
         RencodeValue::None => JsonValue::Null,
         RencodeValue::Bool(b) => JsonValue::Bool(*b),
         RencodeValue::Int(i) => JsonValue::Number((*i).into()),
-        RencodeValue::Float(f) => {
-            JsonValue::Number(serde_json::Number::from_f64(*f).unwrap_or_else(|| {
-                serde_json::Number::from_f64(0.0).unwrap()
-            }))
-        }
+        RencodeValue::Float(f) => JsonValue::Number(
+            serde_json::Number::from_f64(*f)
+                .unwrap_or_else(|| serde_json::Number::from_f64(0.0).unwrap()),
+        ),
         RencodeValue::Str(s) => JsonValue::String(s.clone()),
         RencodeValue::Bytes(b) => {
             let encoded = Base64Engine.encode(b);

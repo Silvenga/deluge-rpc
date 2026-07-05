@@ -34,6 +34,7 @@ mockall = { workspace = true, optional = true }
 mock = ["dep:mockall"]
 
 [dev-dependencies]
+deluge-rpc-mock = { path = "../deluge-rpc-mock" }
 mockall = { workspace = true }
 rcgen = { workspace = true }
 tokio = { workspace = true }

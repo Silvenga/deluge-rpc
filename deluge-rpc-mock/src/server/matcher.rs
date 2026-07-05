@@ -48,17 +48,17 @@ impl Matcher {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Request, Response};
+    use crate::{InteractionRequest, InteractionResponse};
     use deluge_rpc::RencodeValue;
 
     fn make_interaction(method: &str, args: RencodeValue, response_value: &str) -> Interaction {
         Interaction {
-            request: Request {
+            request: InteractionRequest {
                 method: method.into(),
                 args,
                 kwargs: RencodeValue::List(vec![]),
             },
-            response: Response::Ok {
+            response: InteractionResponse::Ok {
                 value: RencodeValue::Str(response_value.into()),
             },
         }
@@ -80,7 +80,7 @@ mod tests {
         assert!(result.is_some());
         assert_eq!(
             result.unwrap().response,
-            Response::Ok {
+            InteractionResponse::Ok {
                 value: RencodeValue::Str("first".into())
             }
         );
@@ -131,7 +131,7 @@ mod tests {
         assert!(result.is_some());
         assert_eq!(
             result.unwrap().response,
-            Response::Ok {
+            InteractionResponse::Ok {
                 value: RencodeValue::Str("first".into())
             }
         );
@@ -159,7 +159,7 @@ mod tests {
         );
         assert_eq!(
             r1.unwrap().response,
-            Response::Ok {
+            InteractionResponse::Ok {
                 value: RencodeValue::Str("first".into())
             }
         );
@@ -170,7 +170,7 @@ mod tests {
         );
         assert_eq!(
             r2.unwrap().response,
-            Response::Ok {
+            InteractionResponse::Ok {
                 value: RencodeValue::Str("second".into())
             }
         );

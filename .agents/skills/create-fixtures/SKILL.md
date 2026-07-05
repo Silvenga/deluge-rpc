@@ -1,4 +1,5 @@
 ---
+name: create-fixtures
 description: >
   Create cassette fixtures and e2e tests for the deluge-rpc crate.
   Use when recording real Deluge daemon responses into replayable cassettes or writing integration tests that replay them.

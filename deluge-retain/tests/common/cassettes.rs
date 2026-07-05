@@ -1,5 +1,5 @@
 use deluge_rpc::RencodeValue;
-use deluge_rpc_mock::{Cassette, Interaction, Request, Response};
+use deluge_rpc_mock::{Cassette, Interaction, InteractionRequest, InteractionResponse};
 use std::collections::BTreeMap;
 
 const GB: i64 = 1_073_741_824;
@@ -16,12 +16,12 @@ fn empty_cassette() -> Cassette {
 pub fn free_space_low() -> Cassette {
     let mut cassette = empty_cassette();
     cassette.interactions.push(Interaction {
-        request: Request {
+        request: InteractionRequest {
             method: "core.get_free_space".into(),
             args: RencodeValue::List(vec![RencodeValue::None]),
             kwargs: RencodeValue::List(vec![]),
         },
-        response: Response::Ok {
+        response: InteractionResponse::Ok {
             value: RencodeValue::Int(5 * GB),
         },
     });
@@ -31,12 +31,12 @@ pub fn free_space_low() -> Cassette {
 pub fn free_space_high() -> Cassette {
     let mut cassette = empty_cassette();
     cassette.interactions.push(Interaction {
-        request: Request {
+        request: InteractionRequest {
             method: "core.get_free_space".into(),
             args: RencodeValue::List(vec![RencodeValue::None]),
             kwargs: RencodeValue::List(vec![]),
         },
-        response: Response::Ok {
+        response: InteractionResponse::Ok {
             value: RencodeValue::Int(30 * GB),
         },
     });
@@ -115,7 +115,7 @@ pub fn torrents_list(info_hash: &str, name: &str, time_added: i64) -> Cassette {
     kwargs.insert(RencodeValue::Str("diff".into()), RencodeValue::Bool(false));
 
     cassette.interactions.push(Interaction {
-        request: Request {
+        request: InteractionRequest {
             method: "core.get_torrents_status".into(),
             args: RencodeValue::List(vec![
                 RencodeValue::Dict(BTreeMap::new()),
@@ -123,7 +123,7 @@ pub fn torrents_list(info_hash: &str, name: &str, time_added: i64) -> Cassette {
             ]),
             kwargs: RencodeValue::Dict(kwargs),
         },
-        response: Response::Ok {
+        response: InteractionResponse::Ok {
             value: RencodeValue::Dict(torrent_dict),
         },
     });
@@ -133,7 +133,7 @@ pub fn torrents_list(info_hash: &str, name: &str, time_added: i64) -> Cassette {
 pub fn remove_torrent(info_hash: &str, time_added: i64) -> Cassette {
     let mut cassette = torrents_list(info_hash, "old-torrent", time_added);
     cassette.interactions.push(Interaction {
-        request: Request {
+        request: InteractionRequest {
             method: "core.remove_torrent".into(),
             args: RencodeValue::List(vec![
                 RencodeValue::Str(info_hash.into()),
@@ -141,7 +141,7 @@ pub fn remove_torrent(info_hash: &str, time_added: i64) -> Cassette {
             ]),
             kwargs: RencodeValue::List(vec![]),
         },
-        response: Response::Ok {
+        response: InteractionResponse::Ok {
             value: RencodeValue::Bool(true),
         },
     });

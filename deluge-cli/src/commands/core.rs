@@ -133,8 +133,14 @@ async fn run_core_session(
             let status = client.core().session.get_session_status(&keys_list).await?;
 
             let mut map = serde_json::Map::new();
-            map.insert("download_rate".to_owned(), JsonValue::from(status.download_rate));
-            map.insert("upload_rate".to_owned(), JsonValue::from(status.upload_rate));
+            map.insert(
+                "download_rate".to_owned(),
+                JsonValue::from(status.download_rate),
+            );
+            map.insert(
+                "upload_rate".to_owned(),
+                JsonValue::from(status.upload_rate),
+            );
             map.insert(
                 "payload_download_rate".to_owned(),
                 JsonValue::from(status.payload_download_rate),

@@ -243,7 +243,6 @@ mod tests {
     use super::*;
     use deluge_rpc_mock::Matcher;
     use deluge_rpc_mock::ReplayServer;
-    use std::sync::Arc;
 
     const GB: u64 = 1_073_741_824;
 
@@ -286,7 +285,7 @@ mod tests {
             "old-torrent",
             old_timestamp(),
         );
-        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher)
             .await
             .expect("start replay server");
@@ -311,7 +310,7 @@ mod tests {
     async fn when_not_dry_run_then_calls_remove_torrent() {
         let info_hash = "aaaa1111aaaa1111aaaa1111aaaa1111aaaa1111";
         let cassette = cassettes::remove_torrent(info_hash, old_timestamp());
-        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher)
             .await
             .expect("start replay server");
@@ -335,7 +334,7 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn when_free_space_above_low_water_mark_then_no_torrent_query() {
         let cassette = cassettes::free_space_high();
-        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher)
             .await
             .expect("start replay server");
@@ -360,7 +359,7 @@ mod tests {
             "young-torrent",
             now_secs,
         );
-        let matcher = Arc::new(Matcher::new(cassette.interactions));
+        let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher)
             .await
             .expect("start replay server");

@@ -68,3 +68,6 @@ redundant_feature_names = "warn"
 negative_feature_names = "warn"
 cargo_common_metadata = "warn"
 absolute_paths = "warn"
+
+# Got annoyed...
+module_inception = "allow"

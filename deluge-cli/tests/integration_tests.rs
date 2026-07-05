@@ -287,60 +287,60 @@ async fn when_record_fails_then_cassette_not_modified() {
     );
 }
 
-    #[tokio::test(flavor = "multi_thread")]
-    async fn when_record_with_existing_cassette_then_appends_interactions() {
-        let temp = TempDir::new().expect("temp dir");
-        let cassette_path = temp.path().join("cassette.json");
+#[tokio::test(flavor = "multi_thread")]
+async fn when_record_with_existing_cassette_then_appends_interactions() {
+    let temp = TempDir::new().expect("temp dir");
+    let cassette_path = temp.path().join("cassette.json");
 
-        let existing = serde_json::json!({
-            "version": 1,
-            "recorded_at": "2025-01-01T00:00:00Z",
-            "interactions": [{
-                "request": {
-                    "method": "core.get_free_space",
-                    "args": { "type": "list", "value": [] },
-                    "kwargs": { "type": "list", "value": [] }
-                },
-                "response": {
-                    "type": "ok",
-                    "value": { "type": "int", "value": 1073741824 }
-                }
-            }]
-        });
-        fs::write(
-            &cassette_path,
-            serde_json::to_string_pretty(&existing).expect("serialize"),
-        )
-        .expect("write existing");
+    let existing = serde_json::json!({
+        "version": 1,
+        "recorded_at": "2025-01-01T00:00:00Z",
+        "interactions": [{
+            "request": {
+                "method": "core.get_free_space",
+                "args": { "type": "list", "value": [] },
+                "kwargs": { "type": "list", "value": [] }
+            },
+            "response": {
+                "type": "ok",
+                "value": { "type": "int", "value": 1073741824 }
+            }
+        }]
+    });
+    fs::write(
+        &cassette_path,
+        serde_json::to_string_pretty(&existing).expect("serialize"),
+    )
+    .expect("write existing");
 
-        let mock = MockDaemon::new().await;
+    let mock = MockDaemon::new().await;
 
-        let mut cmd = Command::cargo_bin("deluge-cli").expect("binary exists");
-        cmd.arg("--host")
-            .arg("127.0.0.1")
-            .arg("--port")
-            .arg(mock.addr.port().to_string())
-            .arg("--pass")
-            .arg("dummy")
-            .arg("--record")
-            .arg(cassette_path.to_str().unwrap())
-            .arg("daemon")
-            .arg("info")
-            .timeout(Duration::from_secs(10))
-            .assert()
-            .success();
+    let mut cmd = Command::cargo_bin("deluge-cli").expect("binary exists");
+    cmd.arg("--host")
+        .arg("127.0.0.1")
+        .arg("--port")
+        .arg(mock.addr.port().to_string())
+        .arg("--pass")
+        .arg("dummy")
+        .arg("--record")
+        .arg(cassette_path.to_str().unwrap())
+        .arg("daemon")
+        .arg("info")
+        .timeout(Duration::from_secs(10))
+        .assert()
+        .success();
 
-        let content = fs::read_to_string(&cassette_path).expect("read cassette");
-        let parsed: serde_json::Value = serde_json::from_str(&content).expect("valid JSON");
-        let interactions = parsed["interactions"]
-            .as_array()
-            .expect("interactions array");
-        assert_eq!(
-            interactions.len(),
-            2,
-            "cassette should contain both the existing and new interaction"
-        );
-    }
+    let content = fs::read_to_string(&cassette_path).expect("read cassette");
+    let parsed: serde_json::Value = serde_json::from_str(&content).expect("valid JSON");
+    let interactions = parsed["interactions"]
+        .as_array()
+        .expect("interactions array");
+    assert_eq!(
+        interactions.len(),
+        2,
+        "cassette should contain both the existing and new interaction"
+    );
+}
 
 #[tokio::test(flavor = "multi_thread")]
 async fn when_record_flag_then_cassette_written() {
