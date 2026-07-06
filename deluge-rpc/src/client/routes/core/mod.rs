@@ -11,4 +11,3 @@ pub use misc::{CoreMiscClient, CoreMiscRpc};
 pub use plugins::{CorePluginClient, CorePluginRpc};
 pub use session::{CoreSessionClient, CoreSessionRpc};
 pub use torrents::{CoreTorrentClient, CoreTorrentRpc};
-

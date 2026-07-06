@@ -12,15 +12,7 @@ pub struct CallCommand {
 }
 
 impl CallCommand {
-    pub async fn run(
-        &self,
-        client: &DelugeClient,
-    ) -> anyhow::Result<(
-        String,
-        Vec<RencodeValue>,
-        BTreeMap<RencodeValue, RencodeValue>,
-        RencodeValue,
-    )> {
+    pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<RencodeValue> {
         let parsed_args: Vec<RencodeValue> = match &self.args_json {
             Some(json_str) => {
                 let json: JsonValue = serde_json::from_str(json_str)
@@ -55,13 +47,11 @@ impl CallCommand {
         };
 
         let request = DelugeRpcRequest::new(&self.method)
-            .with_args(parsed_args.clone())
-            .with_kwargs(parsed_kwargs.clone());
-        let response = client
+            .with_args(parsed_args)
+            .with_kwargs(parsed_kwargs);
+        client
             .call(request)
             .await
-            .map_err(|e| anyhow::anyhow!("RPC call to '{}' failed: {e}", self.method))?;
-
-        Ok((self.method.clone(), parsed_args, parsed_kwargs, response))
+            .map_err(|e| anyhow::anyhow!("RPC call to '{}' failed: {e}", self.method))
     }
 }

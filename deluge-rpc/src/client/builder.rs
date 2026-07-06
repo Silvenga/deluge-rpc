@@ -1,6 +1,10 @@
 use crate::DelugeClient;
 use crate::client::info::DelugeConnectionInfo;
+#[cfg(feature = "recorder")]
+use crate::recorder::RecordedInteraction;
 use std::time::Duration;
+#[cfg(feature = "recorder")]
+use tokio::sync::mpsc;
 
 const DEFAULT_RPC_TIMEOUT: Duration = Duration::from_secs(30);
 const MAX_MESSAGE_QUEUE_SIZE: usize = 256;
@@ -12,6 +16,8 @@ pub struct DelugeClientBuilder {
     password: String,
     rpc_timeout: Duration,
     message_queue_size: usize,
+    #[cfg(feature = "recorder")]
+    recorder_tx: Option<mpsc::Sender<RecordedInteraction>>,
 }
 
 impl DelugeClientBuilder {
@@ -23,6 +29,8 @@ impl DelugeClientBuilder {
             password,
             rpc_timeout: DEFAULT_RPC_TIMEOUT,
             message_queue_size: MAX_MESSAGE_QUEUE_SIZE,
+            #[cfg(feature = "recorder")]
+            recorder_tx: None,
         }
     }
 
@@ -40,6 +48,12 @@ impl DelugeClientBuilder {
         self
     }
 
+    #[cfg(feature = "recorder")]
+    pub fn with_recorder(mut self, tx: mpsc::Sender<RecordedInteraction>) -> Self {
+        self.recorder_tx = Some(tx);
+        self
+    }
+
     pub fn build(self) -> DelugeClient {
         DelugeClient::new(DelugeConnectionInfo {
             host: self.host,
@@ -48,6 +62,8 @@ impl DelugeClientBuilder {
             password: self.password,
             rpc_timeout: self.rpc_timeout,
             message_queue_size: self.message_queue_size,
+            #[cfg(feature = "recorder")]
+            recorder_tx: self.recorder_tx,
         })
     }
 }

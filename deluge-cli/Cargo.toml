@@ -21,7 +21,7 @@ anyhow = { workspace = true }
 base64 = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
-deluge-rpc = { path = "../deluge-rpc" }
+deluge-rpc = { path = "../deluge-rpc", features = ["recorder"] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

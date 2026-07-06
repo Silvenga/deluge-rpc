@@ -28,6 +28,9 @@ tokio = { workspace = true }
 tokio-rustls = { workspace = true }
 tracing = { workspace = true }
 
+[features]
+recorder = []
+
 [dev-dependencies]
 deluge-rpc-mock = { path = "../deluge-rpc-mock" }
 rcgen = { workspace = true }

@@ -102,11 +102,11 @@ impl PluginsClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::client::DaemonRpc;
     use crate::DelugeClientBuilder;
+    use crate::client::DaemonRpc;
+    use flate2::Compression;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
-    use flate2::Compression;
     use rustls::crypto::ring;
     use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;

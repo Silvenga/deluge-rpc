@@ -1,6 +1,7 @@
 use crate::RencodeValue;
 use std::collections::BTreeMap;
 
+#[derive(Clone)]
 pub struct DelugeRpcRequest {
     pub method: String,
     pub args: Vec<RencodeValue>,

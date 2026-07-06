@@ -1,4 +1,9 @@
 use std::time::Duration;
+#[cfg(feature = "recorder")]
+use tokio::sync::mpsc;
+
+#[cfg(feature = "recorder")]
+use crate::recorder::RecordedInteraction;
 
 pub struct DelugeConnectionInfo {
     pub host: String,
@@ -11,4 +16,6 @@ pub struct DelugeConnectionInfo {
     pub rpc_timeout: Duration,
     /// The maximum numbers of messages received that will be buffered.
     pub message_queue_size: usize,
+    #[cfg(feature = "recorder")]
+    pub recorder_tx: Option<mpsc::Sender<RecordedInteraction>>,
 }
