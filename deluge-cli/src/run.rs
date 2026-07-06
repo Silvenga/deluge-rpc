@@ -50,26 +50,30 @@ pub async fn run() -> anyhow::Result<()> {
 
     let client = builder.build();
 
-    match &cli.command {
-        Command::Call(cmd) => {
-            let response = cmd.run(&client).await?;
-            let plain = rencode_to_plain_json(&response);
-            let output = serde_json::to_string_pretty(&plain).unwrap_or_else(|_| "null".to_owned());
-            println!("{output}");
+    let command_result: anyhow::Result<()> = async {
+        match &cli.command {
+            Command::Call(cmd) => {
+                let response = cmd.run(&client).await?;
+                let plain = rencode_to_plain_json(&response);
+                let output = serde_json::to_string_pretty(&plain).unwrap_or_else(|_| "null".to_owned());
+                println!("{output}");
+            }
+            Command::Daemon(cmd) => {
+                let output = cmd.run(&client).await?;
+                println!("{output}");
+            }
+            Command::Core(cmd) => {
+                let output = cmd.run(&client).await?;
+                println!("{output}");
+            }
+            Command::Plugin(cmd) => {
+                let output = cmd.run(&client).await?;
+                println!("{output}");
+            }
         }
-        Command::Daemon(cmd) => {
-            let output = cmd.run(&client).await?;
-            println!("{output}");
-        }
-        Command::Core(cmd) => {
-            let output = cmd.run(&client).await?;
-            println!("{output}");
-        }
-        Command::Plugin(cmd) => {
-            let output = cmd.run(&client).await?;
-            println!("{output}");
-        }
+        Ok(())
     }
+    .await;
 
     drop(client);
 
@@ -104,7 +108,7 @@ pub async fn run() -> anyhow::Result<()> {
         tracing::info!("cassette written to {}", record_path);
     }
 
-    Ok(())
+    command_result
 }
 
 fn to_interaction(recorded: RecordedInteraction) -> Interaction {
