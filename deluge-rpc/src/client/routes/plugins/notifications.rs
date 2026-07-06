@@ -1,17 +1,17 @@
+use crate::DelugeRpcError;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{HandledEvent, NotificationsConfig};
-use crate::protocol::{extract_single, DelugeRpcRequest};
+use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::to_rencode_value;
-use anyhow::Context;
 use async_trait::async_trait;
 use serde::Deserialize;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait NotificationsRpc: Send + Sync {
-    async fn set_config(&self, config: &NotificationsConfig) -> anyhow::Result<()>;
-    async fn get_config(&self) -> anyhow::Result<NotificationsConfig>;
-    async fn get_handled_events(&self) -> anyhow::Result<Vec<HandledEvent>>;
+    async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError>;
+    async fn get_config(&self) -> Result<NotificationsConfig, DelugeRpcError>;
+    async fn get_handled_events(&self) -> Result<Vec<HandledEvent>, DelugeRpcError>;
 }
 
 pub struct NotificationsClient {
@@ -34,8 +34,8 @@ impl Clone for NotificationsClient {
 
 #[async_trait]
 impl NotificationsRpc for NotificationsClient {
-    async fn set_config(&self, config: &NotificationsConfig) -> anyhow::Result<()> {
-        let config_value = to_rencode_value(config).context("serializing notifications config")?;
+    async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError> {
+        let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("notifications.set_config").with_args(vec![config_value]),
@@ -44,24 +44,22 @@ impl NotificationsRpc for NotificationsClient {
         Ok(())
     }
 
-    async fn get_config(&self) -> anyhow::Result<NotificationsConfig> {
+    async fn get_config(&self) -> Result<NotificationsConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("notifications.get_config"))
-            .await
-            .context("notifications.get_config RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        NotificationsConfig::deserialize(&value).context("deserializing notifications config")
+        Ok(NotificationsConfig::deserialize(&value)?)
     }
 
-    async fn get_handled_events(&self) -> anyhow::Result<Vec<HandledEvent>> {
+    async fn get_handled_events(&self) -> Result<Vec<HandledEvent>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("notifications.get_handled_events"))
-            .await
-            .context("notifications.get_handled_events RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        Vec::<HandledEvent>::deserialize(&value).context("deserializing handled events")
+        Ok(Vec::<HandledEvent>::deserialize(&value)?)
     }
 }
 

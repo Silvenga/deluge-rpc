@@ -2,9 +2,9 @@ use crate::transport::error::TransportError;
 use crate::transport::reader::DelugeReader;
 use crate::transport::verifier::NoVerifier;
 use crate::transport::writer::DelugeWriter;
+use rustls::ClientConfig;
 use rustls::crypto;
 use rustls::pki_types::ServerName;
-use rustls::ClientConfig;
 use std::io;
 use std::net::IpAddr;
 use std::sync::Arc;
@@ -12,8 +12,8 @@ use std::time::Duration;
 use tokio::io::split;
 use tokio::net::TcpStream;
 use tokio::time::timeout;
-use tokio_rustls::client::TlsStream;
 use tokio_rustls::TlsConnector;
+use tokio_rustls::client::TlsStream;
 
 pub struct DelugeTransport {
     stream: TlsStream<TcpStream>,
@@ -69,9 +69,9 @@ fn server_name(host: &str) -> Result<ServerName<'static>, rustls::Error> {
 mod tests {
     use super::*;
     use crate::transport::constants::{HEADER_LEN, PROTOCOL_VERSION};
+    use flate2::Compression;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
-    use flate2::Compression;
     use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;
     use std::io::{Read, Write};

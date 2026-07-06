@@ -1,19 +1,19 @@
-use crate::client::dispatcher::DelugeClientDispatcher;
-use crate::protocol::extract_single;
-use crate::protocol::DelugeRpcRequest;
+use crate::DelugeRpcError;
 use crate::RencodeValue;
-use anyhow::{anyhow, Context};
+use crate::client::dispatcher::DelugeClientDispatcher;
+use crate::protocol::DelugeRpcRequest;
+use crate::protocol::extract_single;
 use async_trait::async_trait;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CorePluginRpc: Send + Sync {
-    async fn get_available_plugins(&self) -> anyhow::Result<Vec<String>>;
-    async fn get_enabled_plugins(&self) -> anyhow::Result<Vec<String>>;
-    async fn enable_plugin(&self, plugin: &str) -> anyhow::Result<bool>;
-    async fn disable_plugin(&self, plugin: &str) -> anyhow::Result<bool>;
-    async fn upload_plugin(&self, filename: &str, file_dump: &str) -> anyhow::Result<()>;
-    async fn rescan_plugins(&self) -> anyhow::Result<()>;
+    async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;
+    async fn get_enabled_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;
+    async fn enable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError>;
+    async fn disable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError>;
+    async fn upload_plugin(&self, filename: &str, file_dump: &str) -> Result<(), DelugeRpcError>;
+    async fn rescan_plugins(&self) -> Result<(), DelugeRpcError>;
 }
 
 pub struct CorePluginClient {
@@ -36,12 +36,11 @@ impl Clone for CorePluginClient {
 
 #[async_trait]
 impl CorePluginRpc for CorePluginClient {
-    async fn get_available_plugins(&self) -> anyhow::Result<Vec<String>> {
+    async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_available_plugins"))
-            .await
-            .context("core.get_available_plugins RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
@@ -50,26 +49,28 @@ impl CorePluginRpc for CorePluginClient {
                     match item {
                         RencodeValue::Str(s) => out.push(s),
                         other => {
-                            return Err(anyhow!(
-                                "core.get_available_plugins returned non-str element: {other:?}"
-                            ));
+                            return Err(DelugeRpcError::UnexpectedResponseType {
+                                method: "core.get_available_plugins returned non-str element"
+                                    .into(),
+                                value: other,
+                            });
                         }
                     }
                 }
                 Ok(out)
             }
-            other => Err(anyhow!(
-                "core.get_available_plugins returned non-list value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.get_available_plugins".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn get_enabled_plugins(&self) -> anyhow::Result<Vec<String>> {
+    async fn get_enabled_plugins(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_enabled_plugins"))
-            .await
-            .context("core.get_enabled_plugins RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
@@ -78,72 +79,72 @@ impl CorePluginRpc for CorePluginClient {
                     match item {
                         RencodeValue::Str(s) => out.push(s),
                         other => {
-                            return Err(anyhow!(
-                                "core.get_enabled_plugins returned non-str element: {other:?}"
-                            ));
+                            return Err(DelugeRpcError::UnexpectedResponseType {
+                                method: "core.get_enabled_plugins returned non-str element".into(),
+                                value: other,
+                            });
                         }
                     }
                 }
                 Ok(out)
             }
-            other => Err(anyhow!(
-                "core.get_enabled_plugins returned non-list value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.get_enabled_plugins".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn enable_plugin(&self, plugin: &str) -> anyhow::Result<bool> {
+    async fn enable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.enable_plugin")
                     .with_args(vec![RencodeValue::Str(plugin.to_owned())]),
             )
-            .await
-            .context("core.enable_plugin RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "core.enable_plugin returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.enable_plugin".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn disable_plugin(&self, plugin: &str) -> anyhow::Result<bool> {
+    async fn disable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.disable_plugin")
                     .with_args(vec![RencodeValue::Str(plugin.to_owned())]),
             )
-            .await
-            .context("core.disable_plugin RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "core.disable_plugin returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.disable_plugin".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn upload_plugin(&self, filename: &str, filedump: &str) -> anyhow::Result<()> {
+    async fn upload_plugin(&self, filename: &str, filedump: &str) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.upload_plugin").with_args(vec![
                 RencodeValue::Str(filename.to_owned()),
                 RencodeValue::Str(filedump.to_owned()),
             ]))
-            .await
-            .context("core.upload_plugin RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn rescan_plugins(&self) -> anyhow::Result<()> {
+    async fn rescan_plugins(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.rescan_plugins"))
-            .await
-            .context("core.rescan_plugins RPC failed")?;
+            .await?;
         Ok(())
     }
 }

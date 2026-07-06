@@ -1,5 +1,5 @@
 use crate::server::matcher::Matcher;
-use crate::server::read_frame::{read_frame, ReadFrameError};
+use crate::server::read_frame::{ReadFrameError, read_frame};
 use crate::server::write_frame::write_frame;
 use crate::{Interaction, InteractionResponse};
 use deluge_rpc::RencodeValue;

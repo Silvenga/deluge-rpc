@@ -1,17 +1,17 @@
+use crate::DelugeRpcError;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{SchedulerConfig, SchedulerState};
-use crate::protocol::{extract_single, DelugeRpcRequest};
+use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::to_rencode_value;
-use anyhow::Context;
 use async_trait::async_trait;
 use serde::Deserialize;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait SchedulerRpc: Send + Sync {
-    async fn set_config(&self, config: &SchedulerConfig) -> anyhow::Result<()>;
-    async fn get_config(&self) -> anyhow::Result<SchedulerConfig>;
-    async fn get_state(&self) -> anyhow::Result<SchedulerState>;
+    async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError>;
+    async fn get_config(&self) -> Result<SchedulerConfig, DelugeRpcError>;
+    async fn get_state(&self) -> Result<SchedulerState, DelugeRpcError>;
 }
 
 pub struct SchedulerClient {
@@ -34,32 +34,30 @@ impl Clone for SchedulerClient {
 
 #[async_trait]
 impl SchedulerRpc for SchedulerClient {
-    async fn set_config(&self, config: &SchedulerConfig) -> anyhow::Result<()> {
-        let config_value = to_rencode_value(config).context("serializing scheduler config")?;
+    async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError> {
+        let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
 
-    async fn get_config(&self) -> anyhow::Result<SchedulerConfig> {
+    async fn get_config(&self) -> Result<SchedulerConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.get_config"))
-            .await
-            .context("scheduler.get_config RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        SchedulerConfig::deserialize(&value).context("deserializing scheduler config")
+        Ok(SchedulerConfig::deserialize(&value)?)
     }
 
-    async fn get_state(&self) -> anyhow::Result<SchedulerState> {
+    async fn get_state(&self) -> Result<SchedulerState, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.get_state"))
-            .await
-            .context("scheduler.get_state RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        SchedulerState::deserialize(&value).context("deserializing scheduler state")
+        Ok(SchedulerState::deserialize(&value)?)
     }
 }
 

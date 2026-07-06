@@ -1,26 +1,32 @@
 use crate::RencodeValue;
-use anyhow::anyhow;
+use crate::protocol::error::ProtocolError;
 use std::collections::BTreeMap;
 
-pub fn extract_single(value: &RencodeValue) -> anyhow::Result<RencodeValue> {
+pub fn extract_single(value: &RencodeValue) -> Result<RencodeValue, ProtocolError> {
     Ok(value.clone())
 }
 
-pub fn extract_single_int(value: &RencodeValue, method: &str) -> anyhow::Result<i64> {
+pub fn extract_single_int(value: &RencodeValue, method: &str) -> Result<i64, ProtocolError> {
     let single = extract_single(value)?;
     match single {
         RencodeValue::Int(i) => Ok(i),
-        other => Err(anyhow!("{method} returned non-int value: {other:?}")),
+        other => Err(ProtocolError::NotInt {
+            method: method.to_owned(),
+            value: other,
+        }),
     }
 }
 
 pub fn extract_single_dict<'a>(
     value: &'a RencodeValue,
     method: &str,
-) -> anyhow::Result<&'a BTreeMap<RencodeValue, RencodeValue>> {
+) -> Result<&'a BTreeMap<RencodeValue, RencodeValue>, ProtocolError> {
     match value {
         RencodeValue::Dict(map) => Ok(map),
-        other => Err(anyhow!("{method} returned non-dict value: {other:?}")),
+        other => Err(ProtocolError::NotDict {
+            method: method.to_owned(),
+            value: other.clone(),
+        }),
     }
 }
 

@@ -1,5 +1,5 @@
-use crate::client::info::DelugeConnectionInfo;
 use crate::DelugeClient;
+use crate::client::info::DelugeConnectionInfo;
 use std::time::Duration;
 
 const DEFAULT_RPC_TIMEOUT: Duration = Duration::from_secs(30);

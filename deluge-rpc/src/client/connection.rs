@@ -1,9 +1,11 @@
-use crate::{DelugeRpcMessage, DelugeRpcRequest, DelugeTransport, DelugeWriter, RencodeValue};
-use anyhow::{bail, Context};
-use std::sync::atomic::{AtomicU32, Ordering};
+use crate::transport::TransportError;
+use crate::{
+    DelugeRpcError, DelugeRpcMessage, DelugeRpcRequest, DelugeTransport, DelugeWriter, RencodeValue,
+};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 use tokio::sync::broadcast::error::RecvError;
-use tokio::sync::{broadcast, Mutex};
+use tokio::sync::{Mutex, broadcast};
 use tokio::task::JoinHandle;
 
 pub struct Connection {
@@ -22,7 +24,7 @@ impl Connection {
         !self.transport_reader_handle.is_finished()
     }
 
-    pub async fn send(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+    pub async fn send(&self, request: DelugeRpcRequest) -> Result<RencodeValue, DelugeRpcError> {
         let method = request.method.clone();
         let (writer, mut rx) = self.writer_and_rx()?;
 
@@ -32,10 +34,7 @@ impl Connection {
             let encoded = rencode_value.encode();
 
             let mut writer = writer.lock().await;
-            writer
-                .send(&encoded)
-                .await
-                .context("failed to write to connection")?
+            writer.send(&encoded).await?;
         }
 
         loop {
@@ -49,7 +48,11 @@ impl Connection {
                     exc_msg,
                     traceback,
                 }) if err_id == id => {
-                    bail!("daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}")
+                    return Err(DelugeRpcError::RpcError {
+                        exc_type,
+                        exc_msg,
+                        traceback,
+                    });
                 }
                 Ok(_) => {
                     // Not a message we care about.
@@ -60,7 +63,7 @@ impl Connection {
                     continue;
                 }
                 Err(RecvError::Closed) => {
-                    bail!("connection closed while waiting for RPC response `{method}`")
+                    return Err(DelugeRpcError::ConnectionClosed { method });
                 }
             }
         }
@@ -68,20 +71,25 @@ impl Connection {
 
     fn writer_and_rx(
         &self,
-    ) -> anyhow::Result<(
-        Arc<Mutex<DelugeWriter>>,
-        broadcast::Receiver<DelugeRpcMessage>,
-    )> {
+    ) -> Result<
+        (
+            Arc<Mutex<DelugeWriter>>,
+            broadcast::Receiver<DelugeRpcMessage>,
+        ),
+        DelugeRpcError,
+    > {
         if let Some(message_queue) = self.message_queue.upgrade() {
             return Ok((self.transport_writer.clone(), message_queue.subscribe()));
         }
-        bail!("Connection already closed")
+        Err(DelugeRpcError::NotConnected)
     }
 
-    pub async fn connect(host: &str, port: u16, message_queue_size: usize) -> anyhow::Result<Self> {
-        let transport = DelugeTransport::connect(host, port)
-            .await
-            .context("failed to connect to Deluge daemon")?;
+    pub async fn connect(
+        host: &str,
+        port: u16,
+        message_queue_size: usize,
+    ) -> Result<Self, TransportError> {
+        let transport = DelugeTransport::connect(host, port).await?;
         let (mut transport_reader, transport_writer) = transport.split();
 
         let writer = Arc::from(Mutex::new(transport_writer));

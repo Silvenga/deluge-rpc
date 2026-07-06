@@ -1,26 +1,26 @@
+use crate::DelugeRpcError;
+use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::{extract_single, extract_single_int};
-use crate::RencodeValue;
-use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait DaemonRpc: Send + Sync {
-    async fn info(&self) -> anyhow::Result<String>;
+    async fn info(&self) -> Result<String, DelugeRpcError>;
     async fn login(
         &self,
         username: &str,
         password: &str,
         client_version: &str,
-    ) -> anyhow::Result<i64>;
-    async fn set_event_interest(&self, event_names: &[String]) -> anyhow::Result<bool>;
-    async fn shutdown(&self) -> anyhow::Result<()>;
-    async fn get_method_list(&self) -> anyhow::Result<Vec<String>>;
-    async fn get_version(&self) -> anyhow::Result<String>;
-    async fn authorized_call(&self, rpc: &str) -> anyhow::Result<bool>;
+    ) -> Result<i64, DelugeRpcError>;
+    async fn set_event_interest(&self, event_names: &[String]) -> Result<bool, DelugeRpcError>;
+    async fn shutdown(&self) -> Result<(), DelugeRpcError>;
+    async fn get_method_list(&self) -> Result<Vec<String>, DelugeRpcError>;
+    async fn get_version(&self) -> Result<String, DelugeRpcError>;
+    async fn authorized_call(&self, rpc: &str) -> Result<bool, DelugeRpcError>;
 }
 
 pub struct DaemonClient {
@@ -35,16 +35,18 @@ impl DaemonClient {
 
 #[async_trait]
 impl DaemonRpc for DaemonClient {
-    async fn info(&self) -> anyhow::Result<String> {
+    async fn info(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.info"))
-            .await
-            .context("daemon.info RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
-            other => Err(anyhow!("daemon.info returned non-str value: {other:?}")),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "daemon.info".into(),
+                value: other,
+            }),
         }
     }
 
@@ -53,7 +55,7 @@ impl DaemonRpc for DaemonClient {
         username: &str,
         password: &str,
         client_version: &str,
-    ) -> anyhow::Result<i64> {
+    ) -> Result<i64, DelugeRpcError> {
         let mut kwargs = BTreeMap::new();
         kwargs.insert(
             RencodeValue::Str("client_version".into()),
@@ -69,12 +71,11 @@ impl DaemonRpc for DaemonClient {
                     ])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("daemon.login RPC failed")?;
-        extract_single_int(&result, "daemon.login")
+            .await?;
+        Ok(extract_single_int(&result, "daemon.login")?)
     }
 
-    async fn set_event_interest(&self, event_names: &[String]) -> anyhow::Result<bool> {
+    async fn set_event_interest(&self, event_names: &[String]) -> Result<bool, DelugeRpcError> {
         let names: Vec<RencodeValue> = event_names
             .iter()
             .map(|n| RencodeValue::Str(n.clone()))
@@ -85,34 +86,32 @@ impl DaemonRpc for DaemonClient {
                 DelugeRpcRequest::new("daemon.set_event_interest")
                     .with_args(vec![RencodeValue::List(names)]),
             )
-            .await
-            .context("daemon.set_event_interest RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "daemon.set_event_interest returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "daemon.set_event_interest".into(),
+                value: other,
+            }),
         }
     }
 
     /// Shuts down the daemon. The daemon's reactor stops before the response is flushed,
     /// so this call may time out (30s) waiting for a response that never arrives.
     /// This is expected behavior per the Deluge spec — do not reduce the timeout.
-    async fn shutdown(&self) -> anyhow::Result<()> {
+    async fn shutdown(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.shutdown"))
-            .await
-            .context("daemon.shutdown RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn get_method_list(&self) -> anyhow::Result<Vec<String>> {
+    async fn get_method_list(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.get_method_list"))
-            .await
-            .context("daemon.get_method_list RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
@@ -121,50 +120,52 @@ impl DaemonRpc for DaemonClient {
                     match item {
                         RencodeValue::Str(s) => out.push(s),
                         other => {
-                            return Err(anyhow!(
-                                "daemon.get_method_list returned non-str element: {other:?}"
-                            ));
+                            return Err(DelugeRpcError::UnexpectedResponseType {
+                                method: "daemon.get_method_list returned non-str element".into(),
+                                value: other,
+                            });
                         }
                     }
                 }
                 Ok(out)
             }
-            other => Err(anyhow!(
-                "daemon.get_method_list returned non-list value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "daemon.get_method_list".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn get_version(&self) -> anyhow::Result<String> {
+    async fn get_version(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.get_version"))
-            .await
-            .context("daemon.get_version RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
-            other => Err(anyhow!(
-                "daemon.get_version returned non-str value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "daemon.get_version".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn authorized_call(&self, rpc: &str) -> anyhow::Result<bool> {
+    async fn authorized_call(&self, rpc: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("daemon.authorized_call")
                     .with_args(vec![RencodeValue::Str(rpc.to_owned())]),
             )
-            .await
-            .context("daemon.authorized_call RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "daemon.authorized_call returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "daemon.authorized_call".into(),
+                value: other,
+            }),
         }
     }
 }

@@ -26,8 +26,13 @@ async fn start_replay(cassette: Cassette) -> ReplayServer {
 async fn when_torrent_lifecycle_cassette_then_get_torrent_status_returns_name() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let status = client
         .core()
@@ -48,8 +53,13 @@ async fn when_torrent_lifecycle_cassette_then_get_torrent_status_returns_name() 
 async fn when_torrent_lifecycle_cassette_then_remove_torrent_returns_true() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let result = client
         .core()

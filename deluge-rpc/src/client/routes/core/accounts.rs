@@ -1,9 +1,9 @@
+use crate::DelugeRpcError;
+use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::AccountInfo;
-use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
-use crate::RencodeValue;
-use anyhow::{anyhow, Context};
+use crate::protocol::extract_single;
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -11,23 +11,23 @@ use std::collections::BTreeMap;
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreAccountRpc: Send + Sync {
-    async fn get_known_accounts(&self) -> anyhow::Result<Vec<AccountInfo>>;
+    async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError>;
     async fn create_account(
         &self,
         username: &str,
         password: &str,
         auth_level: &str,
-    ) -> anyhow::Result<bool>;
+    ) -> Result<bool, DelugeRpcError>;
     async fn update_account(
         &self,
         username: &str,
         password: &str,
         auth_level: &str,
-    ) -> anyhow::Result<bool>;
-    async fn remove_account(&self, username: &str) -> anyhow::Result<bool>;
+    ) -> Result<bool, DelugeRpcError>;
+    async fn remove_account(&self, username: &str) -> Result<bool, DelugeRpcError>;
     async fn get_auth_levels_mappings(
         &self,
-    ) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)>;
+    ) -> Result<(BTreeMap<String, i64>, BTreeMap<i64, String>), DelugeRpcError>;
 }
 
 pub struct CoreAccountClient {
@@ -50,14 +50,13 @@ impl Clone for CoreAccountClient {
 
 #[async_trait]
 impl CoreAccountRpc for CoreAccountClient {
-    async fn get_known_accounts(&self) -> anyhow::Result<Vec<AccountInfo>> {
+    async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_known_accounts"))
-            .await
-            .context("core.get_known_accounts RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        Vec::<AccountInfo>::deserialize(&value).context("deserializing accounts")
+        Ok(Vec::<AccountInfo>::deserialize(&value)?)
     }
 
     async fn create_account(
@@ -65,7 +64,7 @@ impl CoreAccountRpc for CoreAccountClient {
         username: &str,
         password: &str,
         auth_level: &str,
-    ) -> anyhow::Result<bool> {
+    ) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.create_account").with_args(vec![
@@ -73,14 +72,14 @@ impl CoreAccountRpc for CoreAccountClient {
                 RencodeValue::Str(password.to_owned()),
                 RencodeValue::Str(auth_level.to_owned()),
             ]))
-            .await
-            .context("core.create_account RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "core.create_account returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.create_account".into(),
+                value: other,
+            }),
         }
     }
 
@@ -89,7 +88,7 @@ impl CoreAccountRpc for CoreAccountClient {
         username: &str,
         password: &str,
         authlevel: &str,
-    ) -> anyhow::Result<bool> {
+    ) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.update_account").with_args(vec![
@@ -97,57 +96,55 @@ impl CoreAccountRpc for CoreAccountClient {
                 RencodeValue::Str(password.to_owned()),
                 RencodeValue::Str(authlevel.to_owned()),
             ]))
-            .await
-            .context("core.update_account RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "core.update_account returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.update_account".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn remove_account(&self, username: &str) -> anyhow::Result<bool> {
+    async fn remove_account(&self, username: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.remove_account")
                     .with_args(vec![RencodeValue::Str(username.to_owned())]),
             )
-            .await
-            .context("core.remove_account RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "core.remove_account returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.remove_account".into(),
+                value: other,
+            }),
         }
     }
 
     async fn get_auth_levels_mappings(
         &self,
-    ) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)> {
+    ) -> Result<(BTreeMap<String, i64>, BTreeMap<i64, String>), DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_auth_levels_mappings"))
-            .await
-            .context("core.get_auth_levels_mappings RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) if items.len() == 2 => {
                 let name_to_int: BTreeMap<String, i64> =
-                    BTreeMap::<String, i64>::deserialize(&items[0])
-                        .context("deserializing name->int mapping")?;
+                    BTreeMap::<String, i64>::deserialize(&items[0])?;
                 let int_to_name: BTreeMap<i64, String> =
-                    BTreeMap::<i64, String>::deserialize(&items[1])
-                        .context("deserializing int->name mapping")?;
+                    BTreeMap::<i64, String>::deserialize(&items[1])?;
                 Ok((name_to_int, int_to_name))
             }
-            other => Err(anyhow!(
-                "core.get_auth_levels_mappings returned unexpected shape: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.get_auth_levels_mappings returned unexpected shape".into(),
+                value: other,
+            }),
         }
     }
 }

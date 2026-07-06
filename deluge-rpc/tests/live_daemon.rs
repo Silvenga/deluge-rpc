@@ -27,8 +27,13 @@ async fn start_replay(cassette: Cassette) -> ReplayServer {
 async fn when_live_daemon_cassette_then_daemon_info_returns_version() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let info = client.daemon().info().await.expect("daemon.info");
     assert_eq!(info, "2.1.2.dev0");
@@ -38,8 +43,13 @@ async fn when_live_daemon_cassette_then_daemon_info_returns_version() {
 async fn when_live_daemon_cassette_then_get_version_returns_version() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let version = client
         .daemon()
@@ -53,8 +63,13 @@ async fn when_live_daemon_cassette_then_get_version_returns_version() {
 async fn when_live_daemon_cassette_then_free_space_returns_bytes() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let space = client
         .core()
@@ -69,8 +84,13 @@ async fn when_live_daemon_cassette_then_free_space_returns_bytes() {
 async fn when_live_daemon_cassette_then_torrents_list_returns_entries() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let entries = client
         .core()
@@ -89,8 +109,13 @@ async fn when_live_daemon_cassette_then_torrents_list_returns_entries() {
 async fn when_live_daemon_cassette_then_session_status_has_metrics() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let status = client
         .core()
@@ -109,8 +134,13 @@ async fn when_live_daemon_cassette_then_session_status_has_metrics() {
 async fn when_live_daemon_cassette_then_config_deserializes() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let config = client
         .core()
@@ -130,8 +160,13 @@ async fn when_live_daemon_cassette_then_config_deserializes() {
 async fn when_live_daemon_cassette_then_enabled_plugins_returns_list() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
-        .build();
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     let plugins = client
         .core()

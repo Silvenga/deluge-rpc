@@ -1,14 +1,14 @@
-use crate::client::dispatcher::DelugeClientDispatcher;
-use crate::protocol::{extract_single, DelugeRpcRequest};
+use crate::DelugeRpcError;
 use crate::RencodeValue;
-use anyhow::{anyhow, Context};
+use crate::client::dispatcher::DelugeClientDispatcher;
+use crate::protocol::{DelugeRpcRequest, extract_single};
 use async_trait::async_trait;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait ToggleRpc: Send + Sync {
-    async fn get_status(&self) -> anyhow::Result<bool>;
-    async fn toggle(&self) -> anyhow::Result<bool>;
+    async fn get_status(&self) -> Result<bool, DelugeRpcError>;
+    async fn toggle(&self) -> Result<bool, DelugeRpcError>;
 }
 
 pub struct ToggleClient {
@@ -31,29 +31,33 @@ impl Clone for ToggleClient {
 
 #[async_trait]
 impl ToggleRpc for ToggleClient {
-    async fn get_status(&self) -> anyhow::Result<bool> {
+    async fn get_status(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("toggle.get_status"))
-            .await
-            .context("toggle.get_status RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!("toggle.get_status returned non-bool: {other:?}")),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "toggle.get_status".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn toggle(&self) -> anyhow::Result<bool> {
+    async fn toggle(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("toggle.toggle"))
-            .await
-            .context("toggle.toggle RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!("toggle.toggle returned non-bool: {other:?}")),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "toggle.toggle".into(),
+                value: other,
+            }),
         }
     }
 }

@@ -1,18 +1,18 @@
+use crate::DelugeRpcError;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::WebUiConfig;
-use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
-use crate::{to_rencode_value, RencodeValue};
-use anyhow::{anyhow, Context};
+use crate::protocol::extract_single;
+use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait WebUiRpc: Send + Sync {
-    async fn got_deluge_web(&self) -> anyhow::Result<bool>;
-    async fn set_config(&self, config: &WebUiConfig) -> anyhow::Result<()>;
-    async fn get_config(&self) -> anyhow::Result<WebUiConfig>;
+    async fn got_deluge_web(&self) -> Result<bool, DelugeRpcError>;
+    async fn set_config(&self, config: &WebUiConfig) -> Result<(), DelugeRpcError>;
+    async fn get_config(&self) -> Result<WebUiConfig, DelugeRpcError>;
 }
 
 pub struct WebUiClient {
@@ -35,35 +35,36 @@ impl Clone for WebUiClient {
 
 #[async_trait]
 impl WebUiRpc for WebUiClient {
-    async fn got_deluge_web(&self) -> anyhow::Result<bool> {
+    async fn got_deluge_web(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("webui.got_deluge_web"))
-            .await
-            .context("webui.got_deluge_web RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!("webui.got_deluge_web returned non-bool: {other:?}")),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "webui.got_deluge_web".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn set_config(&self, config: &WebUiConfig) -> anyhow::Result<()> {
-        let config_value = to_rencode_value(config).context("serializing webui config")?;
+    async fn set_config(&self, config: &WebUiConfig) -> Result<(), DelugeRpcError> {
+        let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("webui.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
 
-    async fn get_config(&self) -> anyhow::Result<WebUiConfig> {
+    async fn get_config(&self) -> Result<WebUiConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("webui.get_config"))
-            .await
-            .context("webui.get_config RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        WebUiConfig::deserialize(&value).context("deserializing webui config")
+        Ok(WebUiConfig::deserialize(&value)?)
     }
 }
 

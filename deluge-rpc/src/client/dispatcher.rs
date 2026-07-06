@@ -1,7 +1,6 @@
 use crate::client::info::DelugeConnectionInfo;
 use crate::client::manager::ConnectionManager;
-use crate::{DelugeRpcRequest, RencodeValue};
-use anyhow::Context;
+use crate::{DelugeRpcError, DelugeRpcRequest, RencodeValue};
 use std::sync::Arc;
 use tokio::time::timeout;
 
@@ -19,18 +18,14 @@ impl DelugeClientDispatcher {
         }
     }
 
-    pub async fn dispatch(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+    pub async fn dispatch(
+        &self,
+        request: DelugeRpcRequest,
+    ) -> Result<RencodeValue, DelugeRpcError> {
         let deadline = timeout(self.info.rpc_timeout, async {
-            let connection = self
-                .manager
-                .acquire()
-                .await
-                .context("failed to acquire connection")?;
-
+            let connection = self.manager.acquire().await?;
             connection.send(request).await
         });
-        deadline
-            .await
-            .context("timed out waiting for RPC response")?
+        deadline.await.map_err(|_| DelugeRpcError::Timeout)?
     }
 }

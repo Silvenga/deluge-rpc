@@ -1,6 +1,6 @@
-use crate::protocol::helpers::field_as_str;
 use crate::RencodeValue;
-use anyhow::{anyhow, bail};
+use crate::protocol::error::ProtocolError;
+use crate::protocol::helpers::field_as_str;
 
 const RPC_RESPONSE: i64 = 1;
 const RPC_ERROR: i64 = 2;
@@ -25,42 +25,44 @@ pub enum DelugeRpcMessage {
 }
 
 impl DelugeRpcMessage {
-    pub fn from_rencode_value(decoded: &RencodeValue) -> anyhow::Result<Self> {
+    pub fn from_rencode_value(decoded: &RencodeValue) -> Result<Self, ProtocolError> {
         let inner = match decoded {
             RencodeValue::List(items) => items,
-            other => bail!("unexpected RPC envelope shape (not a list): {other:?}"),
+            other => return Err(ProtocolError::InvalidEnvelope(other.clone())),
         };
 
         if inner.is_empty() {
-            bail!("empty RPC message");
+            return Err(ProtocolError::EmptyMessage);
         }
 
         let msg_type = match inner.first() {
             Some(RencodeValue::Int(t)) => *t,
-            Some(other) => bail!("RPC message type tag is not an int: {other:?}"),
-            None => bail!("RPC message missing type tag"),
+            Some(other) => return Err(ProtocolError::InvalidTypeTag(other.clone())),
+            None => return Err(ProtocolError::MissingTypeTag),
         };
 
         match msg_type {
             RPC_RESPONSE => {
                 let id = match inner.get(1) {
-                    Some(RencodeValue::Int(i)) => u32::try_from(*i)
-                        .map_err(|_| anyhow!("RPC response id out of u32 range: {i}"))?,
-                    Some(other) => bail!("RPC response id is not an int: {other:?}"),
-                    None => bail!("RPC response missing id"),
+                    Some(RencodeValue::Int(i)) => {
+                        u32::try_from(*i).map_err(|_| ProtocolError::ResponseIdOutOfRange(*i))?
+                    }
+                    Some(other) => return Err(ProtocolError::InvalidResponseId(other.clone())),
+                    None => return Err(ProtocolError::MissingResponseId),
                 };
                 let value = inner
                     .get(2)
                     .cloned()
-                    .ok_or_else(|| anyhow!("RPC response missing return value"))?;
+                    .ok_or(ProtocolError::MissingReturnValue)?;
                 Ok(Self::Response { id, value })
             }
             RPC_ERROR => {
                 let id = match inner.get(1) {
-                    Some(RencodeValue::Int(i)) => u32::try_from(*i)
-                        .map_err(|_| anyhow!("RPC error id out of u32 range: {i}"))?,
-                    Some(other) => bail!("RPC error id is not an int: {other:?}"),
-                    None => bail!("RPC error missing id"),
+                    Some(RencodeValue::Int(i)) => {
+                        u32::try_from(*i).map_err(|_| ProtocolError::ErrorIdOutOfRange(*i))?
+                    }
+                    Some(other) => return Err(ProtocolError::InvalidErrorId(other.clone())),
+                    None => return Err(ProtocolError::MissingErrorId),
                 };
                 let exc_type = field_as_str(inner.get(2)).unwrap_or_else(|| "<unknown>".to_owned());
                 let exc_msg = match inner.get(3) {
@@ -85,7 +87,7 @@ impl DelugeRpcMessage {
                 };
                 Ok(Self::Event { name, args })
             }
-            other => bail!("unexpected RPC message type {other} (expected 1/2/3)"),
+            other => Err(ProtocolError::UnknownMessageType(other)),
         }
     }
 }

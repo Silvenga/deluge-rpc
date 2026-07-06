@@ -2,9 +2,9 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::client::info::DelugeConnectionInfo;
 use crate::{
     AutoAddClient, BlocklistClient, CoreAccountClient, CoreConfigClient, CoreMiscClient,
-    CorePluginClient, CoreSessionClient, CoreTorrentClient, DaemonClient, DelugeRpcRequest,
-    ExecuteClient, ExtractorClient, LabelClient, NotificationsClient, RencodeValue,
-    SchedulerClient, StatsClient, ToggleClient, WebUiClient,
+    CorePluginClient, CoreSessionClient, CoreTorrentClient, DaemonClient, DelugeRpcError,
+    DelugeRpcRequest, ExecuteClient, ExtractorClient, LabelClient, NotificationsClient,
+    RencodeValue, SchedulerClient, StatsClient, ToggleClient, WebUiClient,
 };
 
 pub struct DelugeClient {
@@ -38,7 +38,7 @@ impl DelugeClient {
     }
 
     /// A low-level method to call the RPC server directly.
-    pub async fn call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+    pub async fn call(&self, request: DelugeRpcRequest) -> Result<RencodeValue, DelugeRpcError> {
         self.dispatcher.dispatch(request).await
     }
 }
@@ -98,11 +98,11 @@ impl PluginsClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::client::DaemonRpc;
     use crate::DelugeClientBuilder;
+    use crate::client::DaemonRpc;
+    use flate2::Compression;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
-    use flate2::Compression;
     use rustls::crypto::ring;
     use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;

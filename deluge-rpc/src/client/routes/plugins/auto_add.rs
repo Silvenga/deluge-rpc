@@ -1,8 +1,8 @@
+use crate::DelugeRpcError;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{AutoAddConfig, WatchDirId, WatchDirOptions};
-use crate::protocol::{extract_single, extract_single_int, DelugeRpcRequest};
-use crate::{to_rencode_value, RencodeValue};
-use anyhow::{anyhow, Context};
+use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_int};
+use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -14,16 +14,16 @@ pub trait AutoAddRpc: Send + Sync {
         &self,
         watch_dir_id: WatchDirId,
         options: &WatchDirOptions,
-    ) -> anyhow::Result<()>;
-    async fn enable_watch_dir(&self, watch_dir_id: WatchDirId) -> anyhow::Result<()>;
-    async fn disable_watch_dir(&self, watch_dir_id: WatchDirId) -> anyhow::Result<()>;
-    async fn set_config(&self, config: &AutoAddConfig) -> anyhow::Result<()>;
-    async fn get_config(&self) -> anyhow::Result<AutoAddConfig>;
-    async fn get_watch_dirs(&self) -> anyhow::Result<BTreeMap<String, WatchDirOptions>>;
-    async fn add(&self, options: Option<WatchDirOptions>) -> anyhow::Result<WatchDirId>;
-    async fn remove(&self, watch_dir_id: WatchDirId) -> anyhow::Result<()>;
-    async fn is_admin_level(&self) -> anyhow::Result<bool>;
-    async fn get_auth_user(&self) -> anyhow::Result<String>;
+    ) -> Result<(), DelugeRpcError>;
+    async fn enable_watch_dir(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
+    async fn disable_watch_dir(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
+    async fn set_config(&self, config: &AutoAddConfig) -> Result<(), DelugeRpcError>;
+    async fn get_config(&self) -> Result<AutoAddConfig, DelugeRpcError>;
+    async fn get_watch_dirs(&self) -> Result<BTreeMap<String, WatchDirOptions>, DelugeRpcError>;
+    async fn add(&self, options: Option<WatchDirOptions>) -> Result<WatchDirId, DelugeRpcError>;
+    async fn remove(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
+    async fn is_admin_level(&self) -> Result<bool, DelugeRpcError>;
+    async fn get_auth_user(&self) -> Result<String, DelugeRpcError>;
 }
 
 pub struct AutoAddClient {
@@ -50,8 +50,8 @@ impl AutoAddRpc for AutoAddClient {
         &self,
         watch_dir_id: WatchDirId,
         options: &WatchDirOptions,
-    ) -> anyhow::Result<()> {
-        let options_value = to_rencode_value(options).context("serializing watchdir options")?;
+    ) -> Result<(), DelugeRpcError> {
+        let options_value = to_rencode_value(options)?;
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("autoadd.set_options")
@@ -61,7 +61,7 @@ impl AutoAddRpc for AutoAddClient {
         Ok(())
     }
 
-    async fn enable_watch_dir(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
+    async fn enable_watch_dir(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("autoadd.enable_watchdir")
@@ -71,7 +71,7 @@ impl AutoAddRpc for AutoAddClient {
         Ok(())
     }
 
-    async fn disable_watch_dir(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
+    async fn disable_watch_dir(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("autoadd.disable_watchdir")
@@ -81,49 +81,46 @@ impl AutoAddRpc for AutoAddClient {
         Ok(())
     }
 
-    async fn set_config(&self, config: &AutoAddConfig) -> anyhow::Result<()> {
-        let config_value = to_rencode_value(config).context("serializing autoadd config")?;
+    async fn set_config(&self, config: &AutoAddConfig) -> Result<(), DelugeRpcError> {
+        let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
 
-    async fn get_config(&self) -> anyhow::Result<AutoAddConfig> {
+    async fn get_config(&self) -> Result<AutoAddConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.get_config"))
-            .await
-            .context("autoadd.get_config RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        AutoAddConfig::deserialize(&value).context("deserializing autoadd config")
+        Ok(AutoAddConfig::deserialize(&value)?)
     }
 
-    async fn get_watch_dirs(&self) -> anyhow::Result<BTreeMap<String, WatchDirOptions>> {
+    async fn get_watch_dirs(&self) -> Result<BTreeMap<String, WatchDirOptions>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.get_watchdirs"))
-            .await
-            .context("autoadd.get_watchdirs RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        BTreeMap::<String, WatchDirOptions>::deserialize(&value).context("deserializing watchdirs")
+        Ok(BTreeMap::<String, WatchDirOptions>::deserialize(&value)?)
     }
 
-    async fn add(&self, options: Option<WatchDirOptions>) -> anyhow::Result<WatchDirId> {
+    async fn add(&self, options: Option<WatchDirOptions>) -> Result<WatchDirId, DelugeRpcError> {
         let args = match options {
-            Some(opts) => vec![to_rencode_value(&opts).context("serializing watchdir options")?],
+            Some(opts) => vec![to_rencode_value(&opts)?],
             None => vec![RencodeValue::None],
         };
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.add").with_args(args))
-            .await
-            .context("autoadd.add RPC failed")?;
+            .await?;
         let id = extract_single_int(&result, "autoadd.add")?;
         Ok(id)
     }
 
-    async fn remove(&self, watchdir_id: WatchDirId) -> anyhow::Result<()> {
+    async fn remove(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("autoadd.remove")
@@ -133,31 +130,33 @@ impl AutoAddRpc for AutoAddClient {
         Ok(())
     }
 
-    async fn is_admin_level(&self) -> anyhow::Result<bool> {
+    async fn is_admin_level(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.is_admin_level"))
-            .await
-            .context("autoadd.is_admin_level RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "autoadd.is_admin_level returned non-bool: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "autoadd.is_admin_level".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn get_auth_user(&self) -> anyhow::Result<String> {
+    async fn get_auth_user(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.get_auth_user"))
-            .await
-            .context("autoadd.get_auth_user RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
-            other => Err(anyhow!("autoadd.get_auth_user returned non-str: {other:?}")),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "autoadd.get_auth_user".into(),
+                value: other,
+            }),
         }
     }
 }

@@ -464,7 +464,6 @@ dependencies = [
 name = "deluge-rpc"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "async-trait",
  "deluge-rencode",
  "deluge-rpc-mock",
@@ -474,7 +473,6 @@ dependencies = [
  "rcgen",
  "rustls",
  "serde",
- "serde_json",
  "thiserror",
  "tokio",
  "tokio-rustls",

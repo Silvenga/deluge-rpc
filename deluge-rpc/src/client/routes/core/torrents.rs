@@ -1,12 +1,12 @@
+use crate::DelugeRpcError;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{
     AddTorrentFileResult, AddTorrentFilesResult, AddTorrentOptions, FilterDict, FilterTree,
     GetMagnetUriResult, PrefetchMagnetResult, RemoveTorrentsResult, SetTorrentOptions,
     TorrentEntry, TorrentStatus, TrackerInfo,
 };
-use crate::protocol::{extract_single, extract_single_dict, extract_single_int, DelugeRpcRequest};
-use crate::{to_rencode_value, RencodeValue};
-use anyhow::{anyhow, Context};
+use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_dict, extract_single_int};
+use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -19,53 +19,63 @@ pub trait CoreTorrentRpc: Send + Sync {
         filename: &str,
         filedump: &str,
         options: &AddTorrentOptions,
-    ) -> anyhow::Result<AddTorrentFileResult>;
+    ) -> Result<AddTorrentFileResult, DelugeRpcError>;
     async fn add_torrent_file_async(
         &self,
         filename: &str,
         filedump: &str,
         options: &AddTorrentOptions,
         save_state: bool,
-    ) -> anyhow::Result<AddTorrentFileResult>;
+    ) -> Result<AddTorrentFileResult, DelugeRpcError>;
     async fn add_torrent_files(
         &self,
         torrent_files: &[(String, String, AddTorrentOptions)],
-    ) -> anyhow::Result<AddTorrentFilesResult>;
+    ) -> Result<AddTorrentFilesResult, DelugeRpcError>;
     async fn add_torrent_url(
         &self,
         url: &str,
         options: &AddTorrentOptions,
         headers: Option<BTreeMap<String, String>>,
-    ) -> anyhow::Result<AddTorrentFileResult>;
+    ) -> Result<AddTorrentFileResult, DelugeRpcError>;
     async fn add_torrent_magnet(
         &self,
         uri: &str,
         options: &AddTorrentOptions,
-    ) -> anyhow::Result<String>;
+    ) -> Result<String, DelugeRpcError>;
     async fn prefetch_magnet_metadata(
         &self,
         magnet: &str,
         timeout_secs: Option<i64>,
-    ) -> anyhow::Result<PrefetchMagnetResult>;
-    async fn remove_torrent(&self, torrent_id: &str, remove_data: bool) -> anyhow::Result<bool>;
+    ) -> Result<PrefetchMagnetResult, DelugeRpcError>;
+    async fn remove_torrent(
+        &self,
+        torrent_id: &str,
+        remove_data: bool,
+    ) -> Result<bool, DelugeRpcError>;
     async fn remove_torrents(
         &self,
         torrent_ids: &[String],
         remove_data: bool,
-    ) -> anyhow::Result<RemoveTorrentsResult>;
-    async fn pause_torrent(&self, torrent_id: &str) -> anyhow::Result<()>;
-    async fn pause_torrents(&self, torrent_ids: Option<Vec<String>>) -> anyhow::Result<()>;
-    async fn resume_torrent(&self, torrent_id: &str) -> anyhow::Result<()>;
-    async fn resume_torrents(&self, torrent_ids: Option<Vec<String>>) -> anyhow::Result<()>;
-    async fn force_reannounce(&self, torrent_ids: &[String]) -> anyhow::Result<()>;
-    async fn force_recheck(&self, torrent_ids: &[String]) -> anyhow::Result<()>;
+    ) -> Result<RemoveTorrentsResult, DelugeRpcError>;
+    async fn pause_torrent(&self, torrent_id: &str) -> Result<(), DelugeRpcError>;
+    async fn pause_torrents(&self, torrent_ids: Option<Vec<String>>) -> Result<(), DelugeRpcError>;
+    async fn resume_torrent(&self, torrent_id: &str) -> Result<(), DelugeRpcError>;
+    async fn resume_torrents(&self, torrent_ids: Option<Vec<String>>)
+    -> Result<(), DelugeRpcError>;
+    async fn force_reannounce(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    async fn force_recheck(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
     async fn set_torrent_options(
         &self,
         torrent_ids: &[String],
         options: &SetTorrentOptions,
-    ) -> anyhow::Result<()>;
-    async fn connect_peer(&self, torrent_id: &str, ip: &str, port: i64) -> anyhow::Result<()>;
-    async fn move_storage(&self, torrent_ids: &[String], dest: &str) -> anyhow::Result<()>;
+    ) -> Result<(), DelugeRpcError>;
+    async fn connect_peer(
+        &self,
+        torrent_id: &str,
+        ip: &str,
+        port: i64,
+    ) -> Result<(), DelugeRpcError>;
+    async fn move_storage(&self, torrent_ids: &[String], dest: &str) -> Result<(), DelugeRpcError>;
     async fn set_ssl_torrent_cert(
         &self,
         torrent_id: &str,
@@ -73,47 +83,47 @@ pub trait CoreTorrentRpc: Send + Sync {
         private_key: &str,
         dh_params: &str,
         save_to_disk: bool,
-    ) -> anyhow::Result<()>;
+    ) -> Result<(), DelugeRpcError>;
     async fn get_torrent_status(
         &self,
         torrent_id: &str,
         keys: &[String],
         diff: bool,
-    ) -> anyhow::Result<TorrentStatus>;
+    ) -> Result<TorrentStatus, DelugeRpcError>;
     async fn get_torrents_status(
         &self,
         filter_dict: &FilterDict,
         keys: &[String],
         diff: bool,
-    ) -> anyhow::Result<Vec<TorrentEntry>>;
+    ) -> Result<Vec<TorrentEntry>, DelugeRpcError>;
     async fn get_filter_tree(
         &self,
         show_zero_hits: bool,
         hide_cat: Option<Vec<String>>,
-    ) -> anyhow::Result<FilterTree>;
-    async fn get_session_state(&self) -> anyhow::Result<Vec<String>>;
-    async fn get_magnet_uri(&self, torrent_id: &str) -> anyhow::Result<GetMagnetUriResult>;
-    async fn get_path_size(&self, path: &str) -> anyhow::Result<i64>;
+    ) -> Result<FilterTree, DelugeRpcError>;
+    async fn get_session_state(&self) -> Result<Vec<String>, DelugeRpcError>;
+    async fn get_magnet_uri(&self, torrent_id: &str) -> Result<GetMagnetUriResult, DelugeRpcError>;
+    async fn get_path_size(&self, path: &str) -> Result<i64, DelugeRpcError>;
     async fn set_torrent_trackers(
         &self,
         torrent_id: &str,
         trackers: &[TrackerInfo],
-    ) -> anyhow::Result<()>;
+    ) -> Result<(), DelugeRpcError>;
     async fn rename_files(
         &self,
         torrent_id: &str,
         filenames: &[(i64, String)],
-    ) -> anyhow::Result<()>;
+    ) -> Result<(), DelugeRpcError>;
     async fn rename_folder(
         &self,
         torrent_id: &str,
         folder: &str,
         new_folder: &str,
-    ) -> anyhow::Result<()>;
-    async fn queue_top(&self, torrent_ids: &[String]) -> anyhow::Result<()>;
-    async fn queue_up(&self, torrent_ids: &[String]) -> anyhow::Result<()>;
-    async fn queue_down(&self, torrent_ids: &[String]) -> anyhow::Result<()>;
-    async fn queue_bottom(&self, torrent_ids: &[String]) -> anyhow::Result<()>;
+    ) -> Result<(), DelugeRpcError>;
+    async fn queue_top(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    async fn queue_up(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    async fn queue_down(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    async fn queue_bottom(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
 }
 
 pub struct CoreTorrentClient {
@@ -141,8 +151,8 @@ impl CoreTorrentRpc for CoreTorrentClient {
         filename: &str,
         filedump: &str,
         options: &AddTorrentOptions,
-    ) -> anyhow::Result<AddTorrentFileResult> {
-        let options_value = to_rencode_value(options).context("serializing options")?;
+    ) -> Result<AddTorrentFileResult, DelugeRpcError> {
+        let options_value = to_rencode_value(options)?;
         let result = self
             .dispatcher
             .dispatch(
@@ -152,15 +162,15 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     options_value,
                 ]),
             )
-            .await
-            .context("core.add_torrent_file RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(Some(s)),
             RencodeValue::None => Ok(None),
-            other => Err(anyhow!(
-                "core.add_torrent_file returned unexpected value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.add_torrent_file returned unexpected value".into(),
+                value: other,
+            }),
         }
     }
 
@@ -170,8 +180,8 @@ impl CoreTorrentRpc for CoreTorrentClient {
         filedump: &str,
         options: &AddTorrentOptions,
         save_state: bool,
-    ) -> anyhow::Result<AddTorrentFileResult> {
-        let options_value = to_rencode_value(options).context("serializing options")?;
+    ) -> Result<AddTorrentFileResult, DelugeRpcError> {
+        let options_value = to_rencode_value(options)?;
         let mut kwargs = BTreeMap::new();
         kwargs.insert(
             RencodeValue::Str("save_state".into()),
@@ -188,25 +198,25 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     ])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("core.add_torrent_file_async RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(Some(s)),
             RencodeValue::None => Ok(None),
-            other => Err(anyhow!(
-                "core.add_torrent_file_async returned unexpected value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.add_torrent_file_async returned unexpected value".into(),
+                value: other,
+            }),
         }
     }
 
     async fn add_torrent_files(
         &self,
         torrent_files: &[(String, String, AddTorrentOptions)],
-    ) -> anyhow::Result<AddTorrentFilesResult> {
+    ) -> Result<AddTorrentFilesResult, DelugeRpcError> {
         let mut items = Vec::with_capacity(torrent_files.len());
         for (filename, filedump, options) in torrent_files {
-            let options_value = to_rencode_value(options).context("serializing options")?;
+            let options_value = to_rencode_value(options)?;
             items.push(RencodeValue::List(vec![
                 RencodeValue::Str(filename.clone()),
                 RencodeValue::Str(filedump.clone()),
@@ -219,10 +229,9 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 DelugeRpcRequest::new("core.add_torrent_files")
                     .with_args(vec![RencodeValue::List(items)]),
             )
-            .await
-            .context("core.add_torrent_files RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        AddTorrentFilesResult::deserialize(&value).context("deserializing add torrent files result")
+        Ok(AddTorrentFilesResult::deserialize(&value)?)
     }
 
     async fn add_torrent_url(
@@ -230,11 +239,11 @@ impl CoreTorrentRpc for CoreTorrentClient {
         url: &str,
         options: &AddTorrentOptions,
         headers: Option<BTreeMap<String, String>>,
-    ) -> anyhow::Result<AddTorrentFileResult> {
-        let options_value = to_rencode_value(options).context("serializing options")?;
+    ) -> Result<AddTorrentFileResult, DelugeRpcError> {
+        let options_value = to_rencode_value(options)?;
         let mut kwargs = BTreeMap::new();
         if let Some(h) = headers {
-            let headers_value = to_rencode_value(&h).context("serializing headers")?;
+            let headers_value = to_rencode_value(&h)?;
             kwargs.insert(RencodeValue::Str("headers".into()), headers_value);
         }
         let result = self
@@ -244,15 +253,15 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     .with_args(vec![RencodeValue::Str(url.to_owned()), options_value])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("core.add_torrent_url RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(Some(s)),
             RencodeValue::None => Ok(None),
-            other => Err(anyhow!(
-                "core.add_torrent_url returned unexpected value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.add_torrent_url returned unexpected value".into(),
+                value: other,
+            }),
         }
     }
 
@@ -260,22 +269,22 @@ impl CoreTorrentRpc for CoreTorrentClient {
         &self,
         uri: &str,
         options: &AddTorrentOptions,
-    ) -> anyhow::Result<String> {
-        let options_value = to_rencode_value(options).context("serializing options")?;
+    ) -> Result<String, DelugeRpcError> {
+        let options_value = to_rencode_value(options)?;
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.add_torrent_magnet")
                     .with_args(vec![RencodeValue::Str(uri.to_owned()), options_value]),
             )
-            .await
-            .context("core.add_torrent_magnet RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
-            other => Err(anyhow!(
-                "core.add_torrent_magnet returned non-str value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.add_torrent_magnet".into(),
+                value: other,
+            }),
         }
     }
 
@@ -283,7 +292,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         &self,
         magnet: &str,
         timeout_secs: Option<i64>,
-    ) -> anyhow::Result<PrefetchMagnetResult> {
+    ) -> Result<PrefetchMagnetResult, DelugeRpcError> {
         let mut kwargs = BTreeMap::new();
         if let Some(t) = timeout_secs {
             kwargs.insert(RencodeValue::Str("timeout".into()), RencodeValue::Int(t));
@@ -295,27 +304,30 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     .with_args(vec![RencodeValue::Str(magnet.to_owned())])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("core.prefetch_magnet_metadata RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        PrefetchMagnetResult::deserialize(&value).context("deserializing prefetch magnet result")
+        Ok(PrefetchMagnetResult::deserialize(&value)?)
     }
 
-    async fn remove_torrent(&self, torrent_id: &str, remove_data: bool) -> anyhow::Result<bool> {
+    async fn remove_torrent(
+        &self,
+        torrent_id: &str,
+        remove_data: bool,
+    ) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.remove_torrent").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::Bool(remove_data),
             ]))
-            .await
-            .context("core.remove_torrent RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Bool(b) => Ok(b),
-            other => Err(anyhow!(
-                "core.remove_torrent returned non-bool value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.remove_torrent".into(),
+                value: other,
+            }),
         }
     }
 
@@ -323,7 +335,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         &self,
         torrent_ids: &[String],
         remove_data: bool,
-    ) -> anyhow::Result<RemoveTorrentsResult> {
+    ) -> Result<RemoveTorrentsResult, DelugeRpcError> {
         let ids: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -336,24 +348,22 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     RencodeValue::Bool(remove_data),
                 ]),
             )
-            .await
-            .context("core.remove_torrents RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        RemoveTorrentsResult::deserialize(&value).context("deserializing remove torrents result")
+        Ok(RemoveTorrentsResult::deserialize(&value)?)
     }
 
-    async fn pause_torrent(&self, torrent_id: &str) -> anyhow::Result<()> {
+    async fn pause_torrent(&self, torrent_id: &str) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.pause_torrent")
                     .with_args(vec![RencodeValue::Str(torrent_id.to_owned())]),
             )
-            .await
-            .context("core.pause_torrent RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn pause_torrents(&self, torrent_ids: Option<Vec<String>>) -> anyhow::Result<()> {
+    async fn pause_torrents(&self, torrent_ids: Option<Vec<String>>) -> Result<(), DelugeRpcError> {
         let args = match torrent_ids {
             Some(ids) => {
                 let id_values: Vec<RencodeValue> = ids.into_iter().map(RencodeValue::Str).collect();
@@ -363,23 +373,24 @@ impl CoreTorrentRpc for CoreTorrentClient {
         };
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.pause_torrents").with_args(args))
-            .await
-            .context("core.pause_torrents RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn resume_torrent(&self, torrent_id: &str) -> anyhow::Result<()> {
+    async fn resume_torrent(&self, torrent_id: &str) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.resume_torrent")
                     .with_args(vec![RencodeValue::Str(torrent_id.to_owned())]),
             )
-            .await
-            .context("core.resume_torrent RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn resume_torrents(&self, torrent_ids: Option<Vec<String>>) -> anyhow::Result<()> {
+    async fn resume_torrents(
+        &self,
+        torrent_ids: Option<Vec<String>>,
+    ) -> Result<(), DelugeRpcError> {
         let args = match torrent_ids {
             Some(ids) => {
                 let id_values: Vec<RencodeValue> = ids.into_iter().map(RencodeValue::Str).collect();
@@ -389,12 +400,11 @@ impl CoreTorrentRpc for CoreTorrentClient {
         };
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.resume_torrents").with_args(args))
-            .await
-            .context("core.resume_torrents RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn force_reannounce(&self, torrent_ids: &[String]) -> anyhow::Result<()> {
+    async fn force_reannounce(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -404,12 +414,11 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 DelugeRpcRequest::new("core.force_reannounce")
                     .with_args(vec![RencodeValue::List(id_values)]),
             )
-            .await
-            .context("core.force_reannounce RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn force_recheck(&self, torrent_ids: &[String]) -> anyhow::Result<()> {
+    async fn force_recheck(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -419,8 +428,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 DelugeRpcRequest::new("core.force_recheck")
                     .with_args(vec![RencodeValue::List(id_values)]),
             )
-            .await
-            .context("core.force_recheck RPC failed")?;
+            .await?;
         Ok(())
     }
 
@@ -428,35 +436,38 @@ impl CoreTorrentRpc for CoreTorrentClient {
         &self,
         torrent_ids: &[String],
         options: &SetTorrentOptions,
-    ) -> anyhow::Result<()> {
+    ) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        let options_value = to_rencode_value(options).context("serializing options")?;
+        let options_value = to_rencode_value(options)?;
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.set_torrent_options")
                     .with_args(vec![RencodeValue::List(id_values), options_value]),
             )
-            .await
-            .context("core.set_torrent_options RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn connect_peer(&self, torrent_id: &str, ip: &str, port: i64) -> anyhow::Result<()> {
+    async fn connect_peer(
+        &self,
+        torrent_id: &str,
+        ip: &str,
+        port: i64,
+    ) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.connect_peer").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::Str(ip.to_owned()),
                 RencodeValue::Int(port),
             ]))
-            .await
-            .context("core.connect_peer RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn move_storage(&self, torrent_ids: &[String], dest: &str) -> anyhow::Result<()> {
+    async fn move_storage(&self, torrent_ids: &[String], dest: &str) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -466,8 +477,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 RencodeValue::List(id_values),
                 RencodeValue::Str(dest.to_owned()),
             ]))
-            .await
-            .context("core.move_storage RPC failed")?;
+            .await?;
         Ok(())
     }
 
@@ -478,7 +488,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         private_key: &str,
         dh_params: &str,
         save_to_disk: bool,
-    ) -> anyhow::Result<()> {
+    ) -> Result<(), DelugeRpcError> {
         let mut kwargs = BTreeMap::new();
         kwargs.insert(
             RencodeValue::Str("save_to_disk".into()),
@@ -495,8 +505,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     ])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("core.set_ssl_torrent_cert RPC failed")?;
+            .await?;
         Ok(())
     }
 
@@ -505,7 +514,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         torrent_id: &str,
         keys: &[String],
         diff: bool,
-    ) -> anyhow::Result<TorrentStatus> {
+    ) -> Result<TorrentStatus, DelugeRpcError> {
         let key_values: Vec<RencodeValue> =
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let mut kwargs = BTreeMap::new();
@@ -520,10 +529,9 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     ])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("core.get_torrent_status RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        TorrentStatus::deserialize(&value).context("deserializing torrent status")
+        Ok(TorrentStatus::deserialize(&value)?)
     }
 
     async fn get_torrents_status(
@@ -531,8 +539,8 @@ impl CoreTorrentRpc for CoreTorrentClient {
         filter_dict: &FilterDict,
         keys: &[String],
         diff: bool,
-    ) -> anyhow::Result<Vec<TorrentEntry>> {
-        let filter_value = to_rencode_value(filter_dict).context("serializing filter dict")?;
+    ) -> Result<Vec<TorrentEntry>, DelugeRpcError> {
+        let filter_value = to_rencode_value(filter_dict)?;
         let key_values: Vec<RencodeValue> =
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let mut kwargs = BTreeMap::new();
@@ -544,8 +552,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     .with_args(vec![filter_value, RencodeValue::List(key_values)])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("core.get_torrents_status RPC failed")?;
+            .await?;
 
         let result_dict = extract_single_dict(&result, "core.get_torrents_status")?;
 
@@ -560,8 +567,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
 
         let mut out = Vec::with_capacity(entries.len());
         for (info_hash, fields) in entries {
-            let mut entry = TorrentEntry::deserialize(fields)
-                .with_context(|| format!("deserializing torrent entry `{info_hash}`"))?;
+            let mut entry = TorrentEntry::deserialize(fields).map_err(DelugeRpcError::from)?;
             entry.info_hash = info_hash;
             out.push(entry);
         }
@@ -572,7 +578,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         &self,
         show_zero_hits: bool,
         hide_cat: Option<Vec<String>>,
-    ) -> anyhow::Result<FilterTree> {
+    ) -> Result<FilterTree, DelugeRpcError> {
         let mut kwargs = BTreeMap::new();
         kwargs.insert(
             RencodeValue::Str("show_zero_hits".into()),
@@ -588,18 +594,16 @@ impl CoreTorrentRpc for CoreTorrentClient {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_filter_tree").with_kwargs(kwargs))
-            .await
-            .context("core.get_filter_tree RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        FilterTree::deserialize(&value).context("deserializing filter tree")
+        Ok(FilterTree::deserialize(&value)?)
     }
 
-    async fn get_session_state(&self) -> anyhow::Result<Vec<String>> {
+    async fn get_session_state(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_session_state"))
-            .await
-            .context("core.get_session_state RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::List(items) => {
@@ -608,56 +612,57 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     match item {
                         RencodeValue::Str(s) => out.push(s),
                         other => {
-                            return Err(anyhow!(
-                                "core.get_session_state returned non-str element: {other:?}"
-                            ));
+                            return Err(DelugeRpcError::UnexpectedResponseType {
+                                method: "core.get_session_state returned non-str element".into(),
+                                value: other,
+                            });
                         }
                     }
                 }
                 Ok(out)
             }
-            other => Err(anyhow!(
-                "core.get_session_state returned non-list value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.get_session_state".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn get_magnet_uri(&self, torrent_id: &str) -> anyhow::Result<GetMagnetUriResult> {
+    async fn get_magnet_uri(&self, torrent_id: &str) -> Result<GetMagnetUriResult, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_magnet_uri")
                     .with_args(vec![RencodeValue::Str(torrent_id.to_owned())]),
             )
-            .await
-            .context("core.get_magnet_uri RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Str(s) => Ok(s),
-            other => Err(anyhow!(
-                "core.get_magnet_uri returned non-str value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.get_magnet_uri".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn get_path_size(&self, path: &str) -> anyhow::Result<i64> {
+    async fn get_path_size(&self, path: &str) -> Result<i64, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_path_size")
                     .with_args(vec![RencodeValue::Str(path.to_owned())]),
             )
-            .await
-            .context("core.get_path_size RPC failed")?;
-        extract_single_int(&result, "core.get_path_size")
+            .await?;
+        Ok(extract_single_int(&result, "core.get_path_size")?)
     }
 
     async fn set_torrent_trackers(
         &self,
         torrent_id: &str,
         trackers: &[TrackerInfo],
-    ) -> anyhow::Result<()> {
-        let tracker_values = to_rencode_value(trackers).context("serializing trackers")?;
+    ) -> Result<(), DelugeRpcError> {
+        let tracker_values = to_rencode_value(trackers)?;
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.set_torrent_trackers").with_args(vec![
@@ -665,8 +670,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                     tracker_values,
                 ]),
             )
-            .await
-            .context("core.set_torrent_trackers RPC failed")?;
+            .await?;
         Ok(())
     }
 
@@ -674,7 +678,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         &self,
         torrent_id: &str,
         filenames: &[(i64, String)],
-    ) -> anyhow::Result<()> {
+    ) -> Result<(), DelugeRpcError> {
         let file_values: Vec<RencodeValue> = filenames
             .iter()
             .map(|(idx, name)| {
@@ -689,8 +693,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::List(file_values),
             ]))
-            .await
-            .context("core.rename_files RPC failed")?;
+            .await?;
         Ok(())
     }
 
@@ -699,19 +702,18 @@ impl CoreTorrentRpc for CoreTorrentClient {
         torrent_id: &str,
         folder: &str,
         new_folder: &str,
-    ) -> anyhow::Result<()> {
+    ) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.rename_folder").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::Str(folder.to_owned()),
                 RencodeValue::Str(new_folder.to_owned()),
             ]))
-            .await
-            .context("core.rename_folder RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn queue_top(&self, torrent_ids: &[String]) -> anyhow::Result<()> {
+    async fn queue_top(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -721,12 +723,11 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 DelugeRpcRequest::new("core.queue_top")
                     .with_args(vec![RencodeValue::List(id_values)]),
             )
-            .await
-            .context("core.queue_top RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn queue_up(&self, torrent_ids: &[String]) -> anyhow::Result<()> {
+    async fn queue_up(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -736,12 +737,11 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 DelugeRpcRequest::new("core.queue_up")
                     .with_args(vec![RencodeValue::List(id_values)]),
             )
-            .await
-            .context("core.queue_up RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn queue_down(&self, torrent_ids: &[String]) -> anyhow::Result<()> {
+    async fn queue_down(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -751,12 +751,11 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 DelugeRpcRequest::new("core.queue_down")
                     .with_args(vec![RencodeValue::List(id_values)]),
             )
-            .await
-            .context("core.queue_down RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn queue_bottom(&self, torrent_ids: &[String]) -> anyhow::Result<()> {
+    async fn queue_bottom(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError> {
         let id_values: Vec<RencodeValue> = torrent_ids
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
@@ -766,8 +765,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 DelugeRpcRequest::new("core.queue_bottom")
                     .with_args(vec![RencodeValue::List(id_values)]),
             )
-            .await
-            .context("core.queue_bottom RPC failed")?;
+            .await?;
         Ok(())
     }
 }
@@ -775,12 +773,12 @@ impl CoreTorrentRpc for CoreTorrentClient {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::RencodeValue;
     use crate::models::{
         AddTorrentFileResult, AddTorrentFilesResult, FilterTree, PrefetchMagnetResult,
         RemoveTorrentsResult, TorrentEntry, TorrentStatus,
     };
     use crate::protocol::{extract_single, extract_single_dict, extract_single_int};
-    use crate::RencodeValue;
     use std::collections::BTreeMap;
 
     #[test]

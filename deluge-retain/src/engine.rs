@@ -9,8 +9,8 @@ use crate::policy::filter_eligible;
 use anyhow::Result;
 use bytesize::ByteSize;
 use chrono::{DateTime, Utc};
-use deluge_rpc::models::TorrentEntry;
 use deluge_rpc::CoreTorrentRpc;
+use deluge_rpc::models::TorrentEntry;
 use std::cmp::Ordering;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -169,8 +169,8 @@ pub async fn execute_deletion_plan(
 mod tests {
     use super::*;
     use chrono::Utc;
-    use deluge_rpc::models::TorrentStatus;
     use deluge_rpc::MockCoreTorrentRpc;
+    use deluge_rpc::models::TorrentStatus;
 
     const GB: i64 = 1_073_741_824;
 

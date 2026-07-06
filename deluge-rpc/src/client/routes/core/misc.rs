@@ -1,8 +1,8 @@
+use crate::DelugeRpcError;
+use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{CompletionPaths, CreateTorrentResult, GlobResult};
-use crate::protocol::{extract_single, DelugeRpcRequest};
-use crate::RencodeValue;
-use anyhow::Context;
+use crate::protocol::{DelugeRpcRequest, extract_single};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -26,13 +26,13 @@ pub trait CoreMiscRpc: Send + Sync {
         created_by: Option<String>,
         trackers: Option<Vec<Vec<String>>>,
         add_to_session: bool,
-    ) -> anyhow::Result<CreateTorrentResult>;
-    async fn glob(&self, path: &str) -> anyhow::Result<GlobResult>;
+    ) -> Result<CreateTorrentResult, DelugeRpcError>;
+    async fn glob(&self, path: &str) -> Result<GlobResult, DelugeRpcError>;
     async fn get_completion_paths(
         &self,
         completion_text: &str,
         show_hidden_files: bool,
-    ) -> anyhow::Result<CompletionPaths>;
+    ) -> Result<CompletionPaths, DelugeRpcError>;
 }
 
 pub struct CoreMiscClient {
@@ -67,7 +67,7 @@ impl CoreMiscRpc for CoreMiscClient {
         created_by: Option<String>,
         trackers: Option<Vec<Vec<String>>>,
         add_to_session: bool,
-    ) -> anyhow::Result<CreateTorrentResult> {
+    ) -> Result<CreateTorrentResult, DelugeRpcError> {
         let mut kwargs = BTreeMap::new();
         if let Some(c) = comment {
             kwargs.insert(RencodeValue::Str("comment".into()), RencodeValue::Str(c));
@@ -118,30 +118,28 @@ impl CoreMiscRpc for CoreMiscClient {
                     ])
                     .with_kwargs(kwargs),
             )
-            .await
-            .context("core.create_torrent RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        CreateTorrentResult::deserialize(&value).context("deserializing create torrent result")
+        Ok(CreateTorrentResult::deserialize(&value)?)
     }
 
-    async fn glob(&self, path: &str) -> anyhow::Result<GlobResult> {
+    async fn glob(&self, path: &str) -> Result<GlobResult, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.glob")
                     .with_args(vec![RencodeValue::Str(path.to_owned())]),
             )
-            .await
-            .context("core.glob RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        GlobResult::deserialize(&value).context("deserializing glob result")
+        Ok(GlobResult::deserialize(&value)?)
     }
 
     async fn get_completion_paths(
         &self,
         completion_text: &str,
         show_hidden_files: bool,
-    ) -> anyhow::Result<CompletionPaths> {
+    ) -> Result<CompletionPaths, DelugeRpcError> {
         let mut args_map = BTreeMap::new();
         args_map.insert(
             RencodeValue::Str("completion_text".into()),
@@ -158,10 +156,9 @@ impl CoreMiscRpc for CoreMiscClient {
             .dispatch(
                 DelugeRpcRequest::new("core.get_completion_paths").with_args(vec![args_value]),
             )
-            .await
-            .context("core.get_completion_paths RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        CompletionPaths::deserialize(&value).context("deserializing completion paths")
+        Ok(CompletionPaths::deserialize(&value)?)
     }
 }
 

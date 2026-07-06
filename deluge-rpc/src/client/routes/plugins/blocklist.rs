@@ -1,18 +1,18 @@
+use crate::DelugeRpcError;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{BlocklistConfig, BlocklistStatus};
 use crate::protocol::{DelugeRpcRequest, extract_single};
-use crate::{to_rencode_value, RencodeValue};
-use anyhow::{anyhow, Context};
+use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
-use crate::client::dispatcher::DelugeClientDispatcher;
 
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait BlocklistRpc: Send + Sync {
-    async fn check_import(&self, force: bool) -> anyhow::Result<Option<String>>;
-    async fn get_config(&self) -> anyhow::Result<BlocklistConfig>;
-    async fn set_config(&self, config: &BlocklistConfig) -> anyhow::Result<()>;
-    async fn get_status(&self) -> anyhow::Result<BlocklistStatus>;
+    async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError>;
+    async fn get_config(&self) -> Result<BlocklistConfig, DelugeRpcError>;
+    async fn set_config(&self, config: &BlocklistConfig) -> Result<(), DelugeRpcError>;
+    async fn get_status(&self) -> Result<BlocklistStatus, DelugeRpcError>;
 }
 
 pub struct BlocklistClient {
@@ -35,51 +35,49 @@ impl Clone for BlocklistClient {
 
 #[async_trait]
 impl BlocklistRpc for BlocklistClient {
-    async fn check_import(&self, force: bool) -> anyhow::Result<Option<String>> {
+    async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("blocklist.check_import")
                     .with_args(vec![RencodeValue::Bool(force)]),
             )
-            .await
-            .context("blocklist.check_import RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::None => Ok(None),
             RencodeValue::Str(s) => Ok(Some(s)),
-            other => Err(anyhow!(
-                "blocklist.check_import returned unexpected type: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "blocklist.check_import returned unexpected type".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn get_config(&self) -> anyhow::Result<BlocklistConfig> {
+    async fn get_config(&self) -> Result<BlocklistConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.get_config"))
-            .await
-            .context("blocklist.get_config RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        BlocklistConfig::deserialize(&value).context("deserializing blocklist config")
+        Ok(BlocklistConfig::deserialize(&value)?)
     }
 
-    async fn set_config(&self, config: &BlocklistConfig) -> anyhow::Result<()> {
-        let config_value = to_rencode_value(config).context("serializing blocklist config")?;
+    async fn set_config(&self, config: &BlocklistConfig) -> Result<(), DelugeRpcError> {
+        let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
 
-    async fn get_status(&self) -> anyhow::Result<BlocklistStatus> {
+    async fn get_status(&self) -> Result<BlocklistStatus, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.get_status"))
-            .await
-            .context("blocklist.get_status RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        BlocklistStatus::deserialize(&value).context("deserializing blocklist status")
+        Ok(BlocklistStatus::deserialize(&value)?)
     }
 }
 

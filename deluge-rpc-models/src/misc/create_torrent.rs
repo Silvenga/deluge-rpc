@@ -1,5 +1,5 @@
 use serde::de::{SeqAccess, Visitor};
-use serde::{de, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, de};
 use std::fmt;
 
 /// Result of `core.create_torrent()`.

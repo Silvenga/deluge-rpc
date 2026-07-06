@@ -1,6 +1,6 @@
 use crate::client::connection::Connection;
 use crate::client::info::DelugeConnectionInfo;
-use crate::{DelugeRpcRequest, RencodeValue};
+use crate::{DelugeRpcError, DelugeRpcRequest, RencodeValue};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -18,7 +18,7 @@ impl ConnectionManager {
         }
     }
 
-    pub async fn acquire(&self) -> anyhow::Result<Arc<Connection>> {
+    pub async fn acquire(&self) -> Result<Arc<Connection>, DelugeRpcError> {
         let mut guard = self.connection.lock().await;
 
         // Check if the existing connection is valid.

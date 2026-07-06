@@ -17,14 +17,12 @@ categories = ["network-programming", "api-bindings"]
 workspace = true
 
 [dependencies]
-anyhow = { workspace = true }
 async-trait = { workspace = true }
 deluge-rencode = { path = "../deluge-rencode" }
 deluge-rpc-models = { path = "../deluge-rpc-models" }
 flate2 = { workspace = true }
 rustls = { workspace = true }
 serde = { workspace = true }
-serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-rustls = { workspace = true }

@@ -1,9 +1,9 @@
+use crate::DelugeRpcError;
+use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{DaemonConfig, ProxyConfig};
-use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
-use crate::RencodeValue;
-use anyhow::{anyhow, Context};
+use crate::protocol::extract_single;
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
@@ -11,14 +11,17 @@ use std::collections::BTreeMap;
 #[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreConfigRpc: Send + Sync {
-    async fn get_config(&self) -> anyhow::Result<DaemonConfig>;
-    async fn get_config_value(&self, key: &str) -> anyhow::Result<RencodeValue>;
+    async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError>;
+    async fn get_config_value(&self, key: &str) -> Result<RencodeValue, DelugeRpcError>;
     async fn get_config_values(
         &self,
         keys: &[String],
-    ) -> anyhow::Result<BTreeMap<String, RencodeValue>>;
-    async fn set_config(&self, config: &BTreeMap<String, RencodeValue>) -> anyhow::Result<()>;
-    async fn get_proxy(&self) -> anyhow::Result<ProxyConfig>;
+    ) -> Result<BTreeMap<String, RencodeValue>, DelugeRpcError>;
+    async fn set_config(
+        &self,
+        config: &BTreeMap<String, RencodeValue>,
+    ) -> Result<(), DelugeRpcError>;
+    async fn get_proxy(&self) -> Result<ProxyConfig, DelugeRpcError>;
 }
 
 pub struct CoreConfigClient {
@@ -41,32 +44,30 @@ impl Clone for CoreConfigClient {
 
 #[async_trait]
 impl CoreConfigRpc for CoreConfigClient {
-    async fn get_config(&self) -> anyhow::Result<DaemonConfig> {
+    async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_config"))
-            .await
-            .context("core.get_config RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        DaemonConfig::deserialize(&value).context("deserializing daemon config")
+        Ok(DaemonConfig::deserialize(&value)?)
     }
 
-    async fn get_config_value(&self, key: &str) -> anyhow::Result<RencodeValue> {
+    async fn get_config_value(&self, key: &str) -> Result<RencodeValue, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_config_value")
                     .with_args(vec![RencodeValue::Str(key.to_owned())]),
             )
-            .await
-            .context("core.get_config_value RPC failed")?;
-        extract_single(&result)
+            .await?;
+        Ok(extract_single(&result)?)
     }
 
     async fn get_config_values(
         &self,
         keys: &[String],
-    ) -> anyhow::Result<BTreeMap<String, RencodeValue>> {
+    ) -> Result<BTreeMap<String, RencodeValue>, DelugeRpcError> {
         let key_values: Vec<RencodeValue> =
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
@@ -75,8 +76,7 @@ impl CoreConfigRpc for CoreConfigClient {
                 DelugeRpcRequest::new("core.get_config_values")
                     .with_args(vec![RencodeValue::List(key_values)]),
             )
-            .await
-            .context("core.get_config_values RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
         match value {
             RencodeValue::Dict(map) => {
@@ -87,21 +87,26 @@ impl CoreConfigRpc for CoreConfigClient {
                             out.insert(s, v);
                         }
                         other => {
-                            return Err(anyhow!(
-                                "core.get_config_values returned non-str key: {other:?}"
-                            ));
+                            return Err(DelugeRpcError::UnexpectedResponseType {
+                                method: "core.get_config_values returned non-str key".into(),
+                                value: other,
+                            });
                         }
                     }
                 }
                 Ok(out)
             }
-            other => Err(anyhow!(
-                "core.get_config_values returned non-dict value: {other:?}"
-            )),
+            other => Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.get_config_values".into(),
+                value: other,
+            }),
         }
     }
 
-    async fn set_config(&self, config: &BTreeMap<String, RencodeValue>) -> anyhow::Result<()> {
+    async fn set_config(
+        &self,
+        config: &BTreeMap<String, RencodeValue>,
+    ) -> Result<(), DelugeRpcError> {
         let config_dict: BTreeMap<RencodeValue, RencodeValue> = config
             .iter()
             .map(|(k, v)| (RencodeValue::Str(k.clone()), v.clone()))
@@ -111,19 +116,17 @@ impl CoreConfigRpc for CoreConfigClient {
                 DelugeRpcRequest::new("core.set_config")
                     .with_args(vec![RencodeValue::Dict(config_dict)]),
             )
-            .await
-            .context("core.set_config RPC failed")?;
+            .await?;
         Ok(())
     }
 
-    async fn get_proxy(&self) -> anyhow::Result<ProxyConfig> {
+    async fn get_proxy(&self) -> Result<ProxyConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_proxy"))
-            .await
-            .context("core.get_proxy RPC failed")?;
+            .await?;
         let value = extract_single(&result)?;
-        ProxyConfig::deserialize(&value).context("deserializing proxy config")
+        Ok(ProxyConfig::deserialize(&value)?)
     }
 }
 
