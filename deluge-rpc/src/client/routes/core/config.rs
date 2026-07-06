@@ -8,7 +8,6 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreConfigRpc: Send + Sync {
     async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError>;

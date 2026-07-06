@@ -6,7 +6,6 @@ use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_int};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreSessionRpc: Send + Sync {
     async fn pause_session(&self) -> Result<(), DelugeRpcError>;

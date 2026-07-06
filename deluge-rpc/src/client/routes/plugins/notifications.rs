@@ -6,7 +6,6 @@ use crate::to_rencode_value;
 use async_trait::async_trait;
 use serde::Deserialize;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait NotificationsRpc: Send + Sync {
     async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError>;

@@ -20,23 +20,3 @@ pub use stats::{StatsClient, StatsRpc};
 pub use toggle::{ToggleClient, ToggleRpc};
 pub use webui::{WebUiClient, WebUiRpc};
 
-#[cfg(feature = "mock")]
-pub use auto_add::MockAutoAddRpc;
-#[cfg(feature = "mock")]
-pub use blocklist::MockBlocklistRpc;
-#[cfg(feature = "mock")]
-pub use execute::MockExecuteRpc;
-#[cfg(feature = "mock")]
-pub use extractor::MockExtractorRpc;
-#[cfg(feature = "mock")]
-pub use label::MockLabelRpc;
-#[cfg(feature = "mock")]
-pub use notifications::MockNotificationsRpc;
-#[cfg(feature = "mock")]
-pub use scheduler::MockSchedulerRpc;
-#[cfg(feature = "mock")]
-pub use stats::MockStatsRpc;
-#[cfg(feature = "mock")]
-pub use toggle::MockToggleRpc;
-#[cfg(feature = "mock")]
-pub use webui::MockWebUiRpc;

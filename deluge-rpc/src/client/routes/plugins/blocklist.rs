@@ -6,7 +6,6 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait BlocklistRpc: Send + Sync {
     async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError>;

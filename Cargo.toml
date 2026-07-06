@@ -1,19 +1,17 @@
 [workspace]
 resolver = "2"
-members = ["deluge-rencode", "deluge-rpc-models", "deluge-rpc", "deluge-rpc-mock", "deluge-retain", "deluge-cli"]
+members = ["deluge-rencode", "deluge-rpc-models", "deluge-rpc", "deluge-rpc-mock", "deluge-cli"]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 license = "MIT"
-authors = ["Deluge Retain Contributors"]
-repository = "https://github.com/Silvenga/deluge-retain"
-homepage = "https://github.com/Silvenga/deluge-retain"
-documentation = "https://github.com/Silvenga/deluge-retain"
+authors = ["Mark Lopez <m@silvenga.com>"]
+repository = "https://github.com/Silvenga/deluge-rpc"
+homepage = "https://github.com/Silvenga/deluge-rpc"
+documentation = "https://github.com/Silvenga/deluge-rpc"
 readme = "README.md"
-keywords = ["deluge", "retention"]
-categories = ["command-line-utilities"]
 
 [workspace.dependencies]
 anyhow = "1.0.103"
@@ -22,7 +20,7 @@ async-trait = "0.1.89"
 assert_cmd = "2.2.2"
 assert_fs = "1.1.4"
 assert_matches = "1.5.0"
-bytesize = { version = "2.3.1", features = ["serde"] }
+bytesize = { version = "2.4.2", features = ["serde"] }
 chrono = { version = "0.4.45", features = ["serde"] }
 clap = { version = "4.6.1", features = ["derive", "env"] }
 flate2 = "1.1.9"
@@ -32,7 +30,7 @@ mockall = "0.15.0"
 rcgen = "0.14.8"
 rustls = { version = "0.23.41", default-features = false, features = ["ring", "std"] }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.145"
+serde_json = "1.0.150"
 thiserror = "2.0.18"
 tokio = { version = "1.52.3", features = ["rt-multi-thread", "macros", "signal", "time", "net", "io-util", "sync"] }
 tokio-rustls = "0.26.4"

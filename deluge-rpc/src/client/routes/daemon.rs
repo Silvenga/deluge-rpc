@@ -6,7 +6,6 @@ use crate::protocol::{extract_single, extract_single_int};
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait DaemonRpc: Send + Sync {
     async fn info(&self) -> Result<String, DelugeRpcError>;
@@ -237,41 +236,5 @@ mod tests {
             RencodeValue::Bool(b) => assert!(b),
             other => panic!("expected bool, got {other:?}"),
         }
-    }
-
-    #[cfg(feature = "mock")]
-    #[test]
-    fn when_mock_daemon_rpc_then_expectations_met() {
-        use tokio::runtime::Runtime;
-
-        let mut mock = MockDaemonRpc::new();
-        mock.expect_info().times(1).returning(|| Ok("2.1.1".into()));
-        mock.expect_login().times(1).returning(|_, _, _| Ok(10));
-        mock.expect_set_event_interest()
-            .times(1)
-            .returning(|_| Ok(true));
-        mock.expect_get_version()
-            .times(1)
-            .returning(|| Ok("2.1.1".into()));
-        mock.expect_authorized_call()
-            .times(1)
-            .returning(|_| Ok(true));
-
-        let rt = Runtime::new().expect("runtime");
-        rt.block_on(async {
-            assert_eq!(mock.info().await.expect("info"), "2.1.1");
-            assert_eq!(mock.login("user", "pass", "1.0").await.expect("login"), 10);
-            assert!(
-                mock.set_event_interest(&["TorrentAddedEvent".into()])
-                    .await
-                    .expect("set_event_interest")
-            );
-            assert_eq!(mock.get_version().await.expect("get_version"), "2.1.1");
-            assert!(
-                mock.authorized_call("core.get_free_space")
-                    .await
-                    .expect("authorized_call")
-            );
-        });
     }
 }

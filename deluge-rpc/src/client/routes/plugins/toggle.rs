@@ -4,7 +4,6 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use async_trait::async_trait;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait ToggleRpc: Send + Sync {
     async fn get_status(&self) -> Result<bool, DelugeRpcError>;

@@ -6,7 +6,6 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait ExecuteRpc: Send + Sync {
     async fn add_command(&self, event: &ExecuteEvent, command: &str) -> Result<(), DelugeRpcError>;

@@ -9,9 +9,9 @@ authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
 documentation.workspace = true
-readme.workspace = true
 keywords = ["deluge", "rencode", "serialization", "bencode"]
-categories = ["encoding", "parser-implementations"]
+categories = ["encoding"]
+readme = "README.md"
 
 [lints]
 workspace = true

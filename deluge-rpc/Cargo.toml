@@ -27,13 +27,8 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-rustls = { workspace = true }
 tracing = { workspace = true }
-mockall = { workspace = true, optional = true }
-
-[features]
-mock = ["dep:mockall"]
 
 [dev-dependencies]
 deluge-rpc-mock = { path = "../deluge-rpc-mock" }
-mockall = { workspace = true }
 rcgen = { workspace = true }
 tokio = { workspace = true, features = ["time"] }

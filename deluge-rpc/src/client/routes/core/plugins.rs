@@ -5,7 +5,6 @@ use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 use async_trait::async_trait;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CorePluginRpc: Send + Sync {
     async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;

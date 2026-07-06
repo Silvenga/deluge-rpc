@@ -8,7 +8,6 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreAccountRpc: Send + Sync {
     async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError>;

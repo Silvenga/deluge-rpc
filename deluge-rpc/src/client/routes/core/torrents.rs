@@ -11,7 +11,6 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreTorrentRpc: Send + Sync {
     async fn add_torrent_file(
@@ -1171,35 +1170,5 @@ mod tests {
         let response = RencodeValue::Int(1_073_741_824);
         let bytes = extract_single_int(&response, "core.get_path_size").expect("extract");
         assert_eq!(bytes, 1_073_741_824);
-    }
-
-    #[cfg(feature = "mock")]
-    #[tokio::test]
-    async fn when_mock_core_torrent_rpc_then_expectations_met() {
-        use crate::models::FilterDict;
-        use mockall::predicate;
-
-        let mut mock = MockCoreTorrentRpc::new();
-
-        mock.expect_remove_torrent()
-            .with(predicate::eq("hash1"), predicate::eq(true))
-            .returning(|_, _| Ok(true));
-
-        mock.expect_get_torrents_status()
-            .returning(|_, _, _| Ok(vec![]));
-
-        mock.expect_get_session_state().returning(|| Ok(vec![]));
-
-        let removed = mock.remove_torrent("hash1", true).await.expect("remove");
-        assert!(removed);
-
-        let entries = mock
-            .get_torrents_status(&FilterDict::default(), &[], false)
-            .await
-            .expect("get_torrents_status");
-        assert!(entries.is_empty());
-
-        let state = mock.get_session_state().await.expect("get_session_state");
-        assert!(state.is_empty());
     }
 }
