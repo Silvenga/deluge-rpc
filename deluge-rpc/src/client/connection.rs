@@ -1,11 +1,10 @@
-use crate::{DelugeRpcMessage, DelugeTransport, DelugeWriter, RencodeValue};
+use crate::{DelugeRpcMessage, DelugeRpcRequest, DelugeTransport, DelugeWriter, RencodeValue};
 use anyhow::{bail, Context};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use tokio::sync::broadcast::error::RecvError;
 use tokio::sync::{broadcast, Mutex};
 use tokio::task::JoinHandle;
-
-const BROADCAST_CAPACITY: usize = 256;
 
 pub struct Connection {
     message_queue: broadcast::WeakSender<DelugeRpcMessage>,
@@ -15,14 +14,78 @@ pub struct Connection {
 }
 
 impl Connection {
-    pub async fn connect(host: &str, port: u16) -> anyhow::Result<Self> {
+    pub fn next_id(&self) -> u32 {
+        self.next_id.fetch_add(1, Ordering::Relaxed)
+    }
+
+    pub fn is_connected(&self) -> bool {
+        !self.transport_reader_handle.is_finished()
+    }
+
+    pub async fn send(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
+        let method = request.method.clone();
+        let (writer, mut rx) = self.writer_and_rx()?;
+
+        let id = self.next_id();
+        {
+            let rencode_value = request.into_rencode_value(id);
+            let encoded = rencode_value.encode();
+
+            let mut writer = writer.lock().await;
+            writer
+                .send(&encoded)
+                .await
+                .context("failed to write to connection")?
+        }
+
+        loop {
+            match rx.recv().await {
+                Ok(DelugeRpcMessage::Response { id: resp_id, value }) if resp_id == id => {
+                    return Ok(value);
+                }
+                Ok(DelugeRpcMessage::Error {
+                    id: err_id,
+                    exc_type,
+                    exc_msg,
+                    traceback,
+                }) if err_id == id => {
+                    bail!("daemon RPC error ({exc_type}): {exc_msg}\ntraceback: {traceback}")
+                }
+                Ok(_) => {
+                    // Not a message we care about.
+                    continue;
+                }
+                Err(RecvError::Lagged(n)) => {
+                    tracing::warn!(n, "RPC subscriber lagged, missed messages");
+                    continue;
+                }
+                Err(RecvError::Closed) => {
+                    bail!("connection closed while waiting for RPC response `{method}`")
+                }
+            }
+        }
+    }
+
+    fn writer_and_rx(
+        &self,
+    ) -> anyhow::Result<(
+        Arc<Mutex<DelugeWriter>>,
+        broadcast::Receiver<DelugeRpcMessage>,
+    )> {
+        if let Some(message_queue) = self.message_queue.upgrade() {
+            return Ok((self.transport_writer.clone(), message_queue.subscribe()));
+        }
+        bail!("Connection already closed")
+    }
+
+    pub async fn connect(host: &str, port: u16, message_queue_size: usize) -> anyhow::Result<Self> {
         let transport = DelugeTransport::connect(host, port)
             .await
             .context("failed to connect to Deluge daemon")?;
         let (mut transport_reader, transport_writer) = transport.split();
 
         let writer = Arc::from(Mutex::new(transport_writer));
-        let (message_tx, _) = broadcast::channel(BROADCAST_CAPACITY);
+        let (message_tx, _) = broadcast::channel(message_queue_size);
 
         let reader_handle = tokio::spawn({
             let message_tx = message_tx.clone();
@@ -59,25 +122,5 @@ impl Connection {
             transport_reader_handle: reader_handle,
             next_id: AtomicU32::new(1),
         })
-    }
-
-    pub fn writer_and_rx(
-        &self,
-    ) -> anyhow::Result<(
-        Arc<Mutex<DelugeWriter>>,
-        broadcast::Receiver<DelugeRpcMessage>,
-    )> {
-        if let Some(message_queue) = self.message_queue.upgrade() {
-            return Ok((self.transport_writer.clone(), message_queue.subscribe()));
-        }
-        bail!("Connection already closed")
-    }
-
-    pub fn next_id(&self) -> u32 {
-        self.next_id.fetch_add(1, Ordering::Relaxed)
-    }
-
-    pub fn is_connected(&self) -> bool {
-        !self.transport_reader_handle.is_finished()
     }
 }

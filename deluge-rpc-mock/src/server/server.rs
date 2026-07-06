@@ -84,7 +84,7 @@ mod tests {
         Cassette, Interaction, InteractionRequest, InteractionResponse as CassetteResponse,
     };
     use deluge_rpc::DaemonRpc;
-    use deluge_rpc::DelugeClient;
+    use deluge_rpc::DelugeClientBuilder;
     use deluge_rpc::RencodeValue;
 
     fn make_cassette(interactions: Vec<Interaction>) -> Cassette {
@@ -117,9 +117,8 @@ mod tests {
         let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher).await.expect("start server");
 
-        let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(server.host(), server.port(), "testuser".to_owned(), "testpass".to_owned())
+            .build();
 
         let result = client.daemon().info().await;
         assert!(result.is_ok(), "daemon.info should succeed: {result:?}");
@@ -142,9 +141,8 @@ mod tests {
         let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher).await.expect("start server");
 
-        let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(server.host(), server.port(), "testuser".to_owned(), "testpass".to_owned())
+            .build();
 
         let result = client.daemon().get_version().await;
         assert!(
@@ -164,9 +162,8 @@ mod tests {
         let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher).await.expect("start server");
 
-        let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(server.host(), server.port(), "testuser".to_owned(), "testpass".to_owned())
+            .build();
 
         let first = client.daemon().info().await;
         assert!(first.is_ok(), "first call should succeed: {first:?}");
@@ -195,9 +192,8 @@ mod tests {
         let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher).await.expect("start server");
 
-        let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(server.host(), server.port(), "testuser".to_owned(), "testpass".to_owned())
+            .build();
 
         let result = client.daemon().info().await;
         assert!(result.is_err(), "should receive error: {result:?}");
@@ -214,9 +210,8 @@ mod tests {
         let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher).await.expect("start server");
 
-        let client = DelugeClient::connect(&server.host(), server.port(), "anyuser", "anypassword")
-            .await
-            .expect("connect should succeed with auto-served login");
+        let client = DelugeClientBuilder::new(server.host(), server.port(), "anyuser".to_owned(), "anypassword".to_owned())
+            .build();
 
         let version = client.daemon().get_version().await;
         assert!(
@@ -236,9 +231,8 @@ mod tests {
         let matcher = Matcher::new(cassette.interactions);
         let server = ReplayServer::start(matcher).await.expect("start server");
 
-        let client = DelugeClient::connect(&server.host(), server.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(server.host(), server.port(), "testuser".to_owned(), "testpass".to_owned())
+            .build();
 
         let result = client.daemon().info().await;
         assert!(result.is_err(), "unknown method should error: {result:?}");

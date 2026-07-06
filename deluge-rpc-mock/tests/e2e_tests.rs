@@ -1,4 +1,4 @@
-use deluge_rpc::{DaemonRpc, DelugeClient, RencodeValue};
+use deluge_rpc::{DaemonRpc, DelugeClientBuilder, RencodeValue};
 use deluge_rpc_mock::{
     Cassette, Interaction, InteractionRequest, InteractionResponse as CassetteResponse, Matcher,
     ReplayServer,
@@ -37,18 +37,21 @@ async fn start(cassette: Cassette) -> ReplayServer {
 async fn when_login_then_auto_served_response_lets_connect_succeed() {
     let server = start(empty_cassette()).await;
 
-    DelugeClient::connect(&server.host(), server.port(), "any", "any")
-        .await
-        .expect("connect should succeed with auto-served login");
+    let _client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn when_method_not_in_cassette_then_returns_unknown_method_error() {
     let server = start(empty_cassette()).await;
 
-    let client = DelugeClient::connect(&server.host(), server.port(), "any", "any")
-        .await
-        .expect("connect");
+    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
+        .build();
 
     let result = client.daemon().info().await;
     assert!(result.is_err(), "unknown method should error: {result:?}");
@@ -69,9 +72,8 @@ async fn when_cassette_has_interaction_then_response_replayed_to_client() {
     };
     let server = start(cassette).await;
 
-    let client = DelugeClient::connect(&server.host(), server.port(), "any", "any")
-        .await
-        .expect("connect");
+    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
+        .build();
 
     let info = client.daemon().info().await.expect("daemon.info");
     assert_eq!(info, "2.1.1");

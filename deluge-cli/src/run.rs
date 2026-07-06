@@ -9,7 +9,7 @@ use crate::record::{
 };
 use anyhow::Context;
 use clap::{Parser, Subcommand};
-use deluge_rpc::{DelugeClient, DelugeRpcRequest, RencodeValue};
+use deluge_rpc::{DelugeClient, DelugeClientBuilder, DelugeRpcRequest, RencodeValue};
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 
@@ -42,14 +42,9 @@ pub async fn run() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let resolved = cli.config.resolve()?;
 
-    let client = DelugeClient::connect(
-        &resolved.host,
-        resolved.port,
-        &resolved.user,
-        &resolved.pass,
-    )
-    .await
-    .context("failed to connect to Deluge daemon")?;
+    let client =
+        DelugeClientBuilder::new(resolved.host, resolved.port, resolved.user, resolved.pass)
+            .build();
 
     let mut interactions: Vec<Interaction> = Vec::new();
 

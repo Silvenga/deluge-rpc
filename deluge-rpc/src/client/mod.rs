@@ -1,10 +1,11 @@
+mod builder;
 mod client;
 mod connection;
-mod info;
 mod dispatcher;
+mod info;
 mod manager;
 mod routes;
-mod dispatch;
 
+pub use builder::*;
 pub use client::*;
 pub use routes::*;

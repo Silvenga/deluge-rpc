@@ -1,6 +1,5 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::client::info::DelugeConnectionInfo;
-use crate::client::manager::ConnectionManager;
 use crate::{
     AutoAddClient, BlocklistClient, CoreAccountClient, CoreConfigClient, CoreMiscClient,
     CorePluginClient, CoreSessionClient, CoreTorrentClient, DaemonClient, DelugeRpcRequest,
@@ -16,22 +15,14 @@ pub struct DelugeClient {
 }
 
 impl DelugeClient {
-    pub async fn connect(
-        host: impl Into<String>,
-        port: u16,
-        username: impl Into<String>,
-        password: impl Into<String>,
-    ) -> anyhow::Result<Self> {
-        let info = DelugeConnectionInfo::new(host.into(), port, username.into(), password.into());
-        let manager = ConnectionManager::new(info);
-        let dispatcher = DelugeClientDispatcher::new(manager);
-
-        Ok(Self {
+    pub fn new(info: DelugeConnectionInfo) -> Self {
+        let dispatcher = DelugeClientDispatcher::new(info.into());
+        Self {
             daemon_client: DaemonClient::new(dispatcher.clone()),
             core_client: CoreClient::new(dispatcher.clone()),
             plugins_client: PluginsClient::new(dispatcher.clone()),
             dispatcher,
-        })
+        }
     }
 
     pub fn daemon(&self) -> &DaemonClient {
@@ -106,9 +97,9 @@ impl PluginsClient {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::client::DaemonRpc;
     use crate::rencode::RencodeValue;
+    use crate::DelugeClientBuilder;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
     use flate2::Compression;
@@ -290,9 +281,13 @@ mod tests {
     async fn when_connect_then_client_has_all_sub_clients() {
         let server = MockServer::new(u32::MAX).await;
 
-        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(
+            "127.0.0.1".to_owned(),
+            server.addr.port(),
+            "testuser".to_owned(),
+            "testpass".to_owned(),
+        )
+        .build();
 
         let _daemon = client.daemon();
         let core = client.core();
@@ -320,9 +315,13 @@ mod tests {
     async fn when_reader_dies_then_next_call_reconnects() {
         let server = MockServer::new(2).await;
 
-        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(
+            "127.0.0.1".to_owned(),
+            server.addr.port(),
+            "testuser".to_owned(),
+            "testpass".to_owned(),
+        )
+        .build();
 
         let result = client.daemon().info().await;
         assert!(result.is_ok(), "first call should succeed: {result:?}");
@@ -338,9 +337,13 @@ mod tests {
     async fn when_reconnect_then_re_login_succeeds() {
         let server = MockServer::new(2).await;
 
-        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(
+            "127.0.0.1".to_owned(),
+            server.addr.port(),
+            "testuser".to_owned(),
+            "testpass".to_owned(),
+        )
+        .build();
 
         let _ = client.daemon().info().await;
 
@@ -355,9 +358,13 @@ mod tests {
     async fn when_in_flight_request_dropped_then_error_returned() {
         let server = MockServer::new(1).await;
 
-        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(
+            "127.0.0.1".to_owned(),
+            server.addr.port(),
+            "testuser".to_owned(),
+            "testpass".to_owned(),
+        )
+        .build();
 
         let result = client.daemon().info().await;
         assert!(
@@ -370,9 +377,13 @@ mod tests {
     async fn when_repeated_reconnects_then_no_reader_leak() {
         let server = MockServer::new(2).await;
 
-        let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
-            .await
-            .expect("connect");
+        let client = DelugeClientBuilder::new(
+            "127.0.0.1".to_owned(),
+            server.addr.port(),
+            "testuser".to_owned(),
+            "testpass".to_owned(),
+        )
+        .build();
 
         for i in 0..5 {
             let result = client.daemon().info().await;

@@ -7,7 +7,7 @@ use deluge_retain::config::{Config, HostConfig, Rules};
 use deluge_retain::engine::{compute_deletion_plan, execute_deletion_plan};
 use deluge_retain::tracing_setup::init_tracing;
 use deluge_rpc::models::FilterDict;
-use deluge_rpc::{CoreSessionRpc, CoreTorrentRpc, DelugeClient};
+use deluge_rpc::{CoreSessionRpc, CoreTorrentRpc, DelugeClientBuilder};
 use std::error::Error;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
@@ -68,14 +68,13 @@ async fn process_host(host: &HostConfig, rules: &Rules, dry_run: bool) {
         }
     };
 
-    let client = match DelugeClient::connect(&host.host, host.port, &host.username, &password).await
-    {
-        Ok(client) => client,
-        Err(err) => {
-            error!(host = %host.host, port = host.port, error = %err, "connection/login failed for host `{}:{}`: {err}", host.host, host.port);
-            return;
-        }
-    };
+    let client = DelugeClientBuilder::new(
+        host.host.clone(),
+        host.port,
+        host.username.clone(),
+        password,
+    )
+    .build();
 
     let free_space = match client.core().session.get_free_space(None).await {
         Ok(bytes) => u64::try_from(bytes).unwrap_or(0),

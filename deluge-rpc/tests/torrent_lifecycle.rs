@@ -1,4 +1,4 @@
-use deluge_rpc::{CoreTorrentRpc, DelugeClient};
+use deluge_rpc::{CoreTorrentRpc, DelugeClientBuilder};
 use deluge_rpc_mock::{Cassette, Matcher, ReplayServer};
 use std::fs;
 use std::path::PathBuf;
@@ -26,9 +26,8 @@ async fn start_replay(cassette: Cassette) -> ReplayServer {
 async fn when_torrent_lifecycle_cassette_then_get_torrent_status_returns_name() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClient::connect(&server.host(), server.port(), "any", "any")
-        .await
-        .expect("connect");
+    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
+        .build();
 
     let status = client
         .core()
@@ -49,9 +48,8 @@ async fn when_torrent_lifecycle_cassette_then_get_torrent_status_returns_name() 
 async fn when_torrent_lifecycle_cassette_then_remove_torrent_returns_true() {
     let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClient::connect(&server.host(), server.port(), "any", "any")
-        .await
-        .expect("connect");
+    let client = DelugeClientBuilder::new(server.host(), server.port(), "any".to_owned(), "any".to_owned())
+        .build();
 
     let result = client
         .core()
