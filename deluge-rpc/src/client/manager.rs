@@ -18,6 +18,14 @@ impl ConnectionManager {
         }
     }
 
+    pub async fn is_connected(&self) -> bool {
+        if let Some(connection) = self.connection.lock().await.as_ref() {
+            connection.is_connected()
+        } else {
+            false
+        }
+    }
+
     pub async fn acquire(&self) -> Result<Arc<Connection>, DelugeRpcError> {
         let mut guard = self.connection.lock().await;
 

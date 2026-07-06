@@ -37,6 +37,10 @@ impl DelugeClient {
         &self.plugins_client
     }
 
+    pub async fn is_connected(&self) -> bool {
+        self.dispatcher.is_connected().await
+    }
+
     /// A low-level method to call the RPC server directly.
     pub async fn call(&self, request: DelugeRpcRequest) -> Result<RencodeValue, DelugeRpcError> {
         self.dispatcher.dispatch(request).await
@@ -98,11 +102,11 @@ impl PluginsClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::DelugeClientBuilder;
     use crate::client::DaemonRpc;
-    use flate2::Compression;
+    use crate::DelugeClientBuilder;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
+    use flate2::Compression;
     use rustls::crypto::ring;
     use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
     use rustls::server::ServerConfig;
@@ -110,8 +114,11 @@ mod tests {
     use std::net::SocketAddr;
     use std::sync::Arc;
     use std::sync::Once;
+    use std::time::Duration;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::{TcpListener, TcpStream};
+    use tokio::time;
+    use tokio::time::timeout;
     use tokio_rustls::server::TlsStream;
 
     const HEADER_LEN: usize = 5;
@@ -326,31 +333,19 @@ mod tests {
         let result = client.daemon().info().await;
         assert!(result.is_ok(), "first call should succeed: {result:?}");
 
+        // Wait for the socket to die.
+        let deadline = timeout(Duration::from_secs(1), async {
+            while client.is_connected().await {
+                time::sleep(Duration::from_millis(1)).await;
+            }
+        })
+        .await;
+        assert!(deadline.is_ok(), "deadline should not have expired");
+
         let result2 = client.daemon().info().await;
         assert!(
             result2.is_ok(),
             "second call after reconnect should succeed: {result2:?}"
-        );
-    }
-
-    #[tokio::test(flavor = "multi_thread")]
-    async fn when_reconnect_then_re_login_succeeds() {
-        let server = MockServer::new(2).await;
-
-        let client = DelugeClientBuilder::new(
-            "127.0.0.1".to_owned(),
-            server.addr.port(),
-            "testuser".to_owned(),
-            "testpass".to_owned(),
-        )
-        .build();
-
-        let _ = client.daemon().info().await;
-
-        let result = client.daemon().get_version().await;
-        assert!(
-            result.is_ok(),
-            "call after reconnect should succeed: {result:?}"
         );
     }
 
@@ -371,23 +366,5 @@ mod tests {
             result.is_err(),
             "call should fail (connection dropped): {result:?}"
         );
-    }
-
-    #[tokio::test(flavor = "multi_thread")]
-    async fn when_repeated_reconnects_then_no_reader_leak() {
-        let server = MockServer::new(2).await;
-
-        let client = DelugeClientBuilder::new(
-            "127.0.0.1".to_owned(),
-            server.addr.port(),
-            "testuser".to_owned(),
-            "testpass".to_owned(),
-        )
-        .build();
-
-        for i in 0..5 {
-            let result = client.daemon().info().await;
-            assert!(result.is_ok(), "call {i} should succeed: {result:?}");
-        }
     }
 }

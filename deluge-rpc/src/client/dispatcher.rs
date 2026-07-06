@@ -18,6 +18,10 @@ impl DelugeClientDispatcher {
         }
     }
 
+    pub async fn is_connected(&self) -> bool {
+        self.manager.is_connected().await
+    }
+
     pub async fn dispatch(
         &self,
         request: DelugeRpcRequest,

@@ -36,4 +36,4 @@ mock = ["dep:mockall"]
 deluge-rpc-mock = { path = "../deluge-rpc-mock" }
 mockall = { workspace = true }
 rcgen = { workspace = true }
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
