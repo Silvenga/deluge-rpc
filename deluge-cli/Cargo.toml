@@ -1,6 +1,7 @@
 [package]
 name = "deluge-cli"
 description = "CLI client for the Deluge daemon RPC protocol"
+publish = false
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

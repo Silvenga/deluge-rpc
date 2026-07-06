@@ -1,6 +1,7 @@
 [package]
 name = "deluge-rpc-mock"
 description = "Cassette replay server for Deluge daemon RPC protocol testing"
+publish = false
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

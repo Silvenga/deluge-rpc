@@ -17,6 +17,6 @@ categories = ["data-structures", "api-bindings"]
 workspace = true
 
 [dependencies]
-deluge-rencode = { path = "../deluge-rencode" }
+deluge-rencode = { path = "../deluge-rencode", version = "0.1.0" }
 serde = { workspace = true }
 serde_json = { workspace = true }

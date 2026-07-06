@@ -1,0 +1,31 @@
+{
+  "release-type": "simple",
+  "packages": {
+    ".": {
+      "component": "root",
+      "include-component-in-tag": false,
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "Cargo.toml",
+          "jsonpath": "$.workspace.package.version"
+        },
+        {
+          "type": "toml",
+          "path": "deluge-rpc-models/Cargo.toml",
+          "jsonpath": "$.dependencies.deluge-rencode.version"
+        },
+        {
+          "type": "toml",
+          "path": "deluge-rpc/Cargo.toml",
+          "jsonpath": "$.dependencies.deluge-rencode.version"
+        },
+        {
+          "type": "toml",
+          "path": "deluge-rpc/Cargo.toml",
+          "jsonpath": "$.dependencies.deluge-rpc-models.version"
+        }
+      ]
+    }
+  }
+}

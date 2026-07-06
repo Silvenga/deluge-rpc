@@ -55,7 +55,8 @@ pub async fn run() -> anyhow::Result<()> {
             Command::Call(cmd) => {
                 let response = cmd.run(&client).await?;
                 let plain = rencode_to_plain_json(&response);
-                let output = serde_json::to_string_pretty(&plain).unwrap_or_else(|_| "null".to_owned());
+                let output =
+                    serde_json::to_string_pretty(&plain).unwrap_or_else(|_| "null".to_owned());
                 println!("{output}");
             }
             Command::Daemon(cmd) => {
