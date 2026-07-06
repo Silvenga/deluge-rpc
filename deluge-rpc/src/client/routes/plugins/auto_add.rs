@@ -1,13 +1,13 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{AutoAddConfig, WatchDirId, WatchDirOptions};
 use crate::protocol::{extract_single, extract_single_int, DelugeRpcRequest};
-use crate::rencode::{to_rencode_value, RencodeValue};
+use crate::{to_rencode_value, RencodeValue};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait AutoAddRpc: Send + Sync {
     async fn set_options(
@@ -165,7 +165,7 @@ impl AutoAddRpc for AutoAddClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
     use serde::Deserialize;
     use std::collections::BTreeMap;
 

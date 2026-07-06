@@ -1,12 +1,12 @@
-use crate::rencode::constants::{
+use crate::constants::{
     CHR_DICT, CHR_FALSE, CHR_FLOAT32, CHR_FLOAT64, CHR_INT, CHR_INT1, CHR_INT2, CHR_INT4, CHR_INT8,
     CHR_LIST, CHR_NONE, CHR_TERM, CHR_TRUE, DICT_FIXED_COUNT, DICT_FIXED_START,
     INT_NEG_FIXED_COUNT, INT_NEG_FIXED_START, INT_POS_FIXED_COUNT, INT_POS_FIXED_START,
     LENGTH_DELIM, LIST_FIXED_COUNT, LIST_FIXED_START, MAX_DEPTH, STR_FIXED_COUNT, STR_FIXED_START,
 };
-use crate::rencode::cursor::Cursor;
-use crate::rencode::error::RencodeError;
-use crate::rencode::value::RencodeValue;
+use crate::cursor::Cursor;
+use crate::error::RencodeError;
+use crate::value::RencodeValue;
 use std::collections::BTreeMap;
 use std::str::from_utf8;
 
@@ -222,8 +222,8 @@ fn is_long_string_digit(b: u8) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::constants::{CHR_FLOAT64, CHR_INT};
-    use crate::rencode::encode::encode;
+    use crate::constants::{CHR_FLOAT64, CHR_INT};
+    use crate::encode::encode;
 
     #[test]
     fn when_roundtrip_all_types_then_decode_matches_encode() {

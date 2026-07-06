@@ -1,5 +1,5 @@
-use crate::rencode::error::RencodeError;
-use crate::rencode::value::RencodeValue;
+use crate::error::RencodeError;
+use crate::value::RencodeValue;
 use serde::ser::{self, Serialize};
 use std::collections::BTreeMap;
 

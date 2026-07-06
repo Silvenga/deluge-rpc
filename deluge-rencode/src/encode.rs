@@ -1,10 +1,10 @@
-use crate::rencode::constants::{
+use crate::constants::{
     CHR_DICT, CHR_FALSE, CHR_FLOAT32, CHR_INT1, CHR_INT2, CHR_INT4, CHR_INT8, CHR_LIST, CHR_NONE,
     CHR_TERM, CHR_TRUE, DICT_FIXED_COUNT, DICT_FIXED_START, INT_NEG_FIXED_COUNT,
     INT_NEG_FIXED_START, INT_POS_FIXED_COUNT, INT_POS_FIXED_START, LENGTH_DELIM, LIST_FIXED_COUNT,
     LIST_FIXED_START, STR_FIXED_COUNT, STR_FIXED_START,
 };
-use crate::rencode::value::RencodeValue;
+use crate::value::RencodeValue;
 use std::collections::BTreeMap;
 use std::fmt::Write;
 

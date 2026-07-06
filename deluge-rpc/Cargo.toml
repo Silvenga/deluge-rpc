@@ -19,7 +19,7 @@ workspace = true
 [dependencies]
 anyhow = { workspace = true }
 async-trait = { workspace = true }
-base64 = { workspace = true }
+deluge-rencode = { path = "../deluge-rencode" }
 flate2 = { workspace = true }
 rustls = { workspace = true }
 serde = { workspace = true }

@@ -1,10 +1,10 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::{extract_single, DelugeRpcRequest};
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait ToggleRpc: Send + Sync {
     async fn get_status(&self) -> anyhow::Result<bool>;
@@ -61,7 +61,7 @@ impl ToggleRpc for ToggleClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
 
     #[test]
     fn when_toggle_get_status_response_then_deserializes_bool() {

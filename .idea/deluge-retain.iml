@@ -10,6 +10,7 @@
       <sourceFolder url="file://$MODULE_DIR$/deluge-cli/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/deluge-cli/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/deluge-rpc-mock/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/deluge-rencode/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/deluge-rpc-mock/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/deluge-rpc/tests" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/target" />

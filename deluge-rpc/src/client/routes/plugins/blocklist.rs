@@ -1,12 +1,12 @@
 use crate::models::{BlocklistConfig, BlocklistStatus};
 use crate::protocol::{DelugeRpcRequest, extract_single};
-use crate::rencode::{to_rencode_value, RencodeValue};
+use crate::{to_rencode_value, RencodeValue};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use crate::client::dispatcher::DelugeClientDispatcher;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait BlocklistRpc: Send + Sync {
     async fn check_import(&self, force: bool) -> anyhow::Result<Option<String>>;
@@ -86,7 +86,7 @@ impl BlocklistRpc for BlocklistClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
     use serde::Deserialize;
     use std::collections::BTreeMap;
 

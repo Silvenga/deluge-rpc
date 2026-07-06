@@ -5,13 +5,13 @@ use crate::models::{
     TorrentEntry, TorrentStatus, TrackerInfo,
 };
 use crate::protocol::{extract_single, extract_single_dict, extract_single_int, DelugeRpcRequest};
-use crate::rencode::{to_rencode_value, RencodeValue};
+use crate::{to_rencode_value, RencodeValue};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreTorrentRpc: Send + Sync {
     async fn add_torrent_file(
@@ -776,12 +776,11 @@ impl CoreTorrentRpc for CoreTorrentClient {
 mod tests {
     use super::*;
     use crate::models::{
-        AddTorrentFileResult, AddTorrentFilesResult, FilterDict, FilterTree, PrefetchMagnetResult,
+        AddTorrentFileResult, AddTorrentFilesResult, FilterTree, PrefetchMagnetResult,
         RemoveTorrentsResult, TorrentEntry, TorrentStatus,
     };
     use crate::protocol::{extract_single, extract_single_dict, extract_single_int};
-    use crate::rencode::RencodeValue;
-    use mockall::predicate;
+    use crate::RencodeValue;
     use std::collections::BTreeMap;
 
     #[test]
@@ -1176,8 +1175,12 @@ mod tests {
         assert_eq!(bytes, 1_073_741_824);
     }
 
+    #[cfg(feature = "mock")]
     #[tokio::test]
     async fn when_mock_core_torrent_rpc_then_expectations_met() {
+        use crate::models::FilterDict;
+        use mockall::predicate;
+
         let mut mock = MockCoreTorrentRpc::new();
 
         mock.expect_remove_torrent()

@@ -1,5 +1,5 @@
-use crate::rencode::error::RencodeError;
-use crate::rencode::value::RencodeValue;
+use crate::error::RencodeError;
+use crate::value::RencodeValue;
 use base64::engine::general_purpose::STANDARD as Base64Engine;
 use base64::Engine;
 use serde_json::Value as JsonValue;

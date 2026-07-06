@@ -1,0 +1,24 @@
+[package]
+name = "deluge-rencode"
+description = "Rencode serialization format implementation for the Deluge RPC protocol"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+readme.workspace = true
+keywords = ["deluge", "rencode", "serialization", "bencode"]
+categories = ["encoding", "parser-implementations"]
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = { workspace = true }
+base64 = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }

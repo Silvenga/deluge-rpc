@@ -1,12 +1,12 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{StatsConfig, StatsGetStatsResult, StatsTotals};
 use crate::protocol::{extract_single, DelugeRpcRequest};
-use crate::rencode::{to_rencode_value, RencodeValue};
+use crate::{to_rencode_value, RencodeValue};
 use anyhow::Context;
 use async_trait::async_trait;
 use serde::Deserialize;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait StatsRpc: Send + Sync {
     async fn get_stats(
@@ -117,7 +117,7 @@ impl StatsRpc for StatsClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
     use serde::Deserialize;
 
     #[test]

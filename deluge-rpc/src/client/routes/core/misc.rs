@@ -1,13 +1,13 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{CompletionPaths, CreateTorrentResult, GlobResult};
 use crate::protocol::{extract_single, DelugeRpcRequest};
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::Context;
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreMiscRpc: Send + Sync {
     #[expect(
@@ -168,7 +168,7 @@ impl CoreMiscRpc for CoreMiscClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
 
     #[test]
     fn when_core_glob_then_vec_string() {

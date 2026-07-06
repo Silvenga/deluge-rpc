@@ -1,12 +1,12 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::{extract_single, extract_single_int};
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait DaemonRpc: Send + Sync {
     async fn info(&self) -> anyhow::Result<String>;
@@ -172,8 +172,7 @@ impl DaemonRpc for DaemonClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
-    use tokio::runtime::Runtime;
+    use crate::RencodeValue;
 
     #[test]
     fn when_daemon_info_then_string() {
@@ -239,8 +238,11 @@ mod tests {
         }
     }
 
+    #[cfg(feature = "mock")]
     #[test]
     fn when_mock_daemon_rpc_then_expectations_met() {
+        use tokio::runtime::Runtime;
+
         let mut mock = MockDaemonRpc::new();
         mock.expect_info().times(1).returning(|| Ok("2.1.1".into()));
         mock.expect_login().times(1).returning(|_, _, _| Ok(10));

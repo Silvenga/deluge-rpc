@@ -2,13 +2,13 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{DaemonConfig, ProxyConfig};
 use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreConfigRpc: Send + Sync {
     async fn get_config(&self) -> anyhow::Result<DaemonConfig>;
@@ -130,7 +130,7 @@ impl CoreConfigRpc for CoreConfigClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
     use std::collections::BTreeMap;
 
     #[test]

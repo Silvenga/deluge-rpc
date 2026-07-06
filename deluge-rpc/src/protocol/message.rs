@@ -1,5 +1,5 @@
 use crate::protocol::helpers::field_as_str;
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::{anyhow, bail};
 
 const RPC_RESPONSE: i64 = 1;

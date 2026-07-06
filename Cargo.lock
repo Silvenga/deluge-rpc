@@ -429,6 +429,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "deluge-rencode"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "base64",
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "deluge-retain"
 version = "0.1.0"
 dependencies = [
@@ -456,7 +467,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "base64",
+ "deluge-rencode",
  "deluge-rpc-mock",
  "flate2",
  "mockall",

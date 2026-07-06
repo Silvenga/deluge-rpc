@@ -1,12 +1,12 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::SessionStatus;
 use crate::protocol::{extract_single, extract_single_int, DelugeRpcRequest};
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreSessionRpc: Send + Sync {
     async fn pause_session(&self) -> anyhow::Result<()>;
@@ -176,7 +176,7 @@ impl CoreSessionRpc for CoreSessionClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
     use std::collections::BTreeMap;
 
     #[test]

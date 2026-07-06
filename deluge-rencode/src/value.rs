@@ -3,10 +3,10 @@ use std::collections::BTreeMap;
 
 use serde::Serialize;
 
-use crate::rencode::decode::decode;
-use crate::rencode::encode::encode;
-use crate::rencode::error::RencodeError;
-use crate::rencode::json::to_json;
+use crate::decode::decode;
+use crate::encode::encode;
+use crate::error::RencodeError;
+use crate::json::to_json;
 
 #[derive(Debug, Clone)]
 pub enum RencodeValue {

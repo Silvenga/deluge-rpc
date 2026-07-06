@@ -2,13 +2,13 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::AccountInfo;
 use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CoreAccountRpc: Send + Sync {
     async fn get_known_accounts(&self) -> anyhow::Result<Vec<AccountInfo>>;
@@ -155,7 +155,7 @@ impl CoreAccountRpc for CoreAccountClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
     use std::collections::BTreeMap;
 
     #[test]

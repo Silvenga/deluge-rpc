@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["deluge-rpc", "deluge-rpc-mock", "deluge-retain", "deluge-cli"]
+members = ["deluge-rencode", "deluge-rpc", "deluge-rpc-mock", "deluge-retain", "deluge-cli"]
 
 [workspace.package]
 version = "0.1.0"

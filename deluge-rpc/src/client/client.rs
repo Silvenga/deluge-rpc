@@ -97,8 +97,8 @@ impl PluginsClient {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use crate::client::DaemonRpc;
-    use crate::rencode::RencodeValue;
     use crate::DelugeClientBuilder;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;

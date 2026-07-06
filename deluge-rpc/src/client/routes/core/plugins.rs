@@ -1,11 +1,11 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
-use crate::rencode::RencodeValue;
+use crate::RencodeValue;
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait CorePluginRpc: Send + Sync {
     async fn get_available_plugins(&self) -> anyhow::Result<Vec<String>>;
@@ -151,7 +151,7 @@ impl CorePluginRpc for CorePluginClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
 
     #[test]
     fn when_core_get_available_plugins_then_vec_string() {

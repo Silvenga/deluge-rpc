@@ -2,12 +2,12 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::WebUiConfig;
 use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
-use crate::rencode::{to_rencode_value, RencodeValue};
+use crate::{to_rencode_value, RencodeValue};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-#[cfg_attr(any(test, feature = "mock"), mockall::automock)]
+#[cfg_attr(feature = "mock", mockall::automock)]
 #[async_trait]
 pub trait WebUiRpc: Send + Sync {
     async fn got_deluge_web(&self) -> anyhow::Result<bool>;
@@ -70,7 +70,7 @@ impl WebUiRpc for WebUiClient {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::rencode::RencodeValue;
+    use crate::RencodeValue;
 
     #[test]
     fn when_webui_got_deluge_web_response_then_deserializes_bool() {
