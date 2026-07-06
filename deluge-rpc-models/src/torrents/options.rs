@@ -1,43 +1,63 @@
 use serde::{Deserialize, Serialize};
 
+/// Options dict for `core.add_torrent_*` methods and `core.set_torrent_options`.
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct AddTorrentOptions {
+    /// Per-file priority: `0`=skip, `1`=low, `2`=normal, `5`=high, `7`=highest.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub file_priorities: Option<Vec<i64>>,
+    /// Max connections; `-1` = unlimited.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_connections: Option<i64>,
+    /// Max download speed in KiB/s; `-1.0` = unlimited.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_download_speed: Option<f64>,
+    /// Max upload slots; `-1` = unlimited.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_upload_slots: Option<i64>,
+    /// Max upload speed in KiB/s; `-1.0` = unlimited.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_upload_speed: Option<f64>,
+    /// Whether to move when completed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub move_completed: Option<bool>,
+    /// Destination path for move-on-completion.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub move_completed_path: Option<String>,
+    /// Display name override.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
+    /// Prioritize first and last pieces.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub prioritize_first_last_pieces: Option<bool>,
+    /// Download pieces sequentially.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub sequential_download: Option<bool>,
+    /// Save path.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub download_location: Option<String>,
+    /// Add the torrent in paused state.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub add_paused: Option<bool>,
+    /// Whether auto-managed by the queue.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub auto_managed: Option<bool>,
+    /// Torrent owner username.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub owner: Option<String>,
+    /// Whether shared across users.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shared: Option<bool>,
+    /// Stop at stop ratio.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop_at_ratio: Option<bool>,
+    /// The stop ratio.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stop_ratio: Option<f64>,
+    /// Remove when stop ratio is reached.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub remove_at_ratio: Option<bool>,
+    /// Enable super seeding.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub super_seeding: Option<bool>,
 }

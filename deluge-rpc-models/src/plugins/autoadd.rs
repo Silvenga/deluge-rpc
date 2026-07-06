@@ -33,16 +33,16 @@ pub struct WatchDirOptions {
     pub abs_path: bool,
     /// Save path for torrents added from this watchdir.
     pub download_location: String,
-    /// Per-torrent max download speed; -1 = unlimited.
+    /// Per-torrent max download speed; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_download_speed: Option<i64>,
-    /// Per-torrent max upload speed; -1 = unlimited.
+    /// Per-torrent max upload speed; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_upload_speed: Option<i64>,
-    /// Per-torrent max connections; -1 = unlimited.
+    /// Per-torrent max connections; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_connections: Option<i64>,
-    /// Per-torrent max upload slots; -1 = unlimited.
+    /// Per-torrent max upload slots; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_upload_slots: Option<i64>,
     /// Whether to prioritize first/last pieces.

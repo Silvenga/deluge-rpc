@@ -1,19 +1,29 @@
 use serde::{Deserialize, Serialize};
 
+/// Proxy configuration nested inside `DaemonConfig`.
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct ProxyConfig {
     /// Proxy type: 0=None, 1=Socks4, 2=Socks5, 3=Socks5+Auth, 4=HTTP, 5=HTTP+Auth, 6=I2P
     #[serde(rename = "type")]
     pub proxy_type: i64,
+    /// Proxy server hostname.
     pub hostname: String,
+    /// Proxy username.
     pub username: String,
+    /// Proxy password.
     pub password: String,
+    /// Proxy port.
     pub port: i64,
+    /// Whether to proxy hostname lookups.
     pub proxy_hostnames: bool,
+    /// Whether to proxy peer connections.
     pub proxy_peer_connections: bool,
+    /// Whether to proxy tracker connections.
     pub proxy_tracker_connections: bool,
+    /// Whether to force proxy usage.
     pub force_proxy: bool,
+    /// Whether to enable anonymous mode.
     pub anonymous_mode: bool,
 }
 

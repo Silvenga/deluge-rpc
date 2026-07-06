@@ -6,10 +6,14 @@ use serde::Deserialize;
 /// integer.
 #[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct AccountInfo {
+    /// Account username.
     pub username: String,
+    /// Password hash (or plaintext for `localclient`).
     pub password: String,
+    /// Auth level name: `NONE`, `READONLY`, `DEFAULT`, `NORMAL`, or `ADMIN`.
     #[serde(rename = "authlevel")]
     pub auth_level: String,
+    /// Auth level integer: `0`, `1`, `5`, or `10`.
     #[serde(rename = "authlevel_int")]
     pub auth_level_int: i64,
 }

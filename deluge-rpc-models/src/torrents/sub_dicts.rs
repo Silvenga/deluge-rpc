@@ -2,26 +2,39 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct PeerInfo {
+    /// Peer client.
     pub client: String,
+    /// Peer country.
     pub country: String,
+    /// Peer download speed.
     pub down_speed: i64,
+    /// Peer IP address.
     pub ip: String,
+    /// Peer progress.
     pub progress: f64,
+    /// Whether the peer is a seed.
     pub seed: bool,
+    /// Peer upload speed.
     pub up_speed: i64,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct FileInfo {
+    /// File index.
     pub index: i64,
+    /// File path.
     pub path: String,
+    /// File size.
     pub size: i64,
+    /// File offset.
     pub offset: i64,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct TrackerInfo {
+    /// Tracker URL.
     pub url: String,
+    /// Tracker tier.
     pub tier: i64,
 }
 

@@ -2,109 +2,172 @@ use super::proxy::ProxyConfig;
 use crate::sentinels::{deserialize_unlimited_f64, deserialize_unlimited_i64};
 use serde::{Deserialize, Serialize};
 
+/// All daemon config preferences returned by `core.get_config()`.
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct DaemonConfig {
+    /// Whether to send anonymous usage info to the Deluge project.
     pub send_info: bool,
+    /// Timestamp of the last info send.
     pub info_sent: f64,
-
+    /// Port the daemon listens on.
     pub daemon_port: i64,
+    /// Whether remote connections are allowed.
     pub allow_remote: bool,
-
+    /// Whether to pre-allocate disk space for torrents.
     pub pre_allocate_storage: bool,
+    /// Default save path for torrents.
     pub download_location: String,
+    /// Whether to copy .torrent files to `torrentfiles_location`.
     pub copy_torrent_file: bool,
+    /// Whether to delete copied .torrent files when torrent is removed.
     pub del_copy_torrent_file: bool,
+    /// Directory for copied .torrent files.
     pub torrentfiles_location: String,
+    /// Directory containing plugins.
     pub plugins_location: String,
+    /// Whether to move torrents when completed.
     pub move_completed: bool,
+    /// Default move-on-completion destination.
     pub move_completed_path: String,
+    /// History of move-completed paths.
     pub move_completed_paths_list: Vec<String>,
+    /// History of download locations.
     pub download_location_paths_list: Vec<String>,
-
+    /// Inclusive port range for incoming connections.
     pub listen_ports: Vec<i64>,
+    /// Network interface to bind to.
     pub listen_interface: String,
+    /// Network interface for outgoing connections.
     pub outgoing_interface: String,
+    /// Whether to pick a random port on startup.
     pub random_port: bool,
+    /// The random port chosen (if `random_port=True`).
     pub listen_random_port: Option<i64>,
+    /// Whether to allow system ports (<1024).
     pub listen_use_sys_port: bool,
+    /// Whether to set SO_REUSEPORT.
     pub listen_reuse_port: bool,
+    /// Whether SSL torrents are enabled.
     pub ssl_torrents: bool,
+    /// Inclusive port range for SSL torrents.
     pub ssl_listen_ports: Vec<i64>,
+    /// Path to SSL certs for SSL torrents.
     pub ssl_torrents_certs: String,
+    /// Inclusive port range for outgoing connections.
     pub outgoing_ports: Vec<i64>,
+    /// Whether to pick random outgoing ports.
     pub random_outgoing_ports: bool,
-
+    /// Whether DHT is enabled.
     pub dht: bool,
+    /// Whether UPnP NAT traversal is enabled.
     pub upnp: bool,
+    /// Whether NAT-PMP is enabled.
     pub natpmp: bool,
+    /// Whether uTP peer exchange is enabled.
     pub utpex: bool,
+    /// Whether Local Service Discovery is enabled.
     pub lsd: bool,
+    /// Whether to announce to all tracker tiers.
     pub announce_to_all_tiers: bool,
-
+    /// Incoming encryption policy. `0`=disabled, `1`=enabled, `2`=forced.
     pub enc_in_policy: i64,
+    /// Outgoing encryption policy. Same scale.
     pub enc_out_policy: i64,
+    /// Encryption level. `0`=plaintext, `1`=rc4, `2`=both.
     pub enc_level: i64,
-
+    /// Global max connections. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_connections_global: Option<i64>,
+    /// Global max upload speed in KiB/s. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_f64")]
     pub max_upload_speed: Option<f64>,
+    /// Global max download speed in KiB/s. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_f64")]
     pub max_download_speed: Option<f64>,
+    /// Global max upload slots.
     pub max_upload_slots_global: i64,
+    /// Max half-open connections (Windows: lower). `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_half_open_connections: Option<i64>,
+    /// Max new connections per second. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_connections_per_second: Option<i64>,
+    /// Whether to ignore rate limits for local network peers.
     pub ignore_limits_on_local_network: bool,
+    /// Whether to include IP overhead in rate limits.
     pub rate_limit_ip_overhead: bool,
-
+    /// Per-torrent max connections. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_connections_per_torrent: Option<i64>,
+    /// Per-torrent max upload slots. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_upload_slots_per_torrent: Option<i64>,
+    /// Per-torrent max upload speed in KiB/s. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_f64")]
     pub max_upload_speed_per_torrent: Option<f64>,
+    /// Per-torrent max download speed in KiB/s. `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_f64")]
     pub max_download_speed_per_torrent: Option<f64>,
-
+    /// Max active seeding torrents.
     pub max_active_seeding: i64,
+    /// Max active downloading torrents.
     pub max_active_downloading: i64,
+    /// Max total active torrents.
     pub max_active_limit: i64,
+    /// Whether to exclude slow torrents from active limits.
     pub dont_count_slow_torrents: bool,
+    /// Whether to place new torrents at the top of the queue.
     pub queue_new_to_top: bool,
+    /// Whether new torrents are auto-managed by the queue.
     pub auto_managed: bool,
+    /// Whether auto-manage prefers seeds over downloads.
     pub auto_manage_prefer_seeds: bool,
-
+    /// Whether to stop seeding at `stop_seed_ratio`.
     pub stop_seed_at_ratio: bool,
+    /// Whether to remove torrents at `stop_seed_ratio`.
     pub remove_seed_at_ratio: bool,
+    /// Ratio at which to stop seeding.
     pub stop_seed_ratio: f64,
+    /// Share ratio limit.
     pub share_ratio_limit: f64,
+    /// Seed time ratio limit.
     pub seed_time_ratio_limit: f64,
+    /// Seed time limit in minutes.
     pub seed_time_limit: i64,
-
+    /// Default for new torrents.
     pub prioritize_first_last_pieces: bool,
+    /// Default for new torrents.
     pub sequential_download: bool,
+    /// Whether to add new torrents paused.
     pub add_paused: bool,
+    /// Default for new torrents.
     pub super_seeding: bool,
+    /// Default for new torrents.
     pub shared: bool,
-
+    /// Names of enabled plugins.
     pub enabled_plugins: Vec<String>,
-
+    /// UI config.
     pub path_chooser_show_chooser_button_on_localhost: bool,
+    /// UI config.
     pub path_chooser_auto_complete_enabled: bool,
+    /// UI config.
     pub path_chooser_accelerator_string: String,
+    /// UI config.
     pub path_chooser_max_popup_rows: i64,
+    /// UI config.
     pub path_chooser_show_hidden_files: bool,
-
+    /// Whether to check for new Deluge releases.
     pub new_release_check: bool,
-
+    /// Proxy configuration.
     pub proxy: ProxyConfig,
-
+    /// Type of service field for peers.
     pub peer_tos: String,
+    /// Path to GeoIP database.
     pub geoip_db_location: String,
+    /// Disk cache size in 16KB blocks.
     pub cache_size: i64,
+    /// Disk cache expiry time.
     pub cache_expiry: i64,
 }
 

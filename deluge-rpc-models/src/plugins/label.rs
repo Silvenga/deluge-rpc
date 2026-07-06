@@ -6,16 +6,16 @@ use serde::{Deserialize, Serialize};
 pub struct LabelOptions {
     /// Whether to apply bandwidth limits.
     pub apply_max: bool,
-    /// Max download speed; -1 = unlimited.
+    /// Max download speed; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_download_speed: Option<i64>,
-    /// Max upload speed; -1 = unlimited.
+    /// Max upload speed; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_upload_speed: Option<i64>,
-    /// Max connections; -1 = unlimited.
+    /// Max connections; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_connections: Option<i64>,
-    /// Max upload slots; -1 = unlimited.
+    /// Max upload slots; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64")]
     pub max_upload_slots: Option<i64>,
     /// Whether to prioritize first/last pieces.

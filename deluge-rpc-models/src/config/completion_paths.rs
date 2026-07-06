@@ -7,8 +7,11 @@ use serde::Deserialize;
 /// sorted matching directory paths (each with a trailing `/`).
 #[derive(Debug, Clone, Deserialize, PartialEq)]
 pub struct CompletionPaths {
+    /// Path prefix to complete.
     pub completion_text: String,
+    /// Whether to include hidden files/dirs.
     pub show_hidden_files: bool,
+    /// Sorted matching directory paths (with trailing `/`), empty if none.
     #[serde(default)]
     pub paths: Vec<String>,
 }

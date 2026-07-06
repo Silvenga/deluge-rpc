@@ -6,14 +6,19 @@ use std::collections::BTreeMap;
 /// All filter values are lists even for a single value. `{}` = no filter (return all).
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 pub struct FilterDict {
+    /// Direct torrent_id match (optimized path).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub id: Option<Vec<String>>,
+    /// State values. `"Active"` filters by `download_payload_rate > 0 or upload_payload_rate > 0`; other values match `torrent.state` directly.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub state: Option<Vec<String>>,
+    /// Searches name, state, tracker URL, info_hash, tracker_status, and file paths (case-insensitive, comma-separated).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub keyword: Option<Vec<String>>,
+    /// Substring match on torrent name. `"::match"` suffix = case-sensitive.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<Vec<String>>,
+    /// Matches `tracker_host` status field. `"Error"` matches torrents with `"Error:"` in `tracker_status`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tracker_host: Option<Vec<String>>,
 }
@@ -24,7 +29,9 @@ pub type FilterTree = BTreeMap<String, Vec<FilterTreeEntry>>;
 /// A single entry in the filter tree: `(value: str, count: int)`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct FilterTreeEntry {
+    /// Filter value string.
     pub value: String,
+    /// Number of torrents matching this value.
     pub count: i64,
 }
 

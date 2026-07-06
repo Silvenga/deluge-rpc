@@ -5,20 +5,31 @@ use std::collections::HashMap;
 /// Session status returned by `core.get_session_status(keys)`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct SessionStatus {
+    /// Total download rate.
     pub download_rate: f64,
+    /// Total upload rate.
     pub upload_rate: f64,
+    /// Payload download rate (excludes protocol overhead).
     pub payload_download_rate: f64,
+    /// Payload upload rate.
     pub payload_upload_rate: f64,
+    /// IP overhead download rate.
     pub ip_overhead_download_rate: f64,
+    /// IP overhead upload rate.
     pub ip_overhead_upload_rate: f64,
+    /// Tracker response download rate.
     pub tracker_download_rate: f64,
+    /// Tracker request upload rate.
     pub tracker_upload_rate: f64,
+    /// DHT download rate.
     pub dht_download_rate: f64,
+    /// DHT upload rate.
     pub dht_upload_rate: f64,
-
+    /// Disk write cache hit ratio.
     pub write_hit_ratio: f64,
+    /// Disk read cache hit ratio.
     pub read_hit_ratio: f64,
-
+    /// Untyped libtorrent session metrics not captured by the named fields.
     #[serde(flatten)]
     pub extra: HashMap<String, RencodeValue>,
 }

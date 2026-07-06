@@ -60,7 +60,9 @@ pub type GetMagnetUriResult = String;
 /// Tuple of `(torrent_id, metadata)` where `metadata` is bencoded torrent data.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PrefetchMagnetResult {
+    /// Torrent id (hex string).
     pub torrent_id: String,
+    /// Bencoded torrent data.
     pub metadata: Vec<u8>,
 }
 

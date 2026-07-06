@@ -4,120 +4,193 @@ use crate::sentinels::{
 };
 use serde::{Deserialize, Serialize};
 
+/// Status of a single torrent, returned by `core.get_torrent_status` / `core.get_torrents_status`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 #[serde(default)]
 pub struct TorrentStatus {
+    /// Seconds since the torrent was added.
     pub active_time: i64,
+    /// Total bytes downloaded (all-time).
     pub all_time_download: i64,
+    /// Unix timestamp when download completed; `None` if not completed.
     #[serde(deserialize_with = "deserialize_never_i64", default)]
     pub completed_time: Option<i64>,
+    /// Seconds the torrent has been in finished state.
     pub finished_time: i64,
+    /// Unix timestamp when torrent was last seen complete; `None` if never.
     #[serde(deserialize_with = "deserialize_never_i64", default)]
     pub last_seen_complete: Option<i64>,
+    /// Seconds spent seeding.
     pub seeding_time: i64,
+    /// Unix timestamp when the torrent was added.
     pub time_added: i64,
+    /// Seconds since last download activity; `None` if never.
     #[serde(deserialize_with = "deserialize_never_i64", default)]
     pub time_since_download: Option<i64>,
+    /// Seconds since last upload or download; `None` if never.
     #[serde(deserialize_with = "deserialize_never_i64", default)]
     pub time_since_transfer: Option<i64>,
+    /// Seconds since last upload activity; `None` if never.
     #[serde(deserialize_with = "deserialize_never_i64", default)]
     pub time_since_upload: Option<i64>,
+    /// Bytes downloaded and verified (pieces).
     pub total_done: i64,
+    /// Payload bytes downloaded (excludes protocol overhead).
     pub total_payload_download: i64,
+    /// Payload bytes uploaded (excludes protocol overhead).
     pub total_payload_upload: i64,
+    /// Bytes remaining to download.
     pub total_remaining: i64,
+    /// Total bytes uploaded (all-time).
     pub total_uploaded: i64,
+    /// Bytes of files marked for download (excludes skipped files).
     pub total_wanted: i64,
 
+    /// Current payload download speed in bytes/sec.
     pub download_payload_rate: i64,
+    /// Current payload upload speed in bytes/sec.
     pub upload_payload_rate: i64,
+    /// Estimated seconds to completion; `None` if >1 year, `0` if idle.
     #[serde(deserialize_with = "deserialize_never_i64", default)]
     pub eta: Option<i64>,
 
+    /// Distributed copies (swarm availability); `>= 0.0`.
     pub distributed_copies: f64,
+    /// Share ratio; `None` means infinity (when `total_done == 0`).
     #[serde(deserialize_with = "deserialize_ratio", default)]
     pub ratio: Option<f64>,
+    /// Seed rank score used for queue ordering.
     pub seed_rank: i64,
+    /// Seeds-to-peers ratio; `None` if no incomplete peers.
     #[serde(deserialize_with = "deserialize_ratio", default)]
     pub seeds_peers_ratio: Option<f64>,
 
+    /// Connected peers (excludes seeds).
     pub num_peers: i64,
+    /// Connected seeds.
     pub num_seeds: i64,
+    /// Total peers in swarm (unconnected, from tracker).
     pub total_peers: i64,
+    /// Total seeds in swarm (unconnected, from tracker).
     pub total_seeds: i64,
+    /// Connected peers.
     #[serde(default)]
     pub peers: Vec<PeerInfo>,
 
+    /// Current state. One of: `Allocating`, `Checking`, `Downloading`, `Seeding`, `Paused`, `Error`, `Queued`, `Moving`.
     pub state: String,
+    /// Whether the torrent is paused.
     pub paused: bool,
+    /// Download progress as `0.0`–`100.0`.
     pub progress: f64,
+    /// Whether the torrent is seeding (download complete).
     pub is_seed: bool,
+    /// Whether the torrent has finished downloading.
     pub is_finished: bool,
+    /// Whether the torrent is in seed mode (started assuming all data present).
     pub seed_mode: bool,
+    /// Whether super seeding is enabled.
     pub super_seeding: bool,
+    /// Status message; default `'OK'`.
     #[serde(default)]
     pub message: String,
+    /// Queue position.
     pub queue: i64,
+    /// Storage allocation mode: `'sparse'` or `'allocate'`.
     pub storage_mode: String,
 
+    /// Info hash (same as torrent_id).
     pub hash: String,
+    /// Display name.
     pub name: String,
+    /// Torrent comment; `''` if no metadata.
     #[serde(default)]
     pub comment: String,
+    /// Torrent creator; `''` if no metadata.
     #[serde(default)]
     pub creator: String,
+    /// Whether the torrent is private; `False` if no metadata.
     #[serde(default)]
     pub private: bool,
+    /// Number of files; `0` if no metadata.
     #[serde(default)]
     pub num_files: i64,
+    /// Number of pieces; `0` if no metadata.
     #[serde(default)]
     pub num_pieces: i64,
+    /// Piece length in bytes; `0` if no metadata.
     #[serde(default)]
     pub piece_length: i64,
+    /// Total size of all files in bytes; `0` if no metadata.
     #[serde(default)]
     pub total_size: i64,
+    /// File list. `[]` if no metadata.
     #[serde(default)]
     pub files: Vec<FileInfo>,
+    /// Original file paths (before rename). `[]` if no metadata.
     #[serde(default)]
     pub orig_files: Vec<FileInfo>,
+    /// Per-piece state. `None` if seeding or no metadata. Else: `0`=missing, `1`=available, `2`=downloading, `3`=completed.
     #[serde(default)]
     pub pieces: Option<Vec<i64>>,
 
+    /// Per-file priority: `0`=skip, `1`=low, `2`=normal, `5`=high, `7`=highest. `[]` if no metadata.
     #[serde(default)]
     pub file_priorities: Vec<i64>,
+    /// Per-file progress `0.0`–`1.0`. `[]` if no metadata.
     #[serde(default)]
     pub file_progress: Vec<f64>,
 
+    /// Current tracker URL.
     #[serde(default)]
     pub tracker: String,
+    /// Short hostname of current tracker.
     #[serde(default)]
     pub tracker_host: String,
+    /// Tracker status string, e.g. `'Announce OK'` or `'Error: ...'`.
     #[serde(default)]
     pub tracker_status: String,
+    /// Full tracker list.
     #[serde(default)]
     pub trackers: Vec<TrackerInfo>,
 
+    /// Whether the torrent is auto-managed by the queue.
     pub auto_managed: bool,
+    /// Alias for `auto_managed`.
     pub is_auto_managed: bool,
+    /// Save path.
     pub download_location: String,
+    /// Max connections; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64", default)]
     pub max_connections: Option<i64>,
+    /// Max download speed in KiB/s; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_f64", default)]
     pub max_download_speed: Option<f64>,
+    /// Max upload slots; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_i64", default)]
     pub max_upload_slots: Option<i64>,
+    /// Max upload speed in KiB/s; `None` = unlimited.
     #[serde(deserialize_with = "deserialize_unlimited_f64", default)]
     pub max_upload_speed: Option<f64>,
+    /// Whether to move when completed.
     pub move_completed: bool,
+    /// Destination path for move-on-completion.
     #[serde(default)]
     pub move_completed_path: String,
+    /// Username of the torrent owner.
     #[serde(default)]
     pub owner: String,
+    /// Whether to prioritize first and last pieces.
     pub prioritize_first_last_pieces: bool,
+    /// Whether to remove the torrent when stop ratio is reached.
     pub remove_at_ratio: bool,
+    /// Whether to download pieces sequentially.
     pub sequential_download: bool,
+    /// Whether the torrent is shared across users.
     pub shared: bool,
+    /// Whether to stop at the stop ratio.
     pub stop_at_ratio: bool,
+    /// The stop ratio.
     pub stop_ratio: f64,
 }
 
