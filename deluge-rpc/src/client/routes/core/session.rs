@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::SessionStatus;
 use crate::protocol::{extract_single, extract_single_int, DelugeRpcRequest};
 use crate::rencode::RencodeValue;
@@ -28,19 +28,19 @@ pub trait CoreSessionRpc: Send + Sync {
 }
 
 pub struct CoreSessionClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl CoreSessionClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for CoreSessionClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -48,7 +48,7 @@ impl Clone for CoreSessionClient {
 #[async_trait]
 impl CoreSessionRpc for CoreSessionClient {
     async fn pause_session(&self) -> anyhow::Result<()> {
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.pause_session"))
             .await
             .context("core.pause_session RPC failed")?;
@@ -56,7 +56,7 @@ impl CoreSessionRpc for CoreSessionClient {
     }
 
     async fn resume_session(&self) -> anyhow::Result<()> {
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.resume_session"))
             .await
             .context("core.resume_session RPC failed")?;
@@ -65,7 +65,7 @@ impl CoreSessionRpc for CoreSessionClient {
 
     async fn is_session_paused(&self) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.is_session_paused"))
             .await
             .context("core.is_session_paused RPC failed")?;
@@ -80,7 +80,7 @@ impl CoreSessionRpc for CoreSessionClient {
 
     async fn get_listen_port(&self) -> anyhow::Result<i64> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_listen_port"))
             .await
             .context("core.get_listen_port RPC failed")?;
@@ -89,7 +89,7 @@ impl CoreSessionRpc for CoreSessionClient {
 
     async fn get_ssl_listen_port(&self) -> anyhow::Result<i64> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_ssl_listen_port"))
             .await
             .context("core.get_ssl_listen_port RPC failed")?;
@@ -98,7 +98,7 @@ impl CoreSessionRpc for CoreSessionClient {
 
     async fn get_external_ip(&self) -> anyhow::Result<String> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_external_ip"))
             .await
             .context("core.get_external_ip RPC failed")?;
@@ -113,7 +113,7 @@ impl CoreSessionRpc for CoreSessionClient {
 
     async fn get_libtorrent_version(&self) -> anyhow::Result<String> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_libtorrent_version"))
             .await
             .context("core.get_libtorrent_version RPC failed")?;
@@ -130,7 +130,7 @@ impl CoreSessionRpc for CoreSessionClient {
     /// test service. This call may be slow (network-dependent) and can return None on error.
     async fn test_listen_port(&self) -> anyhow::Result<Option<bool>> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.test_listen_port"))
             .await
             .context("core.test_listen_port RPC failed")?;
@@ -148,7 +148,7 @@ impl CoreSessionRpc for CoreSessionClient {
         let key_values: Vec<RencodeValue> =
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_session_status")
                     .with_args(vec![RencodeValue::List(key_values)]),
@@ -165,7 +165,7 @@ impl CoreSessionRpc for CoreSessionClient {
             None => vec![RencodeValue::None],
         };
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_free_space").with_args(args))
             .await
             .context("core.get_free_space RPC failed")?;

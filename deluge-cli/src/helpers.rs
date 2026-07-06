@@ -1,5 +1,5 @@
-use base64::engine::general_purpose::STANDARD as Base64Engine;
 use base64::Engine;
+use base64::engine::general_purpose::STANDARD as Base64Engine;
 use deluge_rpc::RencodeValue;
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;

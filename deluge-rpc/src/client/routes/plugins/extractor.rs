@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::ExtractorConfig;
 use crate::protocol::{DelugeRpcRequest,extract_single};
 use crate::rencode::to_rencode_value;
@@ -14,19 +14,19 @@ pub trait ExtractorRpc: Send + Sync {
 }
 
 pub struct ExtractorClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl ExtractorClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for ExtractorClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -35,7 +35,7 @@ impl Clone for ExtractorClient {
 impl ExtractorRpc for ExtractorClient {
     async fn set_config(&self, config: &ExtractorConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing extractor config")?;
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("extractor.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
@@ -43,7 +43,7 @@ impl ExtractorRpc for ExtractorClient {
 
     async fn get_config(&self) -> anyhow::Result<ExtractorConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("extractor.get_config"))
             .await
             .context("extractor.get_config RPC failed")?;

@@ -1,9 +1,9 @@
 use assert_cmd::Command;
 use assert_fs::TempDir;
 use deluge_rpc::RencodeValue;
+use flate2::Compression;
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
-use flate2::Compression;
 use rustls::crypto::ring;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer, PrivatePkcs8KeyDer};
 use rustls::server::ServerConfig;

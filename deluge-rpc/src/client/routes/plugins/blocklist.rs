@@ -4,7 +4,7 @@ use crate::rencode::{to_rencode_value, RencodeValue};
 use anyhow::{anyhow, Context};
 use async_trait::async_trait;
 use serde::Deserialize;
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 
 #[cfg_attr(any(test, feature = "mock"), mockall::automock)]
 #[async_trait]
@@ -16,19 +16,19 @@ pub trait BlocklistRpc: Send + Sync {
 }
 
 pub struct BlocklistClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl BlocklistClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for BlocklistClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -37,7 +37,7 @@ impl Clone for BlocklistClient {
 impl BlocklistRpc for BlocklistClient {
     async fn check_import(&self, force: bool) -> anyhow::Result<Option<String>> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("blocklist.check_import")
                     .with_args(vec![RencodeValue::Bool(force)]),
@@ -56,7 +56,7 @@ impl BlocklistRpc for BlocklistClient {
 
     async fn get_config(&self) -> anyhow::Result<BlocklistConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.get_config"))
             .await
             .context("blocklist.get_config RPC failed")?;
@@ -66,7 +66,7 @@ impl BlocklistRpc for BlocklistClient {
 
     async fn set_config(&self, config: &BlocklistConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing blocklist config")?;
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
@@ -74,7 +74,7 @@ impl BlocklistRpc for BlocklistClient {
 
     async fn get_status(&self) -> anyhow::Result<BlocklistStatus> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.get_status"))
             .await
             .context("blocklist.get_status RPC failed")?;

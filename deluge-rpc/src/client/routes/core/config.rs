@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{DaemonConfig, ProxyConfig};
 use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
@@ -22,19 +22,19 @@ pub trait CoreConfigRpc: Send + Sync {
 }
 
 pub struct CoreConfigClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl CoreConfigClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for CoreConfigClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -43,7 +43,7 @@ impl Clone for CoreConfigClient {
 impl CoreConfigRpc for CoreConfigClient {
     async fn get_config(&self) -> anyhow::Result<DaemonConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_config"))
             .await
             .context("core.get_config RPC failed")?;
@@ -53,7 +53,7 @@ impl CoreConfigRpc for CoreConfigClient {
 
     async fn get_config_value(&self, key: &str) -> anyhow::Result<RencodeValue> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_config_value")
                     .with_args(vec![RencodeValue::Str(key.to_owned())]),
@@ -70,7 +70,7 @@ impl CoreConfigRpc for CoreConfigClient {
         let key_values: Vec<RencodeValue> =
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_config_values")
                     .with_args(vec![RencodeValue::List(key_values)]),
@@ -106,7 +106,7 @@ impl CoreConfigRpc for CoreConfigClient {
             .iter()
             .map(|(k, v)| (RencodeValue::Str(k.clone()), v.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.set_config")
                     .with_args(vec![RencodeValue::Dict(config_dict)]),
@@ -118,7 +118,7 @@ impl CoreConfigRpc for CoreConfigClient {
 
     async fn get_proxy(&self) -> anyhow::Result<ProxyConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_proxy"))
             .await
             .context("core.get_proxy RPC failed")?;

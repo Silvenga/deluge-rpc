@@ -5,7 +5,7 @@ use crate::commands::{
 };
 use crate::helpers::{rencode_from_json_value, rencode_to_plain_json};
 use crate::record::{
-    load_cassette, write_cassette_atomic, Cassette, Interaction, Request, Response,
+    Cassette, Interaction, Request, Response, load_cassette, write_cassette_atomic,
 };
 use anyhow::Context;
 use clap::{Parser, Subcommand};

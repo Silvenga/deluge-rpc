@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{SchedulerConfig, SchedulerState};
 use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::to_rencode_value;
@@ -15,19 +15,19 @@ pub trait SchedulerRpc: Send + Sync {
 }
 
 pub struct SchedulerClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl SchedulerClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for SchedulerClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -36,7 +36,7 @@ impl Clone for SchedulerClient {
 impl SchedulerRpc for SchedulerClient {
     async fn set_config(&self, config: &SchedulerConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing scheduler config")?;
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
@@ -44,7 +44,7 @@ impl SchedulerRpc for SchedulerClient {
 
     async fn get_config(&self) -> anyhow::Result<SchedulerConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.get_config"))
             .await
             .context("scheduler.get_config RPC failed")?;
@@ -54,7 +54,7 @@ impl SchedulerRpc for SchedulerClient {
 
     async fn get_state(&self) -> anyhow::Result<SchedulerState> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.get_state"))
             .await
             .context("scheduler.get_state RPC failed")?;

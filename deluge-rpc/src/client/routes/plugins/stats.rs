@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{StatsConfig, StatsGetStatsResult, StatsTotals};
 use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::{to_rencode_value, RencodeValue};
@@ -22,19 +22,19 @@ pub trait StatsRpc: Send + Sync {
 }
 
 pub struct StatsClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl StatsClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for StatsClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -49,7 +49,7 @@ impl StatsRpc for StatsClient {
         let keys_list: Vec<RencodeValue> =
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("stats.get_stats").with_args(vec![
                 RencodeValue::List(keys_list),
                 RencodeValue::Int(interval),
@@ -67,7 +67,7 @@ impl StatsRpc for StatsClient {
 
     async fn get_totals(&self) -> anyhow::Result<StatsTotals> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("stats.get_totals"))
             .await
             .context("stats.get_totals RPC failed")?;
@@ -77,7 +77,7 @@ impl StatsRpc for StatsClient {
 
     async fn get_session_totals(&self) -> anyhow::Result<StatsTotals> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("stats.get_session_totals"))
             .await
             .context("stats.get_session_totals RPC failed")?;
@@ -87,7 +87,7 @@ impl StatsRpc for StatsClient {
 
     async fn set_config(&self, config: &StatsConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing stats config")?;
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("stats.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
@@ -95,7 +95,7 @@ impl StatsRpc for StatsClient {
 
     async fn get_config(&self) -> anyhow::Result<StatsConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("stats.get_config"))
             .await
             .context("stats.get_config RPC failed")?;
@@ -105,7 +105,7 @@ impl StatsRpc for StatsClient {
 
     async fn get_intervals(&self) -> anyhow::Result<Vec<i64>> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("stats.get_intervals"))
             .await
             .context("stats.get_intervals RPC failed")?;

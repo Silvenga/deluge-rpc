@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{CompletionPaths, CreateTorrentResult, GlobResult};
 use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::RencodeValue;
@@ -36,19 +36,19 @@ pub trait CoreMiscRpc: Send + Sync {
 }
 
 pub struct CoreMiscClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl CoreMiscClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for CoreMiscClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -108,7 +108,7 @@ impl CoreMiscRpc for CoreMiscClient {
         );
 
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.create_torrent")
                     .with_args(vec![
@@ -126,7 +126,7 @@ impl CoreMiscRpc for CoreMiscClient {
 
     async fn glob(&self, path: &str) -> anyhow::Result<GlobResult> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.glob")
                     .with_args(vec![RencodeValue::Str(path.to_owned())]),
@@ -154,7 +154,7 @@ impl CoreMiscRpc for CoreMiscClient {
         let args_value = RencodeValue::Dict(args_map);
 
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_completion_paths").with_args(vec![args_value]),
             )

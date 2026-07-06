@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::AccountInfo;
 use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
@@ -31,19 +31,19 @@ pub trait CoreAccountRpc: Send + Sync {
 }
 
 pub struct CoreAccountClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl CoreAccountClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for CoreAccountClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -52,7 +52,7 @@ impl Clone for CoreAccountClient {
 impl CoreAccountRpc for CoreAccountClient {
     async fn get_known_accounts(&self) -> anyhow::Result<Vec<AccountInfo>> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_known_accounts"))
             .await
             .context("core.get_known_accounts RPC failed")?;
@@ -67,7 +67,7 @@ impl CoreAccountRpc for CoreAccountClient {
         auth_level: &str,
     ) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.create_account").with_args(vec![
                 RencodeValue::Str(username.to_owned()),
                 RencodeValue::Str(password.to_owned()),
@@ -91,7 +91,7 @@ impl CoreAccountRpc for CoreAccountClient {
         authlevel: &str,
     ) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.update_account").with_args(vec![
                 RencodeValue::Str(username.to_owned()),
                 RencodeValue::Str(password.to_owned()),
@@ -110,7 +110,7 @@ impl CoreAccountRpc for CoreAccountClient {
 
     async fn remove_account(&self, username: &str) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.remove_account")
                     .with_args(vec![RencodeValue::Str(username.to_owned())]),
@@ -130,7 +130,7 @@ impl CoreAccountRpc for CoreAccountClient {
         &self,
     ) -> anyhow::Result<(BTreeMap<String, i64>, BTreeMap<i64, String>)> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_auth_levels_mappings"))
             .await
             .context("core.get_auth_levels_mappings RPC failed")?;

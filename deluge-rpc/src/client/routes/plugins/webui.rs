@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::WebUiConfig;
 use crate::protocol::extract_single;
 use crate::protocol::DelugeRpcRequest;
@@ -16,19 +16,19 @@ pub trait WebUiRpc: Send + Sync {
 }
 
 pub struct WebUiClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl WebUiClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for WebUiClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -37,7 +37,7 @@ impl Clone for WebUiClient {
 impl WebUiRpc for WebUiClient {
     async fn got_deluge_web(&self) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("webui.got_deluge_web"))
             .await
             .context("webui.got_deluge_web RPC failed")?;
@@ -50,7 +50,7 @@ impl WebUiRpc for WebUiClient {
 
     async fn set_config(&self, config: &WebUiConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing webui config")?;
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("webui.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
@@ -58,7 +58,7 @@ impl WebUiRpc for WebUiClient {
 
     async fn get_config(&self) -> anyhow::Result<WebUiConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("webui.get_config"))
             .await
             .context("webui.get_config RPC failed")?;

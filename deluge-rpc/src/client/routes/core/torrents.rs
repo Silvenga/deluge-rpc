@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{
     AddTorrentFileResult, AddTorrentFilesResult, AddTorrentOptions, FilterDict, FilterTree,
     GetMagnetUriResult, PrefetchMagnetResult, RemoveTorrentsResult, SetTorrentOptions,
@@ -117,19 +117,19 @@ pub trait CoreTorrentRpc: Send + Sync {
 }
 
 pub struct CoreTorrentClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl CoreTorrentClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for CoreTorrentClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -144,7 +144,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
     ) -> anyhow::Result<AddTorrentFileResult> {
         let options_value = to_rencode_value(options).context("serializing options")?;
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.add_torrent_file").with_args(vec![
                     RencodeValue::Str(filename.to_owned()),
@@ -178,7 +178,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             RencodeValue::Bool(save_state),
         );
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.add_torrent_file_async")
                     .with_args(vec![
@@ -214,7 +214,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             ]));
         }
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.add_torrent_files")
                     .with_args(vec![RencodeValue::List(items)]),
@@ -238,7 +238,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             kwargs.insert(RencodeValue::Str("headers".into()), headers_value);
         }
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.add_torrent_url")
                     .with_args(vec![RencodeValue::Str(url.to_owned()), options_value])
@@ -263,7 +263,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
     ) -> anyhow::Result<String> {
         let options_value = to_rencode_value(options).context("serializing options")?;
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.add_torrent_magnet")
                     .with_args(vec![RencodeValue::Str(uri.to_owned()), options_value]),
@@ -289,7 +289,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             kwargs.insert(RencodeValue::Str("timeout".into()), RencodeValue::Int(t));
         }
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.prefetch_magnet_metadata")
                     .with_args(vec![RencodeValue::Str(magnet.to_owned())])
@@ -303,7 +303,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
 
     async fn remove_torrent(&self, torrent_id: &str, remove_data: bool) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.remove_torrent").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::Bool(remove_data),
@@ -329,7 +329,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.remove_torrents").with_args(vec![
                     RencodeValue::List(ids),
@@ -343,7 +343,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
     }
 
     async fn pause_torrent(&self, torrent_id: &str) -> anyhow::Result<()> {
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.pause_torrent")
                     .with_args(vec![RencodeValue::Str(torrent_id.to_owned())]),
@@ -361,7 +361,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             }
             None => vec![RencodeValue::None],
         };
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.pause_torrents").with_args(args))
             .await
             .context("core.pause_torrents RPC failed")?;
@@ -369,7 +369,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
     }
 
     async fn resume_torrent(&self, torrent_id: &str) -> anyhow::Result<()> {
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.resume_torrent")
                     .with_args(vec![RencodeValue::Str(torrent_id.to_owned())]),
@@ -387,7 +387,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             }
             None => vec![RencodeValue::None],
         };
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.resume_torrents").with_args(args))
             .await
             .context("core.resume_torrents RPC failed")?;
@@ -399,7 +399,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.force_reannounce")
                     .with_args(vec![RencodeValue::List(id_values)]),
@@ -414,7 +414,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.force_recheck")
                     .with_args(vec![RencodeValue::List(id_values)]),
@@ -434,7 +434,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
         let options_value = to_rencode_value(options).context("serializing options")?;
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.set_torrent_options")
                     .with_args(vec![RencodeValue::List(id_values), options_value]),
@@ -445,7 +445,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
     }
 
     async fn connect_peer(&self, torrent_id: &str, ip: &str, port: i64) -> anyhow::Result<()> {
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.connect_peer").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::Str(ip.to_owned()),
@@ -461,7 +461,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.move_storage").with_args(vec![
                 RencodeValue::List(id_values),
                 RencodeValue::Str(dest.to_owned()),
@@ -484,7 +484,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             RencodeValue::Str("save_to_disk".into()),
             RencodeValue::Bool(save_to_disk),
         );
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.set_ssl_torrent_cert")
                     .with_args(vec![
@@ -511,7 +511,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         let mut kwargs = BTreeMap::new();
         kwargs.insert(RencodeValue::Str("diff".into()), RencodeValue::Bool(diff));
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_torrent_status")
                     .with_args(vec![
@@ -538,7 +538,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         let mut kwargs = BTreeMap::new();
         kwargs.insert(RencodeValue::Str("diff".into()), RencodeValue::Bool(diff));
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_torrents_status")
                     .with_args(vec![filter_value, RencodeValue::List(key_values)])
@@ -586,7 +586,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             );
         }
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_filter_tree").with_kwargs(kwargs))
             .await
             .context("core.get_filter_tree RPC failed")?;
@@ -596,7 +596,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
 
     async fn get_session_state(&self) -> anyhow::Result<Vec<String>> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_session_state"))
             .await
             .context("core.get_session_state RPC failed")?;
@@ -624,7 +624,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
 
     async fn get_magnet_uri(&self, torrent_id: &str) -> anyhow::Result<GetMagnetUriResult> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_magnet_uri")
                     .with_args(vec![RencodeValue::Str(torrent_id.to_owned())]),
@@ -642,7 +642,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
 
     async fn get_path_size(&self, path: &str) -> anyhow::Result<i64> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.get_path_size")
                     .with_args(vec![RencodeValue::Str(path.to_owned())]),
@@ -658,7 +658,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         trackers: &[TrackerInfo],
     ) -> anyhow::Result<()> {
         let tracker_values = to_rencode_value(trackers).context("serializing trackers")?;
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.set_torrent_trackers").with_args(vec![
                     RencodeValue::Str(torrent_id.to_owned()),
@@ -684,7 +684,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
                 ])
             })
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.rename_files").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::List(file_values),
@@ -700,7 +700,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
         folder: &str,
         new_folder: &str,
     ) -> anyhow::Result<()> {
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.rename_folder").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
                 RencodeValue::Str(folder.to_owned()),
@@ -716,7 +716,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.queue_top")
                     .with_args(vec![RencodeValue::List(id_values)]),
@@ -731,7 +731,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.queue_up")
                     .with_args(vec![RencodeValue::List(id_values)]),
@@ -746,7 +746,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.queue_down")
                     .with_args(vec![RencodeValue::List(id_values)]),
@@ -761,7 +761,7 @@ impl CoreTorrentRpc for CoreTorrentClient {
             .iter()
             .map(|id| RencodeValue::Str(id.clone()))
             .collect();
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("core.queue_bottom")
                     .with_args(vec![RencodeValue::List(id_values)]),

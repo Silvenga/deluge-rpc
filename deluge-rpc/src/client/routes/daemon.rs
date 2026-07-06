@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::{extract_single, extract_single_int};
 use crate::rencode::RencodeValue;
@@ -24,12 +24,12 @@ pub trait DaemonRpc: Send + Sync {
 }
 
 pub struct DaemonClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl DaemonClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
@@ -37,7 +37,7 @@ impl DaemonClient {
 impl DaemonRpc for DaemonClient {
     async fn info(&self) -> anyhow::Result<String> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.info"))
             .await
             .context("daemon.info RPC failed")?;
@@ -60,7 +60,7 @@ impl DaemonRpc for DaemonClient {
             RencodeValue::Str(client_version.to_owned()),
         );
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("daemon.login")
                     .with_args(vec![
@@ -80,7 +80,7 @@ impl DaemonRpc for DaemonClient {
             .map(|n| RencodeValue::Str(n.clone()))
             .collect();
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("daemon.set_event_interest")
                     .with_args(vec![RencodeValue::List(names)]),
@@ -100,7 +100,7 @@ impl DaemonRpc for DaemonClient {
     /// so this call may time out (30s) waiting for a response that never arrives.
     /// This is expected behavior per the Deluge spec — do not reduce the timeout.
     async fn shutdown(&self) -> anyhow::Result<()> {
-        self.caller
+        self.dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.shutdown"))
             .await
             .context("daemon.shutdown RPC failed")?;
@@ -109,7 +109,7 @@ impl DaemonRpc for DaemonClient {
 
     async fn get_method_list(&self) -> anyhow::Result<Vec<String>> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.get_method_list"))
             .await
             .context("daemon.get_method_list RPC failed")?;
@@ -137,7 +137,7 @@ impl DaemonRpc for DaemonClient {
 
     async fn get_version(&self) -> anyhow::Result<String> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.get_version"))
             .await
             .context("daemon.get_version RPC failed")?;
@@ -152,7 +152,7 @@ impl DaemonRpc for DaemonClient {
 
     async fn authorized_call(&self, rpc: &str) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(
                 DelugeRpcRequest::new("daemon.authorized_call")
                     .with_args(vec![RencodeValue::Str(rpc.to_owned())]),

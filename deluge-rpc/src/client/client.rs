@@ -1,16 +1,15 @@
-use crate::client::caller::RpcCaller;
-use crate::client::inner::DelugeClientInner;
+use crate::client::dispatcher::DelugeClientDispatcher;
+use crate::client::info::DelugeConnectionInfo;
+use crate::client::manager::ConnectionManager;
 use crate::{
     AutoAddClient, BlocklistClient, CoreAccountClient, CoreConfigClient, CoreMiscClient,
     CorePluginClient, CoreSessionClient, CoreTorrentClient, DaemonClient, DelugeRpcRequest,
     ExecuteClient, ExtractorClient, LabelClient, NotificationsClient, RencodeValue,
     SchedulerClient, StatsClient, ToggleClient, WebUiClient,
 };
-use anyhow::Context;
-use std::sync::Arc;
 
 pub struct DelugeClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
     daemon_client: DaemonClient,
     core_client: CoreClient,
     plugins_client: PluginsClient,
@@ -18,36 +17,20 @@ pub struct DelugeClient {
 
 impl DelugeClient {
     pub async fn connect(
-        host: &str,
+        host: impl Into<String>,
         port: u16,
-        username: &str,
-        password: &str,
+        username: impl Into<String>,
+        password: impl Into<String>,
     ) -> anyhow::Result<Self> {
-        let inner = Arc::from(DelugeClientInner::new(
-            host.to_owned(),
-            port,
-            username.to_owned(),
-            password.to_owned(),
-        ));
-
-        {
-            let mut state = inner.state.lock().await;
-            state
-                .ensure_connected(host, port, username, password)
-                .await
-                .context("initial connect failed")?;
-        }
-
-        let caller = RpcCaller::new_reconnect(inner.clone());
-        let daemon_client = DaemonClient::new(caller.clone());
-        let core_client = CoreClient::new(caller.clone());
-        let plugins_client = PluginsClient::new(caller.clone());
+        let info = DelugeConnectionInfo::new(host.into(), port, username.into(), password.into());
+        let manager = ConnectionManager::new(info);
+        let dispatcher = DelugeClientDispatcher::new(manager);
 
         Ok(Self {
-            caller,
-            daemon_client,
-            core_client,
-            plugins_client,
+            daemon_client: DaemonClient::new(dispatcher.clone()),
+            core_client: CoreClient::new(dispatcher.clone()),
+            plugins_client: PluginsClient::new(dispatcher.clone()),
+            dispatcher,
         })
     }
 
@@ -63,9 +46,9 @@ impl DelugeClient {
         &self.plugins_client
     }
 
-    // A low-level method to call the RPC server directly.
+    /// A low-level method to call the RPC server directly.
     pub async fn call(&self, request: DelugeRpcRequest) -> anyhow::Result<RencodeValue> {
-        self.caller.dispatch(request).await
+        self.dispatcher.dispatch(request).await
     }
 }
 
@@ -79,20 +62,20 @@ pub struct CoreClient {
 }
 
 impl CoreClient {
-    fn new(caller: RpcCaller) -> Self {
+    fn new(dispatcher: DelugeClientDispatcher) -> Self {
         Self {
-            torrents: CoreTorrentClient::new(caller.clone()),
-            session: CoreSessionClient::new(caller.clone()),
-            config: CoreConfigClient::new(caller.clone()),
-            plugins: CorePluginClient::new(caller.clone()),
-            accounts: CoreAccountClient::new(caller.clone()),
-            misc: CoreMiscClient::new(caller),
+            torrents: CoreTorrentClient::new(dispatcher.clone()),
+            session: CoreSessionClient::new(dispatcher.clone()),
+            config: CoreConfigClient::new(dispatcher.clone()),
+            plugins: CorePluginClient::new(dispatcher.clone()),
+            accounts: CoreAccountClient::new(dispatcher.clone()),
+            misc: CoreMiscClient::new(dispatcher),
         }
     }
 }
 
 pub struct PluginsClient {
-    pub autoadd: AutoAddClient,
+    pub auto_add: AutoAddClient,
     pub blocklist: BlocklistClient,
     pub execute: ExecuteClient,
     pub extractor: ExtractorClient,
@@ -105,18 +88,18 @@ pub struct PluginsClient {
 }
 
 impl PluginsClient {
-    fn new(caller: RpcCaller) -> Self {
+    fn new(dispatcher: DelugeClientDispatcher) -> Self {
         Self {
-            autoadd: AutoAddClient::new(caller.clone()),
-            blocklist: BlocklistClient::new(caller.clone()),
-            execute: ExecuteClient::new(caller.clone()),
-            extractor: ExtractorClient::new(caller.clone()),
-            label: LabelClient::new(caller.clone()),
-            notifications: NotificationsClient::new(caller.clone()),
-            scheduler: SchedulerClient::new(caller.clone()),
-            stats: StatsClient::new(caller.clone()),
-            toggle: ToggleClient::new(caller.clone()),
-            webui: WebUiClient::new(caller),
+            auto_add: AutoAddClient::new(dispatcher.clone()),
+            blocklist: BlocklistClient::new(dispatcher.clone()),
+            execute: ExecuteClient::new(dispatcher.clone()),
+            extractor: ExtractorClient::new(dispatcher.clone()),
+            label: LabelClient::new(dispatcher.clone()),
+            notifications: NotificationsClient::new(dispatcher.clone()),
+            scheduler: SchedulerClient::new(dispatcher.clone()),
+            stats: StatsClient::new(dispatcher.clone()),
+            toggle: ToggleClient::new(dispatcher.clone()),
+            webui: WebUiClient::new(dispatcher),
         }
     }
 }
@@ -134,11 +117,10 @@ mod tests {
     use rustls::server::ServerConfig;
     use std::io::{Read, Write};
     use std::net::SocketAddr;
+    use std::sync::Arc;
     use std::sync::Once;
-    use std::time::Duration;
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::{TcpListener, TcpStream};
-    use tokio::time::sleep;
     use tokio_rustls::server::TlsStream;
 
     const HEADER_LEN: usize = 5;
@@ -322,7 +304,7 @@ mod tests {
         let _misc = &core.misc;
 
         let plugins = client.plugins();
-        let _autoadd = &plugins.autoadd;
+        let _auto_add = &plugins.auto_add;
         let _blocklist = &plugins.blocklist;
         let _execute = &plugins.execute;
         let _extractor = &plugins.extractor;
@@ -345,8 +327,6 @@ mod tests {
         let result = client.daemon().info().await;
         assert!(result.is_ok(), "first call should succeed: {result:?}");
 
-        sleep(Duration::from_millis(100)).await;
-
         let result2 = client.daemon().info().await;
         assert!(
             result2.is_ok(),
@@ -364,8 +344,6 @@ mod tests {
 
         let _ = client.daemon().info().await;
 
-        sleep(Duration::from_millis(100)).await;
-
         let result = client.daemon().get_version().await;
         assert!(
             result.is_ok(),
@@ -380,8 +358,6 @@ mod tests {
         let client = DelugeClient::connect("127.0.0.1", server.addr.port(), "testuser", "testpass")
             .await
             .expect("connect");
-
-        sleep(Duration::from_millis(100)).await;
 
         let result = client.daemon().info().await;
         assert!(
@@ -401,7 +377,6 @@ mod tests {
         for i in 0..5 {
             let result = client.daemon().info().await;
             assert!(result.is_ok(), "call {i} should succeed: {result:?}");
-            sleep(Duration::from_millis(50)).await;
         }
     }
 }

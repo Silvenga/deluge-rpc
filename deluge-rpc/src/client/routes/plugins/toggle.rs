@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::RencodeValue;
 use anyhow::{anyhow, Context};
@@ -12,19 +12,19 @@ pub trait ToggleRpc: Send + Sync {
 }
 
 pub struct ToggleClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl ToggleClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for ToggleClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -33,7 +33,7 @@ impl Clone for ToggleClient {
 impl ToggleRpc for ToggleClient {
     async fn get_status(&self) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("toggle.get_status"))
             .await
             .context("toggle.get_status RPC failed")?;
@@ -46,7 +46,7 @@ impl ToggleRpc for ToggleClient {
 
     async fn toggle(&self) -> anyhow::Result<bool> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("toggle.toggle"))
             .await
             .context("toggle.toggle RPC failed")?;

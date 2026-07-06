@@ -1,9 +1,10 @@
-mod caller;
-mod deluge_client;
-mod routes;
-mod shared;
-mod inner;
+mod client;
 mod connection;
+mod info;
+mod dispatcher;
+mod manager;
+mod routes;
+mod dispatch;
 
-pub use deluge_client::*;
+pub use client::*;
 pub use routes::*;

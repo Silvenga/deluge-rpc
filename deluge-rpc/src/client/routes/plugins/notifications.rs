@@ -1,4 +1,4 @@
-use crate::client::caller::RpcCaller;
+use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{HandledEvent, NotificationsConfig};
 use crate::protocol::{extract_single, DelugeRpcRequest};
 use crate::rencode::to_rencode_value;
@@ -15,19 +15,19 @@ pub trait NotificationsRpc: Send + Sync {
 }
 
 pub struct NotificationsClient {
-    caller: RpcCaller,
+    dispatcher: DelugeClientDispatcher,
 }
 
 impl NotificationsClient {
-    pub(crate) fn new(caller: RpcCaller) -> Self {
-        Self { caller }
+    pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
+        Self { dispatcher }
     }
 }
 
 impl Clone for NotificationsClient {
     fn clone(&self) -> Self {
         Self {
-            caller: self.caller.clone(),
+            dispatcher: self.dispatcher.clone(),
         }
     }
 }
@@ -36,7 +36,7 @@ impl Clone for NotificationsClient {
 impl NotificationsRpc for NotificationsClient {
     async fn set_config(&self, config: &NotificationsConfig) -> anyhow::Result<()> {
         let config_value = to_rencode_value(config).context("serializing notifications config")?;
-        self.caller
+        self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("notifications.set_config").with_args(vec![config_value]),
             )
@@ -46,7 +46,7 @@ impl NotificationsRpc for NotificationsClient {
 
     async fn get_config(&self) -> anyhow::Result<NotificationsConfig> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("notifications.get_config"))
             .await
             .context("notifications.get_config RPC failed")?;
@@ -56,7 +56,7 @@ impl NotificationsRpc for NotificationsClient {
 
     async fn get_handled_events(&self) -> anyhow::Result<Vec<HandledEvent>> {
         let result = self
-            .caller
+            .dispatcher
             .dispatch(DelugeRpcRequest::new("notifications.get_handled_events"))
             .await
             .context("notifications.get_handled_events RPC failed")?;
