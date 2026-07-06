@@ -1,12 +1,10 @@
-use std::cmp::Ordering;
-use std::collections::BTreeMap;
-
-use serde::Serialize;
-
 use crate::decode::decode;
 use crate::encode::encode;
 use crate::error::RencodeError;
 use crate::json::to_json;
+use serde::Serialize;
+use std::cmp::Ordering;
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone)]
 pub enum RencodeValue {

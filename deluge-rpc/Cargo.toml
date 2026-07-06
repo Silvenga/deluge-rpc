@@ -20,6 +20,7 @@ workspace = true
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 deluge-rencode = { path = "../deluge-rencode" }
+deluge-rpc-models = { path = "../deluge-rpc-models" }
 flate2 = { workspace = true }
 rustls = { workspace = true }
 serde = { workspace = true }

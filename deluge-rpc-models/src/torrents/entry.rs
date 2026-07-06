@@ -12,7 +12,7 @@ pub struct TorrentEntry {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
     use std::collections::BTreeMap;
 
     fn make_entry_dict() -> RencodeValue {

@@ -1,5 +1,5 @@
 use super::proxy::ProxyConfig;
-use crate::models::sentinels::{deserialize_unlimited_f64, deserialize_unlimited_i64};
+use crate::sentinels::{deserialize_unlimited_f64, deserialize_unlimited_i64};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
@@ -111,7 +111,7 @@ pub struct DaemonConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
     use serde::Deserialize;
     use std::collections::BTreeMap;
 

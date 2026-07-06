@@ -432,7 +432,6 @@ dependencies = [
 name = "deluge-rencode"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "base64",
  "serde",
  "serde_json",
@@ -469,6 +468,7 @@ dependencies = [
  "async-trait",
  "deluge-rencode",
  "deluge-rpc-mock",
+ "deluge-rpc-models",
  "flate2",
  "mockall",
  "rcgen",
@@ -495,6 +495,15 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tracing",
+]
+
+[[package]]
+name = "deluge-rpc-models"
+version = "0.1.0"
+dependencies = [
+ "deluge-rencode",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

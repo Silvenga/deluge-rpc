@@ -13,6 +13,7 @@
       <sourceFolder url="file://$MODULE_DIR$/deluge-rencode/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/deluge-rpc-mock/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/deluge-rpc/tests" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/deluge-rpc-models/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

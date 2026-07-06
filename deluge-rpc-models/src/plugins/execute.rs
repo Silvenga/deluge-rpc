@@ -28,7 +28,7 @@ pub enum ExecuteEvent {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
 
     #[test]
     fn when_execute_command_tuple_then_fields_populate() {

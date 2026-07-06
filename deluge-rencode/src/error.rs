@@ -1,3 +1,8 @@
+use serde::de::Error as SerdeDeError;
+use serde::de::{Expected, Unexpected};
+use serde::ser::Error as SerError;
+use std::fmt::Display;
+
 /// Errors produced by [`decode`] and typed accessors.
 #[derive(Debug, thiserror::Error)]
 pub enum RencodeError {
@@ -7,8 +12,6 @@ pub enum RencodeError {
     UnexpectedEof,
     #[error("decode depth exceeded limit ({0})")]
     DepthExceeded(usize),
-    #[error("invalid UTF-8 in string")]
-    InvalidUtf8,
     #[error("number parse error: {0}")]
     NumberParse(String),
     #[error("missing field `{0}`")]
@@ -29,15 +32,7 @@ pub enum RencodeError {
     InvalidTaggedJson(String),
     #[error("{0}")]
     Custom(String),
-    #[error("io error: {0}")]
-    Io(io::Error),
 }
-
-use serde::de::Error as SerdeDeError;
-use serde::de::{Expected, Unexpected};
-use serde::ser::Error as SerError;
-use std::fmt::Display;
-use std::io;
 
 impl SerError for RencodeError {
     fn custom<T: Display>(msg: T) -> Self {

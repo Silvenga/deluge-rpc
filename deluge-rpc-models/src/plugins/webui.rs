@@ -14,7 +14,7 @@ pub struct WebUiConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
     use std::collections::BTreeMap;
 
     fn make_dict(entries: Vec<(&str, RencodeValue)>) -> RencodeValue {

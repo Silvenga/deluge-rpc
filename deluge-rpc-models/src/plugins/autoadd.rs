@@ -1,4 +1,4 @@
-use crate::models::deserialize_unlimited_i64;
+use crate::deserialize_unlimited_i64;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -106,7 +106,7 @@ pub struct WatchDirOptions {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
     use std::collections::BTreeMap;
 
     fn make_dict(entries: Vec<(&str, RencodeValue)>) -> RencodeValue {

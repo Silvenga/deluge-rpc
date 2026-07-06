@@ -1,5 +1,5 @@
 use super::sub_dicts::{FileInfo, PeerInfo, TrackerInfo};
-use crate::models::sentinels::{
+use crate::sentinels::{
     deserialize_never_i64, deserialize_ratio, deserialize_unlimited_f64, deserialize_unlimited_i64,
 };
 use serde::{Deserialize, Serialize};
@@ -203,7 +203,7 @@ impl Default for TorrentStatus {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
     use std::collections::BTreeMap;
 
     fn make_full_status_dict() -> RencodeValue {

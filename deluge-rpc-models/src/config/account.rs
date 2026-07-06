@@ -17,7 +17,7 @@ pub struct AccountInfo {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
     use serde::Deserialize;
     use std::collections::BTreeMap;
 

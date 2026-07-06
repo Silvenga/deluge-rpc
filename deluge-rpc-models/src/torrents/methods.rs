@@ -102,7 +102,7 @@ impl<'de> Deserialize<'de> for PrefetchMagnetResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::RencodeValue;
+    use deluge_rencode::RencodeValue;
 
     #[test]
     fn when_prefetch_magnet_result_from_tuple_then_fields_populate() {
