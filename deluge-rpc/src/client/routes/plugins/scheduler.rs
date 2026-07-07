@@ -6,13 +6,18 @@ use crate::to_rencode_value;
 use async_trait::async_trait;
 use serde::Deserialize;
 
+/// RPC methods for the scheduler.* namespace.
 #[async_trait]
 pub trait SchedulerRpc: Send + Sync {
+    /// Sets the plugin config and re-runs the scheduler.
     async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError>;
+    /// Returns the plugin config.
     async fn get_config(&self) -> Result<SchedulerConfig, DelugeRpcError>;
+    /// Returns the current schedule state.
     async fn get_state(&self) -> Result<SchedulerState, DelugeRpcError>;
 }
 
+/// Client for scheduler.* RPC methods.
 pub struct SchedulerClient {
     dispatcher: DelugeClientDispatcher,
 }

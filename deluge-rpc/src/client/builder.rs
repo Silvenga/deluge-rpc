@@ -9,6 +9,7 @@ use tokio::sync::mpsc;
 const DEFAULT_RPC_TIMEOUT: Duration = Duration::from_secs(30);
 const MAX_MESSAGE_QUEUE_SIZE: usize = 256;
 
+/// Builder for constructing a `DelugeClient` with custom configuration.
 pub struct DelugeClientBuilder {
     host: String,
     port: u16,
@@ -21,6 +22,7 @@ pub struct DelugeClientBuilder {
 }
 
 impl DelugeClientBuilder {
+    /// Create a new builder with the given connection credentials.
     pub fn new(host: String, port: u16, username: String, password: String) -> Self {
         Self {
             host,
@@ -48,12 +50,14 @@ impl DelugeClientBuilder {
         self
     }
 
+    /// Enable recording of request-response interactions (requires `recorder` feature).
     #[cfg(feature = "recorder")]
     pub fn with_recorder(mut self, tx: mpsc::Sender<RecordedInteraction>) -> Self {
         self.recorder_tx = Some(tx);
         self
     }
 
+    /// Build the `DelugeClient` with the configured parameters.
     pub fn build(self) -> DelugeClient {
         DelugeClient::new(DelugeConnectionInfo {
             host: self.host,

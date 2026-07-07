@@ -1,3 +1,5 @@
+//! Integration tests for the deluge-cli binary.
+
 use assert_cmd::Command;
 use assert_fs::TempDir;
 use deluge_rpc::RencodeValue;

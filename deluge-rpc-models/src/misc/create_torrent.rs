@@ -5,7 +5,9 @@ use std::fmt;
 /// Result of `core.create_torrent()`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CreateTorrentResult {
+    /// Torrent filename.
     pub filename: String,
+    /// Base64-encoded bencoded torrent data.
     pub file_dump: String,
 }
 

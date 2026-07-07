@@ -3,6 +3,7 @@ use crate::value::RencodeValue;
 use serde::ser::{self, Serialize};
 use std::collections::BTreeMap;
 
+/// Serialize a `Serialize` type into a `RencodeValue`.
 pub fn to_rencode_value<T: Serialize + ?Sized>(value: &T) -> Result<RencodeValue, RencodeError> {
     value.serialize(Serializer)
 }

@@ -6,11 +6,16 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
+/// RPC methods for the execute.* namespace.
 #[async_trait]
 pub trait ExecuteRpc: Send + Sync {
+    /// Adds a command to run on a torrent event.
     async fn add_command(&self, event: &ExecuteEvent, command: &str) -> Result<(), DelugeRpcError>;
+    /// Returns all commands.
     async fn get_commands(&self) -> Result<Vec<ExecuteCommand>, DelugeRpcError>;
+    /// Removes a command by its ID.
     async fn remove_command(&self, command_id: &str) -> Result<(), DelugeRpcError>;
+    /// Updates an existing command in-place by ID.
     async fn save_command(
         &self,
         command_id: &str,
@@ -19,6 +24,7 @@ pub trait ExecuteRpc: Send + Sync {
     ) -> Result<(), DelugeRpcError>;
 }
 
+/// Client for execute.* RPC methods.
 pub struct ExecuteClient {
     dispatcher: DelugeClientDispatcher,
 }

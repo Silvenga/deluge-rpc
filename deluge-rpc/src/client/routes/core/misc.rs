@@ -7,8 +7,10 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
+/// RPC methods for core.* torrent creation and misc queries.
 #[async_trait]
 pub trait CoreMiscRpc: Send + Sync {
+    /// Creates a torrent file from `path`. Returns `(filename, filedump)`.
     #[expect(
         clippy::too_many_arguments,
         reason = "create_torrent has many optional params per Deluge API"
@@ -26,7 +28,9 @@ pub trait CoreMiscRpc: Send + Sync {
         trackers: Option<Vec<Vec<String>>>,
         add_to_session: bool,
     ) -> Result<CreateTorrentResult, DelugeRpcError>;
+    /// Returns filesystem paths matching the glob pattern.
     async fn glob(&self, path: &str) -> Result<GlobResult, DelugeRpcError>;
+    /// Returns path completions for a partial path input.
     async fn get_completion_paths(
         &self,
         completion_text: &str,
@@ -34,6 +38,7 @@ pub trait CoreMiscRpc: Send + Sync {
     ) -> Result<CompletionPaths, DelugeRpcError>;
 }
 
+/// Client for core.* misc RPC methods.
 pub struct CoreMiscClient {
     dispatcher: DelugeClientDispatcher,
 }

@@ -5,16 +5,24 @@ use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 use async_trait::async_trait;
 
+/// RPC methods for core.* plugin management.
 #[async_trait]
 pub trait CorePluginRpc: Send + Sync {
+    /// Returns names of all plugins available on the daemon.
     async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;
+    /// Returns names of currently enabled plugins.
     async fn get_enabled_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;
+    /// Enables a plugin. Returns `true` on success or if already enabled.
     async fn enable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError>;
+    /// Disables a plugin. Returns `true` on success or if already disabled.
     async fn disable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError>;
+    /// Uploads and installs a new plugin from base64-encoded data.
     async fn upload_plugin(&self, filename: &str, file_dump: &str) -> Result<(), DelugeRpcError>;
+    /// Rescans the plugin folders for newly installed plugins.
     async fn rescan_plugins(&self) -> Result<(), DelugeRpcError>;
 }
 
+/// Client for core.* plugin RPC methods.
 pub struct CorePluginClient {
     dispatcher: DelugeClientDispatcher,
 }

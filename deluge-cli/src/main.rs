@@ -1,3 +1,5 @@
+//! CLI client for the Deluge daemon RPC protocol.
+
 use crate::run::run;
 use std::process;
 

@@ -7,15 +7,18 @@ use tokio::io::{AsyncReadExt, ReadHalf};
 use tokio::net::TcpStream;
 use tokio_rustls::client;
 
+/// The read half of a Deluge transport, reading framed zlib-compressed messages.
 pub struct DelugeReader {
     read: ReadHalf<TlsStream<TcpStream>>,
 }
 
 impl DelugeReader {
+    /// Create a new `DelugeReader` from a TLS stream read half.
     pub fn new(read: ReadHalf<TlsStream<TcpStream>>) -> Self {
         Self { read }
     }
 
+    /// Read a framed zlib-compressed message from the transport.
     pub async fn recv(&mut self) -> Result<Vec<u8>, TransportError> {
         let mut header = [0u8; HEADER_LEN];
         self.read.read_exact(&mut header).await?;

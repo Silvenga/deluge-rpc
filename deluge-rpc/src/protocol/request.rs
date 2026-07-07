@@ -1,14 +1,22 @@
 use crate::RencodeValue;
 use std::collections::BTreeMap;
 
+/// An RPC request to be sent to the Deluge daemon.
+///
+/// Wrapped in the outer 1-element list envelope as specified by the protocol:
+/// `[[(request_id, method, args, kwargs)]]`.
 #[derive(Clone)]
 pub struct DelugeRpcRequest {
+    /// RPC method name (e.g. `daemon.login`).
     pub method: String,
+    /// Positional arguments for the method call.
     pub args: Vec<RencodeValue>,
+    /// Keyword arguments for the method call.
     pub kwargs: BTreeMap<RencodeValue, RencodeValue>,
 }
 
 impl DelugeRpcRequest {
+    /// Create a new request with a method name and no arguments.
     pub fn new(method: impl Into<String>) -> Self {
         DelugeRpcRequest {
             method: method.into(),
@@ -17,20 +25,24 @@ impl DelugeRpcRequest {
         }
     }
 
+    /// Set positional arguments for the request.
     pub fn with_args(mut self, args: Vec<RencodeValue>) -> Self {
         self.args = args;
         self
     }
 
+    /// Set keyword arguments for the request.
     pub fn with_kwargs(mut self, kwargs: BTreeMap<RencodeValue, RencodeValue>) -> Self {
         self.kwargs = kwargs;
         self
     }
 
+    /// Encode the request into bytes (rencode + zlib + framed).
     pub fn encode(self, id: u32) -> Vec<u8> {
         self.into_rencode_value(id).encode()
     }
 
+    /// Convert the request into a rencode value for serialization.
     pub fn into_rencode_value(self, id: u32) -> RencodeValue {
         RencodeValue::List(vec![RencodeValue::List(vec![
             RencodeValue::Int(i64::from(id)),

@@ -7,6 +7,7 @@ use crate::{
     RencodeValue, SchedulerClient, StatsClient, ToggleClient, WebUiClient,
 };
 
+/// The top-level Deluge RPC client providing access to daemon, core, and plugin sub-clients.
 pub struct DelugeClient {
     dispatcher: DelugeClientDispatcher,
     daemon_client: DaemonClient,
@@ -15,6 +16,7 @@ pub struct DelugeClient {
 }
 
 impl DelugeClient {
+    /// Create a new `DelugeClient` from connection info.
     pub fn new(info: DelugeConnectionInfo) -> Self {
         let dispatcher = DelugeClientDispatcher::new(info.into());
         Self {
@@ -25,18 +27,22 @@ impl DelugeClient {
         }
     }
 
+    /// Access the `daemon.*` RPC sub-client.
     pub fn daemon(&self) -> &DaemonClient {
         &self.daemon_client
     }
 
+    /// Access the `core.*` RPC sub-client.
     pub fn core(&self) -> &CoreClient {
         &self.core_client
     }
 
+    /// Access the plugin RPC sub-client.
     pub fn plugins(&self) -> &PluginsClient {
         &self.plugins_client
     }
 
+    /// Check whether the underlying transport connection is still open.
     pub async fn is_connected(&self) -> bool {
         self.dispatcher.is_connected().await
     }
@@ -47,12 +53,19 @@ impl DelugeClient {
     }
 }
 
+/// Provides access to `core.*` RPC sub-clients (torrents, session, config, plugins, accounts, misc).
 pub struct CoreClient {
+    /// Access to `core.*` torrent methods.
     pub torrents: CoreTorrentClient,
+    /// Access to `core.*` session methods.
     pub session: CoreSessionClient,
+    /// Access to `core.*` config methods.
     pub config: CoreConfigClient,
+    /// Access to `core.*` plugin management methods.
     pub plugins: CorePluginClient,
+    /// Access to `core.*` account methods.
     pub accounts: CoreAccountClient,
+    /// Access to `core.*` miscellaneous methods.
     pub misc: CoreMiscClient,
 }
 
@@ -69,16 +82,27 @@ impl CoreClient {
     }
 }
 
+/// Provides access to plugin RPC sub-clients (auto_add, blocklist, execute, extractor, label, etc.).
 pub struct PluginsClient {
+    /// Access to `AutoAdd*` plugin RPC methods.
     pub auto_add: AutoAddClient,
+    /// Access to `Blocklist*` plugin RPC methods.
     pub blocklist: BlocklistClient,
+    /// Access to `Execute*` plugin RPC methods.
     pub execute: ExecuteClient,
+    /// Access to `Extractor*` plugin RPC methods.
     pub extractor: ExtractorClient,
+    /// Access to `Label*` plugin RPC methods.
     pub label: LabelClient,
+    /// Access to `Notifications*` plugin RPC methods.
     pub notifications: NotificationsClient,
+    /// Access to `Scheduler*` plugin RPC methods.
     pub scheduler: SchedulerClient,
+    /// Access to `Stats*` plugin RPC methods.
     pub stats: StatsClient,
+    /// Access to `Toggle*` plugin RPC methods.
     pub toggle: ToggleClient,
+    /// Access to `WebUi*` plugin RPC methods.
     pub webui: WebUiClient,
 }
 

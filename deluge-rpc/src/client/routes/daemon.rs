@@ -6,22 +6,31 @@ use crate::protocol::{extract_single, extract_single_int};
 use async_trait::async_trait;
 use std::collections::BTreeMap;
 
+/// RPC methods for the `daemon.*` namespace.
 #[async_trait]
 pub trait DaemonRpc: Send + Sync {
+    /// Returns the daemon version string. Used in the initial handshake before login.
     async fn info(&self) -> Result<String, DelugeRpcError>;
+    /// Authenticates the session. Returns the auth level (0/1/5/10).
     async fn login(
         &self,
         username: &str,
         password: &str,
         client_version: &str,
     ) -> Result<i64, DelugeRpcError>;
+    /// Subscribes the current session to the listed event names (full-replace operation).
     async fn set_event_interest(&self, event_names: &[String]) -> Result<bool, DelugeRpcError>;
+    /// Shuts down the daemon. The response may never arrive — close the connection after sending.
     async fn shutdown(&self) -> Result<(), DelugeRpcError>;
+    /// Returns all registered RPC method names.
     async fn get_method_list(&self) -> Result<Vec<String>, DelugeRpcError>;
+    /// Returns the daemon version string (e.g. `"2.1.1"`).
     async fn get_version(&self) -> Result<String, DelugeRpcError>;
+    /// Checks whether the current session's auth level is sufficient to call the named RPC method.
     async fn authorized_call(&self, rpc: &str) -> Result<bool, DelugeRpcError>;
 }
 
+/// Client for `daemon.*` RPC methods.
 pub struct DaemonClient {
     dispatcher: DelugeClientDispatcher,
 }

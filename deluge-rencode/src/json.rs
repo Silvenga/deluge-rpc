@@ -5,6 +5,7 @@ use base64::engine::general_purpose::STANDARD as Base64Engine;
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
+/// Convert a `RencodeValue` to a tagged-JSON representation.
 pub fn to_json(value: &RencodeValue) -> JsonValue {
     match value {
         RencodeValue::None => {
@@ -77,6 +78,7 @@ pub fn to_json(value: &RencodeValue) -> JsonValue {
     }
 }
 
+/// Parse a `RencodeValue` from a tagged-JSON representation.
 pub fn from_json(json: &JsonValue) -> Result<RencodeValue, RencodeError> {
     let obj = json
         .as_object()

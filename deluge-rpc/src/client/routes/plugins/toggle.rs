@@ -4,12 +4,16 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use async_trait::async_trait;
 
+/// RPC methods for the toggle.* namespace.
 #[async_trait]
 pub trait ToggleRpc: Send + Sync {
+    /// Returns `true` if the session is paused.
     async fn get_status(&self) -> Result<bool, DelugeRpcError>;
+    /// Toggles the session between paused and running. Returns the new paused state.
     async fn toggle(&self) -> Result<bool, DelugeRpcError>;
 }
 
+/// Client for toggle.* RPC methods.
 pub struct ToggleClient {
     dispatcher: DelugeClientDispatcher,
 }

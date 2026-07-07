@@ -1,3 +1,5 @@
+//! Serde-compatible implementation of the rencode serialization format used by Deluge RPC.
+
 mod constants;
 mod cursor;
 mod de;

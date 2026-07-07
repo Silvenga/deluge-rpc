@@ -6,27 +6,39 @@ use serde::Serialize;
 use std::cmp::Ordering;
 use std::collections::BTreeMap;
 
+/// A value in the rencode serialization format.
 #[derive(Debug, Clone)]
 pub enum RencodeValue {
+    /// Represents a null/unit value.
     None,
+    /// A boolean value.
     Bool(bool),
+    /// A signed 64-bit integer.
     Int(i64),
+    /// A UTF-8 string.
     Str(String),
+    /// A byte string.
     Bytes(Vec<u8>),
+    /// An ordered list of values.
     List(Vec<RencodeValue>),
+    /// A map of key-value pairs, ordered by key.
     Dict(BTreeMap<RencodeValue, RencodeValue>),
+    /// A 64-bit floating-point number.
     Float(f64),
 }
 
 impl RencodeValue {
+    /// Decode a `RencodeValue` from a byte slice.
     pub fn decode(data: &[u8]) -> Result<Self, RencodeError> {
         decode(data)
     }
 
+    /// Encode this value into rencode binary format.
     pub fn encode(&self) -> Vec<u8> {
         encode(self)
     }
 
+    /// Access the inner dict, or return a type error.
     pub fn as_dict(&self) -> Result<&BTreeMap<RencodeValue, RencodeValue>, RencodeError> {
         match self {
             RencodeValue::Dict(map) => Ok(map),
@@ -38,6 +50,7 @@ impl RencodeValue {
         }
     }
 
+    /// Look up a string field by key in a dict value.
     pub fn get_str(&self, key: &str) -> Result<&str, RencodeError> {
         let field_key = RencodeValue::Str(String::from(key));
         let map = self.as_dict()?;
@@ -52,6 +65,7 @@ impl RencodeValue {
         }
     }
 
+    /// Look up an integer field by key in a dict value. Floats are coerced to i64.
     pub fn get_int(&self, key: &str) -> Result<i64, RencodeError> {
         let field_key = RencodeValue::Str(String::from(key));
         let map = self.as_dict()?;
@@ -67,6 +81,7 @@ impl RencodeValue {
         }
     }
 
+    /// Look up a numeric field by key in a dict value. Ints are coerced to f64.
     pub fn get_num(&self, key: &str) -> Result<f64, RencodeError> {
         let field_key = RencodeValue::Str(String::from(key));
         let map = self.as_dict()?;
@@ -82,6 +97,7 @@ impl RencodeValue {
         }
     }
 
+    /// Look up a boolean field by key in a dict value.
     pub fn get_bool(&self, key: &str) -> Result<bool, RencodeError> {
         let field_key = RencodeValue::Str(String::from(key));
         let map = self.as_dict()?;

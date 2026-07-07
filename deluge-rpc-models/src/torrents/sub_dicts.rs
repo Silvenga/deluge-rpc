@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+/// Connected peer, from the `peers` sub-dict of `TorrentStatus`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct PeerInfo {
     /// Peer client.
@@ -18,6 +19,7 @@ pub struct PeerInfo {
     pub up_speed: i64,
 }
 
+/// File entry, from the `files` / `orig_files` sub-dict of `TorrentStatus`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct FileInfo {
     /// File index.
@@ -30,6 +32,7 @@ pub struct FileInfo {
     pub offset: i64,
 }
 
+/// Tracker entry, from the `trackers` sub-dict of `TorrentStatus`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct TrackerInfo {
     /// Tracker URL.

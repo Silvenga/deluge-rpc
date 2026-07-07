@@ -1,7 +1,5 @@
-use crate::transport::TransportError;
-use crate::{
-    DelugeRpcError, DelugeRpcMessage, DelugeRpcRequest, DelugeTransport, DelugeWriter, RencodeValue,
-};
+use crate::transport::{DelugeTransport, DelugeWriter, TransportError};
+use crate::{DelugeRpcError, DelugeRpcMessage, DelugeRpcRequest, RencodeValue};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 use tokio::sync::broadcast::error::RecvError;

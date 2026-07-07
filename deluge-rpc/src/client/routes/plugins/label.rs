@@ -6,22 +6,32 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
+/// RPC methods for the label.* namespace.
 #[async_trait]
 pub trait LabelRpc: Send + Sync {
+    /// Returns all label IDs.
     async fn get_labels(&self) -> Result<Vec<String>, DelugeRpcError>;
+    /// Creates a new label with default options.
     async fn add(&self, label_id: &str) -> Result<(), DelugeRpcError>;
+    /// Removes a label.
     async fn remove(&self, label_id: &str) -> Result<(), DelugeRpcError>;
+    /// Updates a label's options and re-applies them to all torrents with that label.
     async fn set_options(
         &self,
         label_id: &str,
         options: &LabelOptions,
     ) -> Result<(), DelugeRpcError>;
+    /// Returns a label's options.
     async fn get_options(&self, label_id: &str) -> Result<LabelOptions, DelugeRpcError>;
+    /// Assigns a label to a torrent.
     async fn set_torrent(&self, torrent_id: &str, label_id: &str) -> Result<(), DelugeRpcError>;
+    /// Returns the plugin's global config.
     async fn get_config(&self) -> Result<LabelConfig, DelugeRpcError>;
+    /// Sets the plugin's global config.
     async fn set_config(&self, config: &LabelConfig) -> Result<(), DelugeRpcError>;
 }
 
+/// Client for label.* RPC methods.
 pub struct LabelClient {
     dispatcher: DelugeClientDispatcher,
 }

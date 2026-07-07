@@ -1,3 +1,5 @@
+//! E2e tests against a cassette recorded from a real Deluge daemon.
+
 use deluge_rpc::{
     CoreConfigRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc, DaemonRpc, DelugeClientBuilder,
 };

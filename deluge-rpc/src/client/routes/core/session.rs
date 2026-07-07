@@ -6,16 +6,24 @@ use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_int};
 use async_trait::async_trait;
 use serde::Deserialize;
 
+/// RPC methods for core.* session queries.
 #[async_trait]
 pub trait CoreSessionRpc: Send + Sync {
+    /// Pauses the entire session (all torrents).
     async fn pause_session(&self) -> Result<(), DelugeRpcError>;
+    /// Resumes the entire session.
     async fn resume_session(&self) -> Result<(), DelugeRpcError>;
+    /// Returns whether the session is paused.
     async fn is_session_paused(&self) -> Result<bool, DelugeRpcError>;
+    /// Returns the active listen port for incoming connections.
     async fn get_listen_port(&self) -> Result<i64, DelugeRpcError>;
     /// Returns the active SSL listen port. This method may not exist on all daemon versions.
     async fn get_ssl_listen_port(&self) -> Result<i64, DelugeRpcError>;
+    /// Returns the external IP address as determined by libtorrent.
     async fn get_external_ip(&self) -> Result<String, DelugeRpcError>;
+    /// Returns the libtorrent version string.
     async fn get_libtorrent_version(&self) -> Result<String, DelugeRpcError>;
+    /// Tests whether the active listen port is open by making an HTTP request to a Deluge test service.
     async fn test_listen_port(&self) -> Result<Option<bool>, DelugeRpcError>;
     /// Returns libtorrent session statistics for the requested keys.
     ///
@@ -23,9 +31,11 @@ pub trait CoreSessionRpc: Send + Sync {
     /// to request all available keys. The daemon returns a flat dict of
     /// `{key: value}` where values are `int` or `float`.
     async fn get_session_status(&self, keys: &[String]) -> Result<SessionStatus, DelugeRpcError>;
+    /// Returns free space in bytes at `path`. Negative on error.
     async fn get_free_space(&self, path: Option<String>) -> Result<i64, DelugeRpcError>;
 }
 
+/// Client for core.* session RPC methods.
 pub struct CoreSessionClient {
     dispatcher: DelugeClientDispatcher,
 }

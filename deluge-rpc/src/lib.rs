@@ -1,3 +1,5 @@
+//! Client library for the Deluge daemon RPC protocol (TLS + framed zlib + rencode).
+
 mod client;
 mod error;
 mod protocol;

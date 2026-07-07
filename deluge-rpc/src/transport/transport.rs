@@ -15,11 +15,13 @@ use tokio::time::timeout;
 use tokio_rustls::TlsConnector;
 use tokio_rustls::client::TlsStream;
 
+/// An SSL/TLS-wrapped TCP transport to a Deluge daemon.
 pub struct DelugeTransport {
     stream: TlsStream<TcpStream>,
 }
 
 impl DelugeTransport {
+    /// Establish a TLS connection to the Deluge daemon at `host:port`.
     pub async fn connect(host: &str, port: u16) -> Result<Self, TransportError> {
         ensure_crypto_provider();
         let config = client_config();
@@ -34,6 +36,7 @@ impl DelugeTransport {
         Ok(Self { stream })
     }
 
+    /// Split the transport into separate reader and writer halves.
     pub fn split(self) -> (DelugeReader, DelugeWriter) {
         let (read, write) = split(self.stream);
         (DelugeReader::new(read), DelugeWriter::new(write))

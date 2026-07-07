@@ -3,40 +3,52 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::{fs, io};
 
+/// A collection of recorded RPC interactions saved to a JSON file.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Cassette {
+    /// The cassette format version.
     pub version: u32,
+    /// ISO 8601 timestamp of when the cassette was recorded.
     pub recorded_at: String,
+    /// The Deluge daemon version at recording time, if available.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub daemon_version: Option<String>,
+    /// The recorded request-response interactions.
     pub interactions: Vec<Interaction>,
 }
 
 impl Cassette {
+    /// Load a cassette from a JSON file on disk.
     pub fn load(path: impl AsRef<Path>) -> Result<Self, CassetteError> {
         let data = fs::read_to_string(path)?;
         Self::from_json_str(&data)
     }
 
+    /// Save the cassette as a JSON file at the given path.
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), CassetteError> {
         let json = self.to_json_string()?;
         fs::write(path, json)?;
         Ok(())
     }
 
+    /// Deserialize a cassette from a JSON string.
     pub fn from_json_str(s: &str) -> Result<Self, CassetteError> {
         Ok(serde_json::from_str(s)?)
     }
 
+    /// Serialize the cassette to a pretty-printed JSON string.
     pub fn to_json_string(&self) -> Result<String, CassetteError> {
         Ok(serde_json::to_string_pretty(self)?)
     }
 }
 
+/// Errors that can occur when loading or saving a cassette.
 #[derive(Debug, thiserror::Error)]
 pub enum CassetteError {
+    /// An I/O error occurred while reading or writing the file.
     #[error("IO error: {0}")]
     Io(#[from] io::Error),
+    /// The cassette JSON could not be parsed or serialized.
     #[error("JSON error: {0}")]
     Json(#[from] serde_json::Error),
 }

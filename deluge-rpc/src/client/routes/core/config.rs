@@ -8,21 +8,28 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
+/// RPC methods for core.* config queries.
 #[async_trait]
 pub trait CoreConfigRpc: Send + Sync {
+    /// Returns all config preferences.
     async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError>;
+    /// Returns a single config value.
     async fn get_config_value(&self, key: &str) -> Result<RencodeValue, DelugeRpcError>;
+    /// Returns a subset of config values.
     async fn get_config_values(
         &self,
         keys: &[String],
     ) -> Result<BTreeMap<String, RencodeValue>, DelugeRpcError>;
+    /// Sets config values from a dictionary.
     async fn set_config(
         &self,
         config: &BTreeMap<String, RencodeValue>,
     ) -> Result<(), DelugeRpcError>;
+    /// Returns live proxy settings from the libtorrent session.
     async fn get_proxy(&self) -> Result<ProxyConfig, DelugeRpcError>;
 }
 
+/// Client for core.* config RPC methods.
 pub struct CoreConfigClient {
     dispatcher: DelugeClientDispatcher,
 }

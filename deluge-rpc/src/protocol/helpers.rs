@@ -2,10 +2,12 @@ use crate::RencodeValue;
 use crate::protocol::error::ProtocolError;
 use std::collections::BTreeMap;
 
+/// Extracts the return value from an RPC response.
 pub fn extract_single(value: &RencodeValue) -> Result<RencodeValue, ProtocolError> {
     Ok(value.clone())
 }
 
+/// Extracts an `i64` return value from an RPC response.
 pub fn extract_single_int(value: &RencodeValue, method: &str) -> Result<i64, ProtocolError> {
     let single = extract_single(value)?;
     match single {
@@ -17,6 +19,7 @@ pub fn extract_single_int(value: &RencodeValue, method: &str) -> Result<i64, Pro
     }
 }
 
+/// Extracts a dict reference from an RPC response.
 pub fn extract_single_dict<'a>(
     value: &'a RencodeValue,
     method: &str,

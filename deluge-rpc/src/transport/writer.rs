@@ -8,15 +8,18 @@ use tokio::io::{AsyncWriteExt, WriteHalf};
 use tokio::net::TcpStream;
 use tokio_rustls::client;
 
+/// The write half of a Deluge transport, writing framed zlib-compressed messages.
 pub struct DelugeWriter {
     write: WriteHalf<TlsStream<TcpStream>>,
 }
 
 impl DelugeWriter {
+    /// Create a new `DelugeWriter` from a TLS stream write half.
     pub fn new(write: WriteHalf<TlsStream<TcpStream>>) -> Self {
         Self { write }
     }
 
+    /// Write a framed zlib-compressed message to the transport.
     pub async fn send(&mut self, data: &[u8]) -> Result<(), TransportError> {
         let compressed = zlib_compress(data)?;
         let len = u32::try_from(compressed.len()).map_err(|_| {

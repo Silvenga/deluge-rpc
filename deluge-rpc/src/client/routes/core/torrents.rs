@@ -11,14 +11,17 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
+/// RPC methods for the `core.*` torrent namespace.
 #[async_trait]
 pub trait CoreTorrentRpc: Send + Sync {
+    /// Adds a single torrent file to the session. Returns the torrent_id on success, `None` on failure.
     async fn add_torrent_file(
         &self,
         filename: &str,
         filedump: &str,
         options: &AddTorrentOptions,
     ) -> Result<AddTorrentFileResult, DelugeRpcError>;
+    /// Async variant of `add_torrent_file`. `save_state=True` persists the session state after adding.
     async fn add_torrent_file_async(
         &self,
         filename: &str,
@@ -26,55 +29,71 @@ pub trait CoreTorrentRpc: Send + Sync {
         options: &AddTorrentOptions,
         save_state: bool,
     ) -> Result<AddTorrentFileResult, DelugeRpcError>;
+    /// Adds multiple torrents at once. Returns only errors for torrents that failed.
     async fn add_torrent_files(
         &self,
         torrent_files: &[(String, String, AddTorrentOptions)],
     ) -> Result<AddTorrentFilesResult, DelugeRpcError>;
+    /// Downloads a torrent file from `url`, then adds it to the session.
     async fn add_torrent_url(
         &self,
         url: &str,
         options: &AddTorrentOptions,
         headers: Option<BTreeMap<String, String>>,
     ) -> Result<AddTorrentFileResult, DelugeRpcError>;
+    /// Adds a torrent from a magnet URI. Returns the torrent_id.
     async fn add_torrent_magnet(
         &self,
         uri: &str,
         options: &AddTorrentOptions,
     ) -> Result<String, DelugeRpcError>;
+    /// Downloads magnet metadata without adding the torrent to the session.
     async fn prefetch_magnet_metadata(
         &self,
         magnet: &str,
         timeout_secs: Option<i64>,
     ) -> Result<PrefetchMagnetResult, DelugeRpcError>;
+    /// Removes a single torrent. `remove_data=True` also deletes downloaded files.
     async fn remove_torrent(
         &self,
         torrent_id: &str,
         remove_data: bool,
     ) -> Result<bool, DelugeRpcError>;
+    /// Removes multiple torrents. Returns `(torrent_id, error_message)` for failed removals.
     async fn remove_torrents(
         &self,
         torrent_ids: &[String],
         remove_data: bool,
     ) -> Result<RemoveTorrentsResult, DelugeRpcError>;
+    /// Pauses a single torrent.
     async fn pause_torrent(&self, torrent_id: &str) -> Result<(), DelugeRpcError>;
+    /// Pauses multiple torrents. `None` pauses all.
     async fn pause_torrents(&self, torrent_ids: Option<Vec<String>>) -> Result<(), DelugeRpcError>;
+    /// Resumes a single paused torrent.
     async fn resume_torrent(&self, torrent_id: &str) -> Result<(), DelugeRpcError>;
+    /// Resumes multiple torrents. `None` resumes all.
     async fn resume_torrents(&self, torrent_ids: Option<Vec<String>>)
     -> Result<(), DelugeRpcError>;
+    /// Forces tracker reannounce for the given torrents.
     async fn force_reannounce(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    /// Forces a data recheck (hash check) for the given torrents.
     async fn force_recheck(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    /// Sets per-torrent options for the given torrents.
     async fn set_torrent_options(
         &self,
         torrent_ids: &[String],
         options: &SetTorrentOptions,
     ) -> Result<(), DelugeRpcError>;
+    /// Manually connects to a peer for the given torrent.
     async fn connect_peer(
         &self,
         torrent_id: &str,
         ip: &str,
         port: i64,
     ) -> Result<(), DelugeRpcError>;
+    /// Moves downloaded data to a new location for the given torrents.
     async fn move_storage(&self, torrent_ids: &[String], dest: &str) -> Result<(), DelugeRpcError>;
+    /// Sets SSL certificates for connecting to SSL peers of the given torrent.
     async fn set_ssl_torrent_cert(
         &self,
         torrent_id: &str,
@@ -83,48 +102,62 @@ pub trait CoreTorrentRpc: Send + Sync {
         dh_params: &str,
         save_to_disk: bool,
     ) -> Result<(), DelugeRpcError>;
+    /// Gets status values for a single torrent. `keys=[]` returns all keys.
     async fn get_torrent_status(
         &self,
         torrent_id: &str,
         keys: &[String],
         diff: bool,
     ) -> Result<TorrentStatus, DelugeRpcError>;
+    /// Gets status values for multiple torrents, optionally filtered. `filter_dict={}` returns all.
     async fn get_torrents_status(
         &self,
         filter_dict: &FilterDict,
         keys: &[String],
         diff: bool,
     ) -> Result<Vec<TorrentEntry>, DelugeRpcError>;
+    /// Returns `{field: [(value, count)]}` for use in sidebar UIs.
     async fn get_filter_tree(
         &self,
         show_zero_hits: bool,
         hide_cat: Option<Vec<String>>,
     ) -> Result<FilterTree, DelugeRpcError>;
+    /// Returns all torrent_ids in the session.
     async fn get_session_state(&self) -> Result<Vec<String>, DelugeRpcError>;
+    /// Returns the magnet URI for the torrent.
     async fn get_magnet_uri(&self, torrent_id: &str) -> Result<GetMagnetUriResult, DelugeRpcError>;
+    /// Returns the size of a file or directory in bytes. `-1` if inaccessible.
     async fn get_path_size(&self, path: &str) -> Result<i64, DelugeRpcError>;
+    /// Replaces the tracker list for a torrent.
     async fn set_torrent_trackers(
         &self,
         torrent_id: &str,
         trackers: &[TrackerInfo],
     ) -> Result<(), DelugeRpcError>;
+    /// Renames files within a torrent. Each tuple is `(file_index, new_filename)`.
     async fn rename_files(
         &self,
         torrent_id: &str,
         filenames: &[(i64, String)],
     ) -> Result<(), DelugeRpcError>;
+    /// Renames a folder within a torrent.
     async fn rename_folder(
         &self,
         torrent_id: &str,
         folder: &str,
         new_folder: &str,
     ) -> Result<(), DelugeRpcError>;
+    /// Moves torrents to the top of the queue.
     async fn queue_top(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    /// Moves torrents up one position in the queue.
     async fn queue_up(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    /// Moves torrents down one position in the queue.
     async fn queue_down(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
+    /// Moves torrents to the bottom of the queue.
     async fn queue_bottom(&self, torrent_ids: &[String]) -> Result<(), DelugeRpcError>;
 }
 
+/// Client for `core.*` torrent RPC methods.
 pub struct CoreTorrentClient {
     dispatcher: DelugeClientDispatcher,
 }

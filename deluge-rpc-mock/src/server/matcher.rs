@@ -2,11 +2,16 @@ use crate::Interaction;
 use deluge_rpc::RencodeValue;
 use std::sync::Mutex;
 
+/// Matches incoming RPC requests against recorded interactions.
+///
+/// Tries an exact (method + args) match first, then falls back to
+/// a method-only match. Each interaction is consumed at most once.
 pub struct Matcher {
     entries: Mutex<Vec<(Interaction, bool)>>,
 }
 
 impl Matcher {
+    /// Create a new matcher from a list of recorded interactions.
     pub fn new(interactions: Vec<Interaction>) -> Self {
         let entries = interactions.into_iter().map(|i| (i, false)).collect();
         Self {
@@ -14,6 +19,10 @@ impl Matcher {
         }
     }
 
+    /// Find and consume an interaction matching the given method and args.
+    ///
+    /// Prefers an exact (method + args) match. Falls back to any unconsumed
+    /// interaction with the same method name.
     pub fn find_match(&self, method: &str, args: &RencodeValue) -> Option<Interaction> {
         let mut entries = self.entries.lock().expect("matcher mutex poisoned");
 
@@ -35,6 +44,7 @@ impl Matcher {
         None
     }
 
+    /// The list of RPC methods that have been matched and consumed.
     pub fn consumed_methods(&self) -> Vec<String> {
         let entries = self.entries.lock().expect("matcher mutex poisoned");
         entries

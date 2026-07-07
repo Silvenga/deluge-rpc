@@ -8,6 +8,7 @@ use tokio::net::TcpListener;
 use tokio::task::JoinHandle;
 use tokio_rustls::TlsAcceptor;
 
+/// A TLS server that replays recorded RPC interactions for testing.
 pub struct ReplayServer {
     addr: SocketAddr,
     handle: JoinHandle<()>,
@@ -15,6 +16,7 @@ pub struct ReplayServer {
 }
 
 impl ReplayServer {
+    /// Start the replay server on a random local port.
     pub async fn start(matcher: Matcher) -> Result<Self, ReplayServerStartError> {
         let matcher = Arc::from(matcher);
         let listener = TcpListener::bind("127.0.0.1:0").await?;
@@ -50,14 +52,17 @@ impl ReplayServer {
         })
     }
 
+    /// The IP address the server is listening on.
     pub fn host(&self) -> String {
         self.addr.ip().to_string()
     }
 
+    /// The port the server is listening on.
     pub fn port(&self) -> u16 {
         self.addr.port()
     }
 
+    /// The list of RPC methods that have been matched and consumed so far.
     pub fn consumed_methods(&self) -> Vec<String> {
         self.matcher.consumed_methods()
     }
@@ -69,10 +74,13 @@ impl Drop for ReplayServer {
     }
 }
 
+/// Errors that can occur when starting a replay server.
 #[derive(Debug, thiserror::Error)]
 pub enum ReplayServerStartError {
+    /// A network or socket error occurred.
     #[error("IO error: {0}")]
     Io(#[from] io::Error),
+    /// The TLS configuration could not be created.
     #[error("TLS error: {0}")]
     Tls(#[from] rustls::Error),
 }

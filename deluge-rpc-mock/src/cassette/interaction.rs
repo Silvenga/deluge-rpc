@@ -2,27 +2,41 @@ use deluge_rpc::{RencodeValue, from_json, to_json};
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
+/// A recorded request-response pair from a Deluge RPC interaction.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Interaction {
+    /// The request sent to the daemon.
     pub request: InteractionRequest,
+    /// The response received from the daemon.
     pub response: InteractionResponse,
 }
 
+/// The request half of a recorded interaction.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InteractionRequest {
+    /// The RPC method name (e.g. `"daemon.info"`).
     pub method: String,
+    /// The positional arguments sent to the method.
     pub args: RencodeValue,
+    /// The keyword arguments sent to the method.
     pub kwargs: RencodeValue,
 }
 
+/// The response half of a recorded interaction, either success or error.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InteractionResponse {
+    /// A successful response with the returned value.
     Ok {
+        /// The value returned by the RPC method.
         value: RencodeValue,
     },
+    /// An error response from the daemon.
     Error {
+        /// The Python exception type name.
         exc_type: String,
+        /// The exception message.
         exc_msg: String,
+        /// The Python traceback string.
         traceback: String,
     },
 }

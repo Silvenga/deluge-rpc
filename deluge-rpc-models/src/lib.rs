@@ -1,3 +1,5 @@
+//! Typed input/output models for the Deluge daemon RPC protocol.
+
 mod config;
 mod misc;
 mod plugins;

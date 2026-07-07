@@ -6,25 +6,44 @@ const RPC_RESPONSE: i64 = 1;
 const RPC_ERROR: i64 = 2;
 const RPC_EVENT: i64 = 3;
 
+/// A parsed RPC message from the Deluge daemon.
+///
+/// Discriminated by the type tag at position 0 of the wire tuple:
+/// `1` = RPC_RESPONSE, `2` = RPC_ERROR, `3` = RPC_EVENT.
 #[derive(Debug, Clone)]
 pub enum DelugeRpcMessage {
+    /// Successful RPC response (tag `1`).
     Response {
+        /// Request ID matching the original request.
         id: u32,
+        /// Return value of the RPC call.
         value: RencodeValue,
     },
+    /// RPC error response (tag `2`).
     Error {
+        /// Request ID matching the original request.
         id: u32,
+        /// Python exception class name (e.g. `BadLoginError`).
         exc_type: String,
+        /// Human-readable exception message.
         exc_msg: String,
+        /// Python traceback string for debugging.
         traceback: String,
     },
+    /// RPC event notification (tag `3`).
     Event {
+        /// Event name (e.g. `TorrentAddedEvent`).
         name: String,
+        /// Event arguments.
         args: Vec<RencodeValue>,
     },
 }
 
 impl DelugeRpcMessage {
+    /// Parse a `DelugeRpcMessage` from a decoded rencode value.
+    ///
+    /// The value must be a list whose first element is the type tag
+    /// (`1` = response, `2` = error, `3` = event).
     pub fn from_rencode_value(decoded: &RencodeValue) -> Result<Self, ProtocolError> {
         let inner = match decoded {
             RencodeValue::List(items) => items,

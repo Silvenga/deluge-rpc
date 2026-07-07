@@ -6,13 +6,18 @@ use crate::to_rencode_value;
 use async_trait::async_trait;
 use serde::Deserialize;
 
+/// RPC methods for the notifications.* namespace.
 #[async_trait]
 pub trait NotificationsRpc: Send + Sync {
+    /// Sets the plugin config.
     async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError>;
+    /// Returns the plugin config.
     async fn get_config(&self) -> Result<NotificationsConfig, DelugeRpcError>;
+    /// Returns events that the plugin can handle.
     async fn get_handled_events(&self) -> Result<Vec<HandledEvent>, DelugeRpcError>;
 }
 
+/// Client for notifications.* RPC methods.
 pub struct NotificationsClient {
     dispatcher: DelugeClientDispatcher,
 }

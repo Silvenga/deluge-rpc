@@ -7,24 +7,36 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
+/// RPC methods for the autoadd.* namespace.
 #[async_trait]
 pub trait AutoAddRpc: Send + Sync {
+    /// Updates the options for an existing watch folder.
     async fn set_options(
         &self,
         watch_dir_id: WatchDirId,
         options: &WatchDirOptions,
     ) -> Result<(), DelugeRpcError>;
+    /// Enables a watch folder - starts polling for new .torrent files.
     async fn enable_watch_dir(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
+    /// Disables a watch folder - stops polling.
     async fn disable_watch_dir(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
+    /// Sets the plugin config.
     async fn set_config(&self, config: &AutoAddConfig) -> Result<(), DelugeRpcError>;
+    /// Returns the plugin config.
     async fn get_config(&self) -> Result<AutoAddConfig, DelugeRpcError>;
+    /// Returns all watch folders.
     async fn get_watch_dirs(&self) -> Result<BTreeMap<String, WatchDirOptions>, DelugeRpcError>;
+    /// Creates a new watch folder with the given options. Returns the numeric ID of the new watchdir.
     async fn add(&self, options: Option<WatchDirOptions>) -> Result<WatchDirId, DelugeRpcError>;
+    /// Removes a watch folder.
     async fn remove(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
+    /// Returns `true` if the current session has admin auth level.
     async fn is_admin_level(&self) -> Result<bool, DelugeRpcError>;
+    /// Returns the username of the current session.
     async fn get_auth_user(&self) -> Result<String, DelugeRpcError>;
 }
 
+/// Client for autoadd.* RPC methods.
 pub struct AutoAddClient {
     dispatcher: DelugeClientDispatcher,
 }

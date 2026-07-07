@@ -6,20 +6,28 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
+/// RPC methods for the stats.* namespace.
 #[async_trait]
 pub trait StatsRpc: Send + Sync {
+    /// Returns historical stats for the requested keys at the given interval.
     async fn get_stats(
         &self,
         keys: &[String],
         interval: i64,
     ) -> Result<Option<StatsGetStatsResult>, DelugeRpcError>;
+    /// Returns cumulative totals (persisted + current session).
     async fn get_totals(&self) -> Result<StatsTotals, DelugeRpcError>;
+    /// Returns current session totals.
     async fn get_session_totals(&self) -> Result<StatsTotals, DelugeRpcError>;
+    /// Sets the plugin config.
     async fn set_config(&self, config: &StatsConfig) -> Result<(), DelugeRpcError>;
+    /// Returns the plugin config.
     async fn get_config(&self) -> Result<StatsConfig, DelugeRpcError>;
+    /// Returns valid sampling intervals.
     async fn get_intervals(&self) -> Result<Vec<i64>, DelugeRpcError>;
 }
 
+/// Client for stats.* RPC methods.
 pub struct StatsClient {
     dispatcher: DelugeClientDispatcher,
 }
