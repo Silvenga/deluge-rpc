@@ -7,19 +7,26 @@ use deluge_rpc_client::{
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
+/// `core.*` methods - torrents, session, config, and plugins.
 #[derive(Subcommand, Debug, Clone)]
 pub enum CoreCommand {
+    /// Get free space in bytes at a path. `None` uses the default download location.
+    /// Negative on error.
     #[command(name = "free-space")]
     FreeSpace {
         #[arg()]
         path: Option<String>,
     },
+    /// `core.*` torrent methods - list, status, remove.
     #[command(subcommand)]
     Torrents(CoreTorrentsCommand),
+    /// `core.*` session methods - session status.
     #[command(subcommand)]
     Session(CoreSessionCommand),
+    /// `core.*` config methods - get and set daemon config.`daemon.*` method
     #[command(subcommand)]
     Config(CoreConfigCommand),
+    /// `core.*` plugin methods - list, enable, disable.
     #[command(subcommand)]
     Plugins(PluginsListCommand),
 }
@@ -39,21 +46,32 @@ impl CoreCommand {
     }
 }
 
+/// `core.*` torrent methods.
 #[derive(Subcommand, Debug, Clone)]
 pub enum CoreTorrentsCommand {
+    /// List torrents matching a filter dict. `filter_dict={}` returns all.
+    /// `keys=[]` returns all status keys. See SPEC-core-torrents.md "Filter dict".
     List {
+        /// JSON filter dict (e.g. `{"state":["Downloading"]}`). `{}` = no filter.
         #[arg(long)]
         filter: Option<String>,
+        /// JSON array of status keys to return. `[]` = all keys.
         #[arg(long)]
         keys: Option<String>,
     },
+    /// Get status values for a single torrent. `keys=[]` returns all keys.
+    /// See SPEC-core-torrents.md "Torrent status keys".
     Status {
         torrent_id: String,
+        /// JSON array of status keys to return. `[]` = all keys.
         #[arg(long)]
         keys: Option<String>,
     },
+    /// Remove a torrent. `keep_data=true` preserves downloaded files.
+    /// Raises `InvalidTorrentError` if the torrent_id is not found.
     Remove {
         torrent_id: String,
+        /// Whether to keep the downloaded data (default: remove data).
         #[arg(long)]
         keep_data: bool,
     },
@@ -96,9 +114,13 @@ impl CoreTorrentsCommand {
     }
 }
 
+/// `core.*` session methods.
 #[derive(Subcommand, Debug, Clone)]
 pub enum CoreSessionCommand {
+    /// Get libtorrent session statistics for the requested keys.
+    /// `keys=[]` returns all keys. See SPEC-core-session.md "Session status keys".
     Status {
+        /// JSON array of session status keys to return. `[]` = all keys.
         #[arg(long)]
         keys: Option<String>,
     },
@@ -172,10 +194,19 @@ impl CoreSessionCommand {
     }
 }
 
+/// `core.*` config methods - get and set daemon config preferences.
 #[derive(Subcommand, Debug, Clone)]
 pub enum CoreConfigCommand {
+    /// Get config values. With no key, returns all config preferences.
+    /// With a key, returns a single config value (`null` for unknown keys).
+    /// See SPEC-core-session.md "Config keys".
     Get { key: Option<String> },
-    Set { json: String },
+    /// Set config values from a JSON object. Keys in `read_only_config_keys`
+    /// are skipped. Type coercion is enforced - mismatched types raise an error.
+    Set {
+        /// JSON object of config key-value pairs.
+        json: String,
+    },
 }
 
 impl CoreConfigCommand {
@@ -210,11 +241,21 @@ impl CoreConfigCommand {
     }
 }
 
+/// `core.*` plugin management methods.
 #[derive(Subcommand, Debug, Clone)]
 pub enum PluginsListCommand {
+    /// List names of currently enabled plugins.
     List,
-    Enable { name: String },
-    Disable { name: String },
+    /// Enable a plugin. Returns `true` on success or if already enabled.
+    Enable {
+        /// Plugin name to enable.
+        name: String,
+    },
+    /// Disable a plugin. Returns `true` on success or if already disabled.
+    Disable {
+        /// Plugin name to disable.
+        name: String,
+    },
 }
 
 impl PluginsListCommand {

@@ -20,7 +20,7 @@ pub trait DaemonRpc: Send + Sync {
     ) -> Result<i64, DelugeRpcError>;
     /// Subscribes the current session to the listed event names (full-replace operation).
     async fn set_event_interest(&self, event_names: &[String]) -> Result<bool, DelugeRpcError>;
-    /// Shuts down the daemon. The response may never arrive — close the connection after sending.
+    /// Shuts down the daemon. The response may never arrive - close the connection after sending.
     async fn shutdown(&self) -> Result<(), DelugeRpcError>;
     /// Returns all registered RPC method names.
     async fn get_method_list(&self) -> Result<Vec<String>, DelugeRpcError>;
@@ -107,7 +107,7 @@ impl DaemonRpc for DaemonClient {
 
     /// Shuts down the daemon. The daemon's reactor stops before the response is flushed,
     /// so this call may time out (30s) waiting for a response that never arrives.
-    /// This is expected behavior per the Deluge spec — do not reduce the timeout.
+    /// This is expected behavior per the Deluge spec - do not reduce the timeout.
     async fn shutdown(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.shutdown"))

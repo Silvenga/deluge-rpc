@@ -4,10 +4,14 @@ use deluge_rpc_client::{DelugeClient, DelugeRpcRequest, RencodeValue};
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
+/// Call raw RPC methods directly.
 #[derive(Args, Debug, Clone)]
 pub struct CallCommand {
+    /// The raw RPC method to call.
     pub method: String,
+    /// The arguments to pass to the RPC method as a JSON array.
     pub args_json: Option<String>,
+    /// The kwargs arguments to pass to the RPC method as a JSON object.
     pub kwargs_json: Option<String>,
 }
 

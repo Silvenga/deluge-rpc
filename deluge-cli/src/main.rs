@@ -3,10 +3,10 @@
 use crate::run::run;
 use std::process;
 
-mod cli_config;
 mod commands;
+mod config;
 mod helpers;
-mod record;
+mod recording;
 mod run;
 
 #[tokio::main]

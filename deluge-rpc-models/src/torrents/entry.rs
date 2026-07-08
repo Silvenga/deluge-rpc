@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 /// A single torrent's data as returned by `core.get_torrents_status`. The outer dict key (`torrent_id`) is captured in `info_hash`; the inner status dict is flattened into `status`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct TorrentEntry {
-    /// Torrent ID (info hash hex). Not serialized — set by the caller from the dict key.
+    /// Torrent ID (info hash hex). Not serialized - set by the caller from the dict key.
     #[serde(skip)]
     pub info_hash: String,
     /// Torrent status fields, flattened from the inner dict.

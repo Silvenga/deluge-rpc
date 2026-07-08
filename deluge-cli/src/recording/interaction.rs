@@ -1,38 +1,6 @@
 use deluge_rpc_client::RencodeValue;
-use serde::de;
 use serde::ser::SerializeStruct;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::fs;
-use std::path::Path;
-
-pub fn write_cassette_atomic(path: &Path, cassette: &Cassette) -> anyhow::Result<()> {
-    let json = serde_json::to_string_pretty(cassette)
-        .map_err(|e| anyhow::anyhow!("failed to serialize cassette: {e}"))?;
-
-    let temp_path = path.with_extension("tmp");
-    fs::write(&temp_path, json)
-        .map_err(|e| anyhow::anyhow!("failed to write temporary cassette: {e}"))?;
-
-    fs::rename(&temp_path, path)
-        .map_err(|e| anyhow::anyhow!("failed to rename temporary cassette: {e}"))?;
-
-    Ok(())
-}
-
-pub fn load_cassette(path: &Path) -> anyhow::Result<Cassette> {
-    let data =
-        fs::read_to_string(path).map_err(|e| anyhow::anyhow!("failed to read cassette: {e}"))?;
-    serde_json::from_str(&data).map_err(|e| anyhow::anyhow!("failed to parse cassette: {e}"))
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Cassette {
-    pub version: u32,
-    pub recorded_at: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub daemon_version: Option<String>,
-    pub interactions: Vec<Interaction>,
-}
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Interaction {
@@ -45,18 +13,6 @@ pub struct Request {
     pub method: String,
     pub args: RencodeValue,
     pub kwargs: RencodeValue,
-}
-
-#[derive(Debug, Clone)]
-pub enum Response {
-    Ok {
-        value: RencodeValue,
-    },
-    Error {
-        exc_type: String,
-        exc_msg: String,
-        traceback: String,
-    },
 }
 
 impl Serialize for Request {
@@ -91,6 +47,18 @@ impl<'de> Deserialize<'de> for Request {
             kwargs: deluge_rpc_client::from_json(kwargs_json).map_err(de::Error::custom)?,
         })
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum Response {
+    Ok {
+        value: RencodeValue,
+    },
+    Error {
+        exc_type: String,
+        exc_msg: String,
+        traceback: String,
+    },
 }
 
 impl Serialize for Response {

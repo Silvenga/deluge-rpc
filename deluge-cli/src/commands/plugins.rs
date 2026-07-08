@@ -1,6 +1,8 @@
 use clap::Subcommand;
 use deluge_rpc_client::{DelugeClient, LabelRpc};
 
+/// Plugin RPC methods. Plugin methods only exist when the plugin is enabled.
+/// Check via `core.get_enabled_plugins()` or use `daemon.get_method_list()`.
 #[derive(Subcommand, Debug, Clone)]
 pub enum PluginsCommand {
     #[command(flatten)]
@@ -15,11 +17,21 @@ impl PluginsCommand {
     }
 }
 
+/// `label.*` plugin methods - assign labels to torrents and manage labels.
 #[derive(Subcommand, Debug, Clone)]
 pub enum LabelCommand {
+    /// List all label IDs (sorted).
     List,
-    Add { id: String },
-    Remove { id: String },
+    /// Create a new label with default options.
+    Add {
+        /// Label ID to create.
+        id: String,
+    },
+    /// Remove a label. Torrents with that label lose it.
+    Remove {
+        /// Label ID to remove.
+        id: String,
+    },
 }
 
 impl LabelCommand {

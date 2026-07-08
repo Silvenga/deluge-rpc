@@ -23,12 +23,17 @@ pub struct DelugeClientBuilder {
 
 impl DelugeClientBuilder {
     /// Create a new builder with the given connection credentials.
-    pub fn new(host: String, port: u16, username: String, password: String) -> Self {
+    pub fn new(
+        host: impl Into<String>,
+        port: u16,
+        username: impl Into<String>,
+        password: impl Into<String>,
+    ) -> Self {
         Self {
-            host,
+            host: host.into(),
             port,
-            username,
-            password,
+            username: username.into(),
+            password: password.into(),
             rpc_timeout: DEFAULT_RPC_TIMEOUT,
             message_queue_size: MAX_MESSAGE_QUEUE_SIZE,
             #[cfg(feature = "recorder")]
