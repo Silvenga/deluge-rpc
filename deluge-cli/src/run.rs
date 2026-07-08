@@ -49,7 +49,7 @@ pub async fn run() -> anyhow::Result<()> {
         Ok(())
     };
 
-    if let Some(mut recorder) = recorder {
+    if let Some(recorder) = recorder {
         recorder.persist().await?;
     }
 

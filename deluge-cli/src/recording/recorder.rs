@@ -24,13 +24,20 @@ impl Recorder {
         builder.with_recorder(self.recorder_tx.clone())
     }
 
-    pub async fn persist(&mut self) -> anyhow::Result<()> {
+    pub async fn persist(self) -> anyhow::Result<()> {
+        let Self {
+            path,
+            recorder_tx,
+            mut recorder_rx,
+        } = self;
+        drop(recorder_tx);
+
         let mut interactions = Vec::new();
-        while let Some(recorded) = self.recorder_rx.recv().await {
+        while let Some(recorded) = recorder_rx.recv().await {
             interactions.push(to_interaction(recorded));
         }
 
-        let path = PathBuf::from(self.path.clone());
+        let path = PathBuf::from(path);
 
         let mut existing = Vec::new();
         if path.exists() {
@@ -49,7 +56,7 @@ impl Recorder {
         cassette
             .save(&path)
             .context("failed to write cassette file")?;
-        tracing::info!("cassette written to {}", self.path);
+        tracing::info!("cassette written to {}", path.display());
 
         Ok(())
     }
