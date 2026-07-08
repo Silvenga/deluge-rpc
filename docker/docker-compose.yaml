@@ -1,0 +1,7 @@
+services:
+  deluge:
+    image: ghcr.io/silvenga-docker/deluge:latest
+    ports:
+      - "58846:58846"
+    volumes:
+      - ./config/auth:/config/auth
