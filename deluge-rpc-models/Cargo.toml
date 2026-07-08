@@ -8,8 +8,8 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-documentation.workspace = true
-readme.workspace = true
+documentation = "https://docs.rs/deluge-rpc-models"
+readme = "README.md"
 keywords = ["deluge", "rpc", "models", "bittorrent"]
 categories = ["data-structures", "api-bindings"]
 
@@ -17,6 +17,6 @@ categories = ["data-structures", "api-bindings"]
 workspace = true
 
 [dependencies]
-deluge-rencode = { path = "../deluge-rencode", version = "0.1.0" }
+deluge-rpc-rencode = { path = "../deluge-rpc-rencode", version = "0.1.0" }
 serde = { workspace = true }
 serde_json = { workspace = true }

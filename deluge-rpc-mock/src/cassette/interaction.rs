@@ -1,4 +1,4 @@
-use deluge_rpc::{RencodeValue, from_json, to_json};
+use deluge_rpc_client::{RencodeValue, from_json, to_json};
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
@@ -149,7 +149,7 @@ impl<'de> Deserialize<'de> for InteractionResponse {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_rpc::RencodeValue;
+    use deluge_rpc_client::RencodeValue;
 
     #[test]
     fn when_response_error_then_roundtrip_preserves_fields() {

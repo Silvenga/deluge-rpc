@@ -3,7 +3,7 @@
 112 methods total across 4 spec documents. Each row maps a spec method to its Rust trait, sub-client path, args struct,
 return struct, cassette fixture, and test status.
 
-The "Cassette" is the file name of the JSON cassette fixture in `deluge-rpc/fixtures`.
+The "Cassette" is the file name of the JSON cassette fixture in `deluge-rpc-client/fixtures`.
 
 ## daemon (7 methods)
 

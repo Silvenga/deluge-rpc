@@ -1,6 +1,6 @@
 //! E2e tests for the cassette replay mock server.
 
-use deluge_rpc::{DaemonRpc, DelugeClientBuilder, RencodeValue};
+use deluge_rpc_client::{DaemonRpc, DelugeClientBuilder, RencodeValue};
 use deluge_rpc_mock::{
     Cassette, Interaction, InteractionRequest, InteractionResponse as CassetteResponse, Matcher,
     ReplayServer,

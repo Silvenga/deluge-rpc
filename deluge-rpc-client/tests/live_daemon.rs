@@ -1,6 +1,6 @@
 //! E2e tests against a cassette recorded from a real Deluge daemon.
 
-use deluge_rpc::{
+use deluge_rpc_client::{
     CoreConfigRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc, DaemonRpc, DelugeClientBuilder,
 };
 use deluge_rpc_mock::{Cassette, Matcher, ReplayServer};

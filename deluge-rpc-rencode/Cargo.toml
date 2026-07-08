@@ -1,5 +1,5 @@
 [package]
-name = "deluge-rencode"
+name = "deluge-rpc-rencode"
 description = "Rencode serialization format implementation for the Deluge RPC protocol"
 version.workspace = true
 edition.workspace = true
@@ -8,7 +8,7 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-documentation.workspace = true
+documentation = "https://docs.rs/deluge-rpc-rencode"
 keywords = ["deluge", "rencode", "serialization", "bencode"]
 categories = ["encoding"]
 readme = "README.md"

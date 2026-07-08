@@ -1,5 +1,5 @@
 use clap::Subcommand;
-use deluge_rpc::{DelugeClient, LabelRpc};
+use deluge_rpc_client::{DelugeClient, LabelRpc};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum PluginsCommand {

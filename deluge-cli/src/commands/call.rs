@@ -1,6 +1,6 @@
 use crate::helpers::rencode_from_json_value;
 use clap::Args;
-use deluge_rpc::{DelugeClient, DelugeRpcRequest, RencodeValue};
+use deluge_rpc_client::{DelugeClient, DelugeRpcRequest, RencodeValue};
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 

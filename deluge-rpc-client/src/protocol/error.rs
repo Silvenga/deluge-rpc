@@ -1,5 +1,5 @@
 use crate::RencodeValue;
-use deluge_rencode::RencodeError;
+use deluge_rpc_rencode::RencodeError;
 
 /// Protocol-level errors during RPC message parsing.
 #[derive(Debug, thiserror::Error)]

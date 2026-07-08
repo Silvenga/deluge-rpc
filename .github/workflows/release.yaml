@@ -39,16 +39,16 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@166cdcfd11aee3cb47222f9ddb555ce30ddb9659 # v1.17.0
         with:
           toolchain: stable
-      - name: Publish deluge-rencode
-        run: cargo publish -p deluge-rencode
+      - name: Publish deluge-rpc-rencode
+        run: cargo publish -p deluge-rpc-rencode
       - name: Wait for index propagation
         run: sleep 20
       - name: Publish deluge-rpc-models
         run: cargo publish -p deluge-rpc-models
       - name: Wait for index propagation
         run: sleep 20
-      - name: Publish deluge-rpc
-        run: cargo publish -p deluge-rpc
+      - name: Publish deluge-rpc-client
+        run: cargo publish -p deluge-rpc-client
 
   build-cli-linux:
     name: Build CLI (Linux)

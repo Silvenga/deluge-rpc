@@ -2,7 +2,7 @@
 
 use assert_cmd::Command;
 use assert_fs::TempDir;
-use deluge_rpc::RencodeValue;
+use deluge_rpc_client::RencodeValue;
 use flate2::Compression;
 use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;

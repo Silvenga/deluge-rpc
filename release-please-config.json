@@ -13,16 +13,16 @@
         {
           "type": "toml",
           "path": "deluge-rpc-models/Cargo.toml",
-          "jsonpath": "$.dependencies.deluge-rencode.version"
+          "jsonpath": "$.dependencies.deluge-rpc-rencode.version"
         },
         {
           "type": "toml",
-          "path": "deluge-rpc/Cargo.toml",
-          "jsonpath": "$.dependencies.deluge-rencode.version"
+          "path": "deluge-rpc-client/Cargo.toml",
+          "jsonpath": "$.dependencies.deluge-rpc-rencode.version"
         },
         {
           "type": "toml",
-          "path": "deluge-rpc/Cargo.toml",
+          "path": "deluge-rpc-client/Cargo.toml",
           "jsonpath": "$.dependencies.deluge-rpc-models.version"
         }
       ]

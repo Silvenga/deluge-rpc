@@ -47,7 +47,7 @@ pub struct StatsGetStatsResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_rencode::RencodeValue;
+    use deluge_rpc_rencode::RencodeValue;
     use std::collections::BTreeMap;
 
     fn make_dict(entries: Vec<(&str, RencodeValue)>) -> RencodeValue {

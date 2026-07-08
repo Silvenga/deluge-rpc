@@ -1,5 +1,5 @@
 [package]
-name = "deluge-rpc"
+name = "deluge-rpc-client"
 description = "Client library for the Deluge daemon RPC protocol (TLS + framed zlib + rencode)"
 version.workspace = true
 edition.workspace = true
@@ -8,8 +8,8 @@ license.workspace = true
 authors.workspace = true
 repository.workspace = true
 homepage.workspace = true
-documentation.workspace = true
-readme.workspace = true
+documentation = "https://docs.rs/deluge-rpc-client"
+readme = "README.md"
 keywords = ["deluge", "rpc", "client", "bittorrent"]
 categories = ["network-programming", "api-bindings"]
 
@@ -18,7 +18,7 @@ workspace = true
 
 [dependencies]
 async-trait = { workspace = true }
-deluge-rencode = { path = "../deluge-rencode", version = "0.1.0" }
+deluge-rpc-rencode = { path = "../deluge-rpc-rencode", version = "0.1.0" }
 deluge-rpc-models = { path = "../deluge-rpc-models", version = "0.1.0" }
 flate2 = { workspace = true }
 rustls = { workspace = true }

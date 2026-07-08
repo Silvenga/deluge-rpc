@@ -6,7 +6,7 @@ use crate::record::{
 };
 use anyhow::Context;
 use clap::{Parser, Subcommand};
-use deluge_rpc::{DelugeClientBuilder, RecordedInteraction, RecordedResponse, RencodeValue};
+use deluge_rpc_client::{DelugeClientBuilder, RecordedInteraction, RecordedResponse, RencodeValue};
 use std::path::PathBuf;
 use tokio::sync::mpsc;
 

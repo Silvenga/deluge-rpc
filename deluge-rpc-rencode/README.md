@@ -1,4 +1,4 @@
-## deluge-rencode
+## deluge-rpc-rencode
 
 Rencode is a compact serialization format similar to `bencode`. This crate implements the subset needed by Deluge RPC:
 `None`, bool, int, str, bytes, list, dict, float.

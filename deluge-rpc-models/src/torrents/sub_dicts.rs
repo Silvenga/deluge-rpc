@@ -44,7 +44,7 @@ pub struct TrackerInfo {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_rencode::RencodeValue;
+    use deluge_rpc_rencode::RencodeValue;
     use std::collections::BTreeMap;
 
     fn make_peer_dict() -> RencodeValue {

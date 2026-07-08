@@ -57,7 +57,7 @@ pub enum CassetteError {
 mod tests {
     use super::*;
     use crate::cassette::interaction::{Interaction, InteractionRequest, InteractionResponse};
-    use deluge_rpc::RencodeValue;
+    use deluge_rpc_client::RencodeValue;
     use std::collections::BTreeMap;
     use std::{env, process};
 

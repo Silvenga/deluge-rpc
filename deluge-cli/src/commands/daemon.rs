@@ -1,5 +1,5 @@
 use clap::Subcommand;
-use deluge_rpc::{DaemonRpc, DelugeClient};
+use deluge_rpc_client::{DaemonRpc, DelugeClient};
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum DaemonCommand {

@@ -1,7 +1,7 @@
 use crate::RencodeValue;
 use crate::protocol::ProtocolError;
 use crate::transport::TransportError;
-use deluge_rencode::RencodeError;
+use deluge_rpc_rencode::RencodeError;
 
 /// Top-level errors from the Deluge RPC client.
 #[derive(Debug, thiserror::Error)]

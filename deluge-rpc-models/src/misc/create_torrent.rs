@@ -49,7 +49,7 @@ impl<'de> Deserialize<'de> for CreateTorrentResult {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_rencode::RencodeValue;
+    use deluge_rpc_rencode::RencodeValue;
     use serde::Deserialize;
 
     #[test]

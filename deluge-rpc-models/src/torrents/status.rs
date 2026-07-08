@@ -276,7 +276,7 @@ impl Default for TorrentStatus {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_rencode::RencodeValue;
+    use deluge_rpc_rencode::RencodeValue;
     use std::collections::BTreeMap;
 
     fn make_full_status_dict() -> RencodeValue {

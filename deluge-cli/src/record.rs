@@ -1,4 +1,4 @@
-use deluge_rpc::RencodeValue;
+use deluge_rpc_client::RencodeValue;
 use serde::de;
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
@@ -63,8 +63,8 @@ impl Serialize for Request {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         let mut state = serializer.serialize_struct("Request", 3)?;
         state.serialize_field("method", &self.method)?;
-        state.serialize_field("args", &deluge_rpc::to_json(&self.args))?;
-        state.serialize_field("kwargs", &deluge_rpc::to_json(&self.kwargs))?;
+        state.serialize_field("args", &deluge_rpc_client::to_json(&self.args))?;
+        state.serialize_field("kwargs", &deluge_rpc_client::to_json(&self.kwargs))?;
         state.end()
     }
 }
@@ -87,8 +87,8 @@ impl<'de> Deserialize<'de> for Request {
             .ok_or_else(|| de::Error::custom("missing field 'kwargs'"))?;
         Ok(Request {
             method: method.to_owned(),
-            args: deluge_rpc::from_json(args_json).map_err(de::Error::custom)?,
-            kwargs: deluge_rpc::from_json(kwargs_json).map_err(de::Error::custom)?,
+            args: deluge_rpc_client::from_json(args_json).map_err(de::Error::custom)?,
+            kwargs: deluge_rpc_client::from_json(kwargs_json).map_err(de::Error::custom)?,
         })
     }
 }
@@ -99,7 +99,7 @@ impl Serialize for Response {
             Response::Ok { value } => {
                 let mut state = serializer.serialize_struct("Response", 2)?;
                 state.serialize_field("type", "ok")?;
-                state.serialize_field("value", &deluge_rpc::to_json(value))?;
+                state.serialize_field("value", &deluge_rpc_client::to_json(value))?;
                 state.end()
             }
             Response::Error {
@@ -134,7 +134,7 @@ impl<'de> Deserialize<'de> for Response {
                     .get("value")
                     .ok_or_else(|| de::Error::custom("missing field 'value'"))?;
                 Ok(Response::Ok {
-                    value: deluge_rpc::from_json(value).map_err(de::Error::custom)?,
+                    value: deluge_rpc_client::from_json(value).map_err(de::Error::custom)?,
                 })
             }
             "error" => {

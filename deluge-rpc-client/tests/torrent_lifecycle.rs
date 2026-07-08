@@ -1,6 +1,6 @@
 //! E2e tests for torrent lifecycle RPC methods against a cassette replay server.
 
-use deluge_rpc::{CoreTorrentRpc, DelugeClientBuilder};
+use deluge_rpc_client::{CoreTorrentRpc, DelugeClientBuilder};
 use deluge_rpc_mock::{Cassette, Matcher, ReplayServer};
 use std::fs;
 use std::path::PathBuf;

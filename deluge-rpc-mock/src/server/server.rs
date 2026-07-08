@@ -91,9 +91,9 @@ mod tests {
     use crate::{
         Cassette, Interaction, InteractionRequest, InteractionResponse as CassetteResponse,
     };
-    use deluge_rpc::DaemonRpc;
-    use deluge_rpc::DelugeClientBuilder;
-    use deluge_rpc::RencodeValue;
+    use deluge_rpc_client::DaemonRpc;
+    use deluge_rpc_client::DelugeClientBuilder;
+    use deluge_rpc_client::RencodeValue;
 
     fn make_cassette(interactions: Vec<Interaction>) -> Cassette {
         Cassette {

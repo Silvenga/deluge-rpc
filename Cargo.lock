@@ -377,7 +377,7 @@ dependencies = [
  "base64",
  "chrono",
  "clap",
- "deluge-rpc",
+ "deluge-rpc-client",
  "flate2",
  "rcgen",
  "rustls",
@@ -390,23 +390,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "deluge-rencode"
-version = "0.1.0"
-dependencies = [
- "base64",
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "deluge-rpc"
+name = "deluge-rpc-client"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "deluge-rencode",
  "deluge-rpc-mock",
  "deluge-rpc-models",
+ "deluge-rpc-rencode",
  "flate2",
  "rcgen",
  "rustls",
@@ -421,7 +411,7 @@ dependencies = [
 name = "deluge-rpc-mock"
 version = "0.1.0"
 dependencies = [
- "deluge-rpc",
+ "deluge-rpc-client",
  "flate2",
  "rcgen",
  "rustls",
@@ -437,9 +427,19 @@ dependencies = [
 name = "deluge-rpc-models"
 version = "0.1.0"
 dependencies = [
- "deluge-rencode",
+ "deluge-rpc-rencode",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "deluge-rpc-rencode"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "serde",
+ "serde_json",
+ "thiserror",
 ]
 
 [[package]]

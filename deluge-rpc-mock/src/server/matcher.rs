@@ -1,5 +1,5 @@
 use crate::Interaction;
-use deluge_rpc::RencodeValue;
+use deluge_rpc_client::RencodeValue;
 use std::sync::Mutex;
 
 /// Matches incoming RPC requests against recorded interactions.
@@ -59,7 +59,7 @@ impl Matcher {
 mod tests {
     use super::*;
     use crate::{InteractionRequest, InteractionResponse};
-    use deluge_rpc::RencodeValue;
+    use deluge_rpc_client::RencodeValue;
 
     fn make_interaction(method: &str, args: RencodeValue, response_value: &str) -> Interaction {
         Interaction {

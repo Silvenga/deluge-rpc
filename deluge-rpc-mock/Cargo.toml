@@ -18,7 +18,7 @@ categories = ["development-tools::testing"]
 workspace = true
 
 [dependencies]
-deluge-rpc = { path = "../deluge-rpc" }
+deluge-rpc-client = { path = "../deluge-rpc-client" }
 flate2 = { workspace = true }
 rcgen = { workspace = true }
 rustls = { workspace = true }

@@ -1,7 +1,9 @@
 use crate::helpers::{rencode_from_json_value, rencode_to_plain_json};
 use clap::Subcommand;
-use deluge_rpc::models::FilterDict;
-use deluge_rpc::{CoreConfigRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc, DelugeClient};
+use deluge_rpc_client::models::FilterDict;
+use deluge_rpc_client::{
+    CoreConfigRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc, DelugeClient,
+};
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
@@ -182,7 +184,7 @@ impl CoreConfigCommand {
             CoreConfigCommand::Get { key } => match key {
                 Some(k) => {
                     let value = client.core().config.get_config_value(k).await?;
-                    let tagged = deluge_rpc::to_json(&value);
+                    let tagged = deluge_rpc_client::to_json(&value);
                     Ok(serde_json::to_string_pretty(&tagged)?)
                 }
                 None => {

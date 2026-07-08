@@ -174,7 +174,7 @@ pub struct DaemonConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use deluge_rencode::RencodeValue;
+    use deluge_rpc_rencode::RencodeValue;
     use serde::Deserialize;
     use std::collections::BTreeMap;
 
