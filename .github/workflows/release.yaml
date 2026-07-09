@@ -67,10 +67,12 @@ jobs:
         run: cargo install cross
       - name: Build
         run: cross build --target x86_64-unknown-linux-gnu --release -p deluge-cli
+      - name: Rename artifact
+        run: mv target/x86_64-unknown-linux-gnu/release/deluge-cli target/x86_64-unknown-linux-gnu/release/deluge-cli-x86_64-unknown-linux-gnu
       - name: Upload Release Artifact
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ needs.release-please.outputs.tag_name }} target/x86_64-unknown-linux-gnu/release/deluge-cli --clobber
+        run: gh release upload ${{ needs.release-please.outputs.tag_name }} target/x86_64-unknown-linux-gnu/release/deluge-cli-x86_64-unknown-linux-gnu --clobber
 
   build-cli-windows:
     name: Build CLI (Windows)
@@ -87,8 +89,10 @@ jobs:
           toolchain: stable
       - name: Build
         run: cargo build --release -p deluge-cli
+      - name: Rename artifact
+        run: move target\release\deluge-cli.exe target\release\deluge-cli-x86_64-pc-windows-msvc.exe
       - name: Upload Release Artifact
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ needs.release-please.outputs.tag_name }} target/release/deluge-cli.exe --clobber
+        run: gh release upload ${{ needs.release-please.outputs.tag_name }} target/release/deluge-cli-x86_64-pc-windows-msvc.exe --clobber
 
