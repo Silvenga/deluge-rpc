@@ -26,6 +26,10 @@ impl ConnectionManager {
         }
     }
 
+    pub(crate) fn event_queue_size(&self) -> usize {
+        self.info.event_queue_size
+    }
+
     // Acquire a connection, re-using an existing one if possible.
     pub async fn acquire(&self) -> Result<Arc<Connection>, DelugeRpcError> {
         let mut guard = self.connection.lock().await;
@@ -38,7 +42,7 @@ impl ConnectionManager {
         };
 
         // Connection never existed or is now dead, create a new one.
-        let connection = self.create().await?;
+        let connection = Arc::from(self.create().await?);
 
         // The old connection will fail until dropped.
         *guard = Some(connection.clone());
@@ -47,14 +51,13 @@ impl ConnectionManager {
     }
 
     /// Create a new connection and login.
-    pub async fn create(&self) -> Result<Arc<Connection>, DelugeRpcError> {
-        let connection: Arc<_> = Connection::connect(
+    pub async fn create(&self) -> Result<Connection, DelugeRpcError> {
+        let connection = Connection::connect(
             &self.info.host,
             self.info.port,
             self.info.message_queue_size,
         )
-        .await?
-        .into();
+        .await?;
 
         connection
             .send(

@@ -22,6 +22,10 @@ impl Connection {
         !self.transport_reader_handle.is_finished()
     }
 
+    pub fn message_queue(&self) -> Option<broadcast::Sender<DelugeRpcMessage>> {
+        self.message_queue.upgrade()
+    }
+
     pub async fn send(&self, request: DelugeRpcRequest) -> Result<RencodeValue, DelugeRpcError> {
         let method = request.method.clone();
         let (writer, mut rx) = self.writer_and_rx()?;

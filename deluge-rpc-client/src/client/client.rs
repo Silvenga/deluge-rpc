@@ -1,16 +1,20 @@
 use crate::client::dispatcher::DelugeClientDispatcher;
+use crate::client::events::EventStream;
 use crate::client::info::DelugeConnectionInfo;
+use crate::client::manager::ConnectionManager;
 use crate::{
     AutoAddClient, BlocklistClient, CoreAccountClient, CoreConfigClient, CoreMiscClient,
     CorePluginClient, CoreSessionClient, CoreTorrentClient, DaemonClient, DelugeRpcError,
     DelugeRpcRequest, ExecuteClient, ExtractorClient, LabelClient, NotificationsClient,
     RencodeValue, SchedulerClient, StatsClient, ToggleClient, WebUiClient,
 };
+use std::sync::Arc;
 
 /// The top-level Deluge RPC client providing access to daemon, core, and plugin sub-clients.
 /// See [crate::DelugeClientBuilder].
 pub struct DelugeClient {
     dispatcher: DelugeClientDispatcher,
+    manager: Arc<ConnectionManager>,
     /// Access the `daemon.*` RPC sub-client.
     pub daemon: DaemonClient,
     /// Access the `core.*` RPC sub-client.
@@ -22,12 +26,15 @@ pub struct DelugeClient {
 impl DelugeClient {
     /// Create a new `DelugeClient` from connection info.
     pub(crate) fn new(info: DelugeConnectionInfo) -> Self {
-        let dispatcher = DelugeClientDispatcher::new(info.into());
+        let info = Arc::from(info);
+        let manager = Arc::from(ConnectionManager::new(info.clone()));
+        let dispatcher = DelugeClientDispatcher::new(info, manager.clone());
         Self {
             daemon: DaemonClient::new(dispatcher.clone()),
             core: CoreClient::new(dispatcher.clone()),
             plugins: PluginsClient::new(dispatcher.clone()),
             dispatcher,
+            manager,
         }
     }
 
@@ -39,6 +46,19 @@ impl DelugeClient {
     /// A low-level method to call the RPC server directly.
     pub async fn call(&self, request: DelugeRpcRequest) -> Result<RencodeValue, DelugeRpcError> {
         self.dispatcher.dispatch(request).await
+    }
+
+    /// Opens a dedicated connection for event streaming and subscribes to the given event names.
+    /// The connection is closed when the returned stream is dropped.
+    /// If the connection dies, the stream yields an error and then ends — the caller is
+    /// responsible for re-subscribing.
+    pub async fn subscribe_events(
+        &self,
+        event_names: &[impl AsRef<str>],
+    ) -> Result<EventStream, DelugeRpcError> {
+        let connection = self.manager.create().await?;
+        let names: Vec<String> = event_names.iter().map(|n| n.as_ref().to_owned()).collect();
+        EventStream::subscribe(connection, &names, self.manager.event_queue_size()).await
     }
 }
 

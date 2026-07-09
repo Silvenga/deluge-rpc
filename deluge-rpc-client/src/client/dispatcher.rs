@@ -11,11 +11,8 @@ pub struct DelugeClientDispatcher {
 }
 
 impl DelugeClientDispatcher {
-    pub fn new(info: Arc<DelugeConnectionInfo>) -> Self {
-        Self {
-            manager: ConnectionManager::new(info.clone()).into(),
-            info,
-        }
+    pub fn new(info: Arc<DelugeConnectionInfo>, manager: Arc<ConnectionManager>) -> Self {
+        Self { manager, info }
     }
 
     pub async fn is_connected(&self) -> bool {

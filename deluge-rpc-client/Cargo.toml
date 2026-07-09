@@ -26,6 +26,7 @@ serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-rustls = { workspace = true }
+tokio-stream = { version = "0.1.18" }
 tracing = { workspace = true }
 
 [features]
