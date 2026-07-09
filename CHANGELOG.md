@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/Silvenga/deluge-rpc/compare/v0.2.0...v0.3.0) (2026-07-09)
+
+
+### Features
+
+* **cli:** add status command for operator overview ([#8](https://github.com/Silvenga/deluge-rpc/issues/8)) ([2735f37](https://github.com/Silvenga/deluge-rpc/commit/2735f37b69cef12d4b3d78b6a1e77f3efd9ed83b))
+
 ## [0.2.0](https://github.com/Silvenga/deluge-rpc/compare/v0.1.2...v0.2.0) (2026-07-09)
 
 
