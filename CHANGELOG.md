@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.1](https://github.com/Silvenga/deluge-rpc/compare/v0.1.0...v0.1.1) (2026-07-09)
+
+
+### Bug Fixes
+
+* **docs:** fixed visablity of public api] ([c5fb079](https://github.com/Silvenga/deluge-rpc/commit/c5fb079b26a21550ffc58be4739c63a67fd4813a))
+* removed internal symboles from public api ([ee55404](https://github.com/Silvenga/deluge-rpc/commit/ee55404d5fbb1948093c58b7e0734784b36adea0))
+* removed traits from public api ([f784427](https://github.com/Silvenga/deluge-rpc/commit/f784427e7eb281bb28753b9ca5ea0e0d8f5daaf3))
+
 ## 0.1.0 (2026-07-09)
 
 
