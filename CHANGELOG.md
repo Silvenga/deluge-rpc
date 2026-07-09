@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/Silvenga/deluge-rpc/compare/v0.1.2...v0.2.0) (2026-07-09)
+
+
+### Features
+
+* added support for event subscriptions ([ed8e27c](https://github.com/Silvenga/deluge-rpc/commit/ed8e27c18d4fdcdce89968dd0e5c49d3f42cbbf5))
+
 ## [0.1.2](https://github.com/Silvenga/deluge-rpc/compare/v0.1.1...v0.1.2) (2026-07-09)
 
 
