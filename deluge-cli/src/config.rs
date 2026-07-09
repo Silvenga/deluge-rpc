@@ -1,4 +1,4 @@
-use crate::commands::{CallCommand, CoreCommand, DaemonCommand, PluginsCommand};
+use crate::commands::{CallCommand, CoreCommand, DaemonCommand, PluginsCommand, StatusCommand};
 use clap::{Args, Parser, Subcommand};
 
 #[derive(Parser, Debug)]
@@ -28,6 +28,8 @@ pub enum Command {
     /// Plugin RPC methods (e.g., label, etc.). Plugin methods require the plugin to be enabled.
     #[command(subcommand)]
     Plugin(PluginsCommand),
+    /// High-level operator status overview (designed for `watch deluge-cli status`).
+    Status(StatusCommand),
 }
 
 #[derive(Args, Debug, Clone)]
