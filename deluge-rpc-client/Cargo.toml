@@ -17,7 +17,7 @@ categories = ["network-programming", "api-bindings"]
 workspace = true
 
 [dependencies]
-async-trait = { workspace = true }
+
 deluge-rpc-rencode = { path = "../deluge-rpc-rencode", version = "0.1.0" }
 deluge-rpc-models = { path = "../deluge-rpc-models", version = "0.1.0" }
 flate2 = { workspace = true }

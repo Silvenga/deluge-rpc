@@ -7,12 +7,11 @@ use crate::models::{
 };
 use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_dict, extract_single_int};
 use crate::{RencodeValue, to_rencode_value};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
 /// RPC methods for the `core.*` torrent namespace.
-#[async_trait]
 pub trait CoreTorrentRpc: Send + Sync {
     /// Adds a single torrent file to the session. Returns the torrent_id on success, `None` on failure.
     async fn add_torrent_file(
@@ -176,7 +175,6 @@ impl Clone for CoreTorrentClient {
     }
 }
 
-#[async_trait]
 impl CoreTorrentRpc for CoreTorrentClient {
     async fn add_torrent_file(
         &self,

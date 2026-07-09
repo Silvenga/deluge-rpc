@@ -3,11 +3,10 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{StatsConfig, StatsGetStatsResult, StatsTotals};
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::{RencodeValue, to_rencode_value};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `stats.*` namespace.
-#[async_trait]
 pub trait StatsRpc: Send + Sync {
     /// Returns historical stats for the requested keys at the given interval.
     async fn get_stats(
@@ -46,7 +45,6 @@ impl Clone for StatsClient {
     }
 }
 
-#[async_trait]
 impl StatsRpc for StatsClient {
     async fn get_stats(
         &self,

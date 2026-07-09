@@ -3,11 +3,10 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{LabelConfig, LabelOptions};
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::{RencodeValue, to_rencode_value};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `label.*` namespace.
-#[async_trait]
 pub trait LabelRpc: Send + Sync {
     /// Returns all label IDs.
     async fn get_labels(&self) -> Result<Vec<String>, DelugeRpcError>;
@@ -51,7 +50,6 @@ impl Clone for LabelClient {
     }
 }
 
-#[async_trait]
 impl LabelRpc for LabelClient {
     async fn get_labels(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self

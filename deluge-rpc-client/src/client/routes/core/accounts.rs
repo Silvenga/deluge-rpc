@@ -4,12 +4,11 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::AccountInfo;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
-use async_trait::async_trait;
+
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
 /// RPC methods for the `core.*` account namespace.
-#[async_trait]
 pub trait CoreAccountRpc: Send + Sync {
     /// Returns all known user accounts.
     async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError>;
@@ -54,7 +53,6 @@ impl Clone for CoreAccountClient {
     }
 }
 
-#[async_trait]
 impl CoreAccountRpc for CoreAccountClient {
     async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError> {
         let result = self

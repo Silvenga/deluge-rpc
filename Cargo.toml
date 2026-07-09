@@ -16,7 +16,7 @@ readme = "README.md"
 [workspace.dependencies]
 anyhow = "1.0.103"
 base64 = "0.22.1"
-async-trait = "0.1.89"
+
 assert_cmd = "2.2.2"
 assert_fs = "1.1.4"
 assert_matches = "1.5.0"
@@ -40,6 +40,12 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt"] }
 
 [workspace.lints.rust]
 missing_docs = "warn"
+
+# Native async fn in traits can't express a `Send` bound on the returned
+# future in the trait signature. All impls are Send (Arc-backed dispatcher),
+# so the guarantee holds at the impl level. Using #[async_trait] would regress
+# docs back to Pin<Box<dyn Future>>.
+async_fn_in_trait = "allow"
 
 [workspace.lints.clippy]
 allow_attributes = "warn"

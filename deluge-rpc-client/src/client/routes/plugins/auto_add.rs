@@ -3,12 +3,11 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{AutoAddConfig, WatchDirId, WatchDirOptions};
 use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_int};
 use crate::{RencodeValue, to_rencode_value};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
 /// RPC methods for the `autoadd.*` namespace.
-#[async_trait]
 pub trait AutoAddRpc: Send + Sync {
     /// Updates the options for an existing watch folder.
     async fn set_options(
@@ -55,7 +54,6 @@ impl Clone for AutoAddClient {
     }
 }
 
-#[async_trait]
 impl AutoAddRpc for AutoAddClient {
     async fn set_options(
         &self,

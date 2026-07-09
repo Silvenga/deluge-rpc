@@ -3,11 +3,10 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{ExecuteCommand, ExecuteEvent};
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::{RencodeValue, to_rencode_value};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `execute.*` namespace.
-#[async_trait]
 pub trait ExecuteRpc: Send + Sync {
     /// Adds a command to run on a torrent event.
     async fn add_command(&self, event: &ExecuteEvent, command: &str) -> Result<(), DelugeRpcError>;
@@ -43,7 +42,6 @@ impl Clone for ExecuteClient {
     }
 }
 
-#[async_trait]
 impl ExecuteRpc for ExecuteClient {
     async fn add_command(&self, event: &ExecuteEvent, command: &str) -> Result<(), DelugeRpcError> {
         let event_value = to_rencode_value(event)?;

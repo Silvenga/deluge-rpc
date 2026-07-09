@@ -3,11 +3,10 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{BlocklistConfig, BlocklistStatus};
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::{RencodeValue, to_rencode_value};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `blocklist.*` namespace.
-#[async_trait]
 pub trait BlocklistRpc: Send + Sync {
     /// Downloads and imports the blocklist from the configured URL.
     async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError>;
@@ -38,7 +37,6 @@ impl Clone for BlocklistClient {
     }
 }
 
-#[async_trait]
 impl BlocklistRpc for BlocklistClient {
     async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError> {
         let result = self

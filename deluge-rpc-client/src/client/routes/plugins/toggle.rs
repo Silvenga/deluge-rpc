@@ -2,10 +2,8 @@ use crate::DelugeRpcError;
 use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::{DelugeRpcRequest, extract_single};
-use async_trait::async_trait;
 
 /// RPC methods for the `toggle.*` namespace.
-#[async_trait]
 pub trait ToggleRpc: Send + Sync {
     /// Returns `true` if the session is paused.
     async fn get_status(&self) -> Result<bool, DelugeRpcError>;
@@ -32,7 +30,6 @@ impl Clone for ToggleClient {
     }
 }
 
-#[async_trait]
 impl ToggleRpc for ToggleClient {
     async fn get_status(&self) -> Result<bool, DelugeRpcError> {
         let result = self

@@ -3,11 +3,10 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{HandledEvent, NotificationsConfig};
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::to_rencode_value;
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `notifications.*` namespace.
-#[async_trait]
 pub trait NotificationsRpc: Send + Sync {
     /// Sets the plugin config.
     async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError>;
@@ -36,7 +35,6 @@ impl Clone for NotificationsClient {
     }
 }
 
-#[async_trait]
 impl NotificationsRpc for NotificationsClient {
     async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;

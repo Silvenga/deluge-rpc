@@ -3,11 +3,10 @@ use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::SessionStatus;
 use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_int};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `core.*` session namespace.
-#[async_trait]
 pub trait CoreSessionRpc: Send + Sync {
     /// Pauses the entire session (all torrents).
     async fn pause_session(&self) -> Result<(), DelugeRpcError>;
@@ -54,7 +53,6 @@ impl Clone for CoreSessionClient {
     }
 }
 
-#[async_trait]
 impl CoreSessionRpc for CoreSessionClient {
     async fn pause_session(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher

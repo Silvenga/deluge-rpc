@@ -3,12 +3,11 @@ use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{CompletionPaths, CreateTorrentResult, GlobResult};
 use crate::protocol::{DelugeRpcRequest, extract_single};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
 /// RPC methods for the `core.*` misc namespace.
-#[async_trait]
 pub trait CoreMiscRpc: Send + Sync {
     /// Creates a torrent file from `path`. Returns `(filename, filedump)`.
     #[expect(
@@ -57,7 +56,6 @@ impl Clone for CoreMiscClient {
     }
 }
 
-#[async_trait]
 impl CoreMiscRpc for CoreMiscClient {
     async fn create_torrent(
         &self,

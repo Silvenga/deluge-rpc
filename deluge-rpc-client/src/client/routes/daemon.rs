@@ -3,11 +3,10 @@ use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::{extract_single, extract_single_int};
-use async_trait::async_trait;
+
 use std::collections::BTreeMap;
 
 /// RPC methods for the `daemon.*` namespace.
-#[async_trait]
 pub trait DaemonRpc: Send + Sync {
     /// Returns the daemon version string. Used in the initial handshake before login.
     async fn info(&self) -> Result<String, DelugeRpcError>;
@@ -41,7 +40,6 @@ impl DaemonClient {
     }
 }
 
-#[async_trait]
 impl DaemonRpc for DaemonClient {
     async fn info(&self) -> Result<String, DelugeRpcError> {
         let result = self

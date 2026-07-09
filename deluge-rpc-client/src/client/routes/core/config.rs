@@ -4,12 +4,11 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{DaemonConfig, ProxyConfig};
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
-use async_trait::async_trait;
+
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
 /// RPC methods for the `core.*` config namespace.
-#[async_trait]
 pub trait CoreConfigRpc: Send + Sync {
     /// Returns all config preferences.
     async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError>;
@@ -48,7 +47,6 @@ impl Clone for CoreConfigClient {
     }
 }
 
-#[async_trait]
 impl CoreConfigRpc for CoreConfigClient {
     async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError> {
         let result = self

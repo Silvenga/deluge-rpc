@@ -3,10 +3,8 @@ use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
-use async_trait::async_trait;
 
 /// RPC methods for the `core.*` plugin namespace.
-#[async_trait]
 pub trait CorePluginRpc: Send + Sync {
     /// Returns names of all plugins available on the daemon.
     async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;
@@ -41,7 +39,6 @@ impl Clone for CorePluginClient {
     }
 }
 
-#[async_trait]
 impl CorePluginRpc for CorePluginClient {
     async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self

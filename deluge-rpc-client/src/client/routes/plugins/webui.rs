@@ -4,11 +4,10 @@ use crate::models::WebUiConfig;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 use crate::{RencodeValue, to_rencode_value};
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `webui.*` namespace.
-#[async_trait]
 pub trait WebUiRpc: Send + Sync {
     /// Returns `true` if the `deluge-web` module is installed and importable.
     async fn got_deluge_web(&self) -> Result<bool, DelugeRpcError>;
@@ -37,7 +36,6 @@ impl Clone for WebUiClient {
     }
 }
 
-#[async_trait]
 impl WebUiRpc for WebUiClient {
     async fn got_deluge_web(&self) -> Result<bool, DelugeRpcError> {
         let result = self

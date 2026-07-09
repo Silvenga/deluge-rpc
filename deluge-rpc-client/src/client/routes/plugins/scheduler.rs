@@ -3,11 +3,10 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::{SchedulerConfig, SchedulerState};
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::to_rencode_value;
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `scheduler.*` namespace.
-#[async_trait]
 pub trait SchedulerRpc: Send + Sync {
     /// Sets the plugin config and re-runs the scheduler.
     async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError>;
@@ -36,7 +35,6 @@ impl Clone for SchedulerClient {
     }
 }
 
-#[async_trait]
 impl SchedulerRpc for SchedulerClient {
     async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;

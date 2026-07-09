@@ -3,11 +3,10 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::models::ExtractorConfig;
 use crate::protocol::{DelugeRpcRequest, extract_single};
 use crate::to_rencode_value;
-use async_trait::async_trait;
+
 use serde::Deserialize;
 
 /// RPC methods for the `extractor.*` namespace.
-#[async_trait]
 pub trait ExtractorRpc: Send + Sync {
     /// Sets the plugin config.
     async fn set_config(&self, config: &ExtractorConfig) -> Result<(), DelugeRpcError>;
@@ -34,7 +33,6 @@ impl Clone for ExtractorClient {
     }
 }
 
-#[async_trait]
 impl ExtractorRpc for ExtractorClient {
     async fn set_config(&self, config: &ExtractorConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
