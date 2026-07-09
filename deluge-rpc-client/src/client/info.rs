@@ -5,7 +5,7 @@ use std::time::Duration;
 use tokio::sync::mpsc;
 
 /// Connection parameters for a Deluge daemon.
-pub struct DelugeConnectionInfo {
+pub(crate) struct DelugeConnectionInfo {
     /// The hostname or IP address of the Deluge daemon.
     pub host: String,
     /// The TCP port of the Deluge daemon.

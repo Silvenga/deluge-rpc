@@ -8,6 +8,7 @@ use crate::{
 };
 
 /// The top-level Deluge RPC client providing access to daemon, core, and plugin sub-clients.
+/// See [crate::DelugeClientBuilder].
 pub struct DelugeClient {
     dispatcher: DelugeClientDispatcher,
     /// Access the `daemon.*` RPC sub-client.
@@ -20,7 +21,7 @@ pub struct DelugeClient {
 
 impl DelugeClient {
     /// Create a new `DelugeClient` from connection info.
-    pub fn new(info: DelugeConnectionInfo) -> Self {
+    pub(crate) fn new(info: DelugeConnectionInfo) -> Self {
         let dispatcher = DelugeClientDispatcher::new(info.into());
         Self {
             daemon: DaemonClient::new(dispatcher.clone()),

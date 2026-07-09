@@ -9,7 +9,7 @@ use tokio::sync::mpsc;
 const DEFAULT_RPC_TIMEOUT: Duration = Duration::from_secs(30);
 const MAX_MESSAGE_QUEUE_SIZE: usize = 256;
 
-/// Builder for constructing a `DelugeClient` with custom configuration.
+/// Builder for building a [crate::DelugeClient].
 pub struct DelugeClientBuilder {
     host: String,
     port: u16,
