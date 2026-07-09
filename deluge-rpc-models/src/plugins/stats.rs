@@ -13,7 +13,7 @@ pub struct StatsConfig {
 }
 
 /// Cumulative totals returned by `stats.get_totals` and `stats.get_session_totals`.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct StatsTotals {
     /// Total bytes uploaded.
     pub total_upload: i64,
@@ -28,7 +28,7 @@ pub struct StatsTotals {
 /// Return value of `stats.get_stats`.
 ///
 /// Contains historical stat samples keyed by stat name, plus metadata fields.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct StatsGetStatsResult {
     /// Unix timestamp of the last update.
     #[serde(rename = "_last_update")]

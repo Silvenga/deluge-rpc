@@ -26,31 +26,26 @@ pub async fn run() -> anyhow::Result<()> {
     let result: anyhow::Result<()> = {
         let client = builder.build();
         match &cli.command {
-            Command::Call(cmd) => {
-                let response = cmd.run(&client).await?;
-                let plain = rencode_to_plain_json(&response);
-                let output =
-                    serde_json::to_string_pretty(&plain).unwrap_or_else(|_| "null".to_owned());
-                info!("{output}");
-            }
-            Command::Daemon(cmd) => {
-                let output = cmd.run(&client).await?;
-                info!("{output}");
-            }
-            Command::Core(cmd) => {
-                let output = cmd.run(&client).await?;
-                info!("{output}");
-            }
-            Command::Plugin(cmd) => {
-                let output = cmd.run(&client).await?;
-                info!("{output}");
-            }
+            Command::Call(cmd) => match cmd.run(&client).await {
+                Ok(response) => {
+                    let plain = rencode_to_plain_json(&response);
+                    let output =
+                        serde_json::to_string_pretty(&plain).unwrap_or_else(|_| "null".to_owned());
+                    info!("{output}");
+                    Ok(())
+                }
+                Err(e) => Err(e),
+            },
+            Command::Daemon(cmd) => cmd.run(&client).await.map(|output| info!("{output}")),
+            Command::Core(cmd) => cmd.run(&client).await.map(|output| info!("{output}")),
+            Command::Plugin(cmd) => cmd.run(&client).await.map(|output| info!("{output}")),
         }
-        Ok(())
     };
 
     if let Some(recorder) = recorder {
-        recorder.persist().await?;
+        if let Err(e) = recorder.persist().await {
+            tracing::warn!(error = ?e, "failed to persist cassette");
+        }
     }
 
     result

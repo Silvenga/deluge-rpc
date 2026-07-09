@@ -16,7 +16,9 @@ Record real Deluge daemon responses into cassette fixtures and write e2e tests t
 
 ## Step 0: Ensure CLI Sub-Command Exists
 
-- Ensure
+Before recording, confirm the `deluge-cli` subcommand for the target method exists. Typed subcommands live in
+`deluge-cli/src/commands/{daemon,core,plugins}.rs`. If no typed subcommand covers the method, use the generic
+`call <method> <args-json> <kwargs-json>` subcommand instead (see Step 1).
 
 ## Step 1: Record a cassette
 
@@ -25,7 +27,7 @@ commands to accumulate interactions into one file:
 
 ```bash
 FX=<fixture-name> # e.g. "session-status"
-CASSETTE="deluge-rpc-mock/fixtures/${FX}.json"
+CASSETTE="deluge-rpc-client/fixtures/${FX}.json"
 
 # Delete any existing fixture to start fresh
 rm -f "$CASSETTE"
@@ -58,44 +60,46 @@ The cassette must contain zero `daemon.login` interactions. The mock server auto
 
 ## Step 2: Write the e2e test
 
-Create `deluge-rpc-mock/tests/<fixture_name>_e2e.rs`. Copy this pattern:
+Create `deluge-rpc-client/tests/<fixture_name>.rs` (named after the fixture file, e.g. `live_daemon.rs` for
+`live-daemon.json`). Copy this pattern:
 
 ```rust
-use deluge_rpc::{DaemonRpc, DelugeClient};  // import traits you call
+use deluge_rpc_client::{DaemonRpc, DelugeClientBuilder};  // import traits you call
 use deluge_rpc_mock::{Cassette, Matcher, ReplayServer};
 use std::fs;
 use std::path::PathBuf;
-use std::sync::Arc;
 
-fn load_fixture(name: &str) -> Cassette {
+fn load_fixture() -> Cassette {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("fixtures")
-        .join(name);
+        .join("<fixture-name>.json");
     let json = fs::read_to_string(&path)
-        .unwrap_or_else(|e| panic!("failed to read fixture {name}: {e}"));
+        .unwrap_or_else(|e| panic!("failed to read fixture: {e}"));
     Cassette::from_json_str(&json)
-        .unwrap_or_else(|e| panic!("failed to parse fixture {name}: {e}"))
+        .unwrap_or_else(|e| panic!("failed to parse fixture: {e}"))
 }
 
 async fn start_replay(cassette: Cassette) -> ReplayServer {
-    let matcher = Matcher::new(cassette.interactions);
-    ReplayServer::start(Arc::new(matcher))
+    ReplayServer::start(Matcher::new(cassette.interactions))
         .await
         .expect("start replay server")
 }
 
 #[tokio::test(flavor = "multi_thread")]
 async fn when_<condition>_then_<expected>() {
-    let cassette = load_fixture("<fixture-name>.json");
-    let server = start_replay(cassette).await;
+    let server = start_replay(load_fixture()).await;
 
-    let client = DelugeClient::connect( & server.host(), server.port(), "any", "any")
-    .await
-    .expect("connect");
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
 
     // Call typed methods and assert on the response
     let info = client.daemon().info().await.expect("daemon.info");
-    assert_eq ! (info, "2.1.2.dev0");
+    assert_eq!(info, "2.1.2.dev0");
 }
 ```
 
@@ -109,16 +113,16 @@ Key points:
 ## Step 3: Verify
 
 ```bash
-cargo test -p deluge-rpc-mock --test <fixture_name>_e2e
-cargo clippy -p deluge-rpc-mock --test <fixture_name>_e2e -- -D warnings
+cargo test -p deluge-rpc-client --test <fixture_name>
+cargo clippy -p deluge-rpc-client --test <fixture_name> -- -D warnings
 cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 ```
 
-## Step 4: Update METHOD-COVERAGE.md
+## Step 4: Update FIXTURE-COVERAGE.md
 
-In `deluge-rpc/docs/METHOD-COVERAGE.md`, add the fixture to the "Cassette fixtures" table and mark the methods as
-verified in the "Verification status" section.
+In `deluge-rpc-client/docs/FIXTURE-COVERAGE.md`, update the Cassette column for each method now covered by the
+new fixture, and update the "Cassette e2e" counts in the Summary table at the bottom.
 
 ## Cassette format reference
 

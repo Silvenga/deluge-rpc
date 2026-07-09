@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:01.901363318+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "toggle.get_status",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": false
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "toggle.toggle",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    }
+  ]
+}

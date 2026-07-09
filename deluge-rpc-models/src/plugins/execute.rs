@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// A command registered with the Execute plugin.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct ExecuteCommand {
     /// SHA1 hex string identifying the command.
     pub command_id: String,

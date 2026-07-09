@@ -1,0 +1,401 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T21:44:35.569044147+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "daemon.get_method_list",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "core.add_torrent_file"
+            },
+            {
+              "type": "str",
+              "value": "core.add_torrent_file_async"
+            },
+            {
+              "type": "str",
+              "value": "core.add_torrent_files"
+            },
+            {
+              "type": "str",
+              "value": "core.add_torrent_magnet"
+            },
+            {
+              "type": "str",
+              "value": "core.add_torrent_url"
+            },
+            {
+              "type": "str",
+              "value": "core.connect_peer"
+            },
+            {
+              "type": "str",
+              "value": "core.create_account"
+            },
+            {
+              "type": "str",
+              "value": "core.create_torrent"
+            },
+            {
+              "type": "str",
+              "value": "core.disable_plugin"
+            },
+            {
+              "type": "str",
+              "value": "core.enable_plugin"
+            },
+            {
+              "type": "str",
+              "value": "core.force_reannounce"
+            },
+            {
+              "type": "str",
+              "value": "core.force_recheck"
+            },
+            {
+              "type": "str",
+              "value": "core.get_auth_levels_mappings"
+            },
+            {
+              "type": "str",
+              "value": "core.get_available_plugins"
+            },
+            {
+              "type": "str",
+              "value": "core.get_completion_paths"
+            },
+            {
+              "type": "str",
+              "value": "core.get_config"
+            },
+            {
+              "type": "str",
+              "value": "core.get_config_value"
+            },
+            {
+              "type": "str",
+              "value": "core.get_config_values"
+            },
+            {
+              "type": "str",
+              "value": "core.get_enabled_plugins"
+            },
+            {
+              "type": "str",
+              "value": "core.get_external_ip"
+            },
+            {
+              "type": "str",
+              "value": "core.get_filter_tree"
+            },
+            {
+              "type": "str",
+              "value": "core.get_free_space"
+            },
+            {
+              "type": "str",
+              "value": "core.get_known_accounts"
+            },
+            {
+              "type": "str",
+              "value": "core.get_libtorrent_version"
+            },
+            {
+              "type": "str",
+              "value": "core.get_listen_port"
+            },
+            {
+              "type": "str",
+              "value": "core.get_magnet_uri"
+            },
+            {
+              "type": "str",
+              "value": "core.get_path_size"
+            },
+            {
+              "type": "str",
+              "value": "core.get_proxy"
+            },
+            {
+              "type": "str",
+              "value": "core.get_session_state"
+            },
+            {
+              "type": "str",
+              "value": "core.get_session_status"
+            },
+            {
+              "type": "str",
+              "value": "core.get_torrent_status"
+            },
+            {
+              "type": "str",
+              "value": "core.get_torrents_status"
+            },
+            {
+              "type": "str",
+              "value": "core.glob"
+            },
+            {
+              "type": "str",
+              "value": "core.is_session_paused"
+            },
+            {
+              "type": "str",
+              "value": "core.move_storage"
+            },
+            {
+              "type": "str",
+              "value": "core.pause_session"
+            },
+            {
+              "type": "str",
+              "value": "core.pause_torrent"
+            },
+            {
+              "type": "str",
+              "value": "core.pause_torrents"
+            },
+            {
+              "type": "str",
+              "value": "core.prefetch_magnet_metadata"
+            },
+            {
+              "type": "str",
+              "value": "core.queue_bottom"
+            },
+            {
+              "type": "str",
+              "value": "core.queue_down"
+            },
+            {
+              "type": "str",
+              "value": "core.queue_top"
+            },
+            {
+              "type": "str",
+              "value": "core.queue_up"
+            },
+            {
+              "type": "str",
+              "value": "core.remove_account"
+            },
+            {
+              "type": "str",
+              "value": "core.remove_torrent"
+            },
+            {
+              "type": "str",
+              "value": "core.remove_torrents"
+            },
+            {
+              "type": "str",
+              "value": "core.rename_files"
+            },
+            {
+              "type": "str",
+              "value": "core.rename_folder"
+            },
+            {
+              "type": "str",
+              "value": "core.rescan_plugins"
+            },
+            {
+              "type": "str",
+              "value": "core.resume_session"
+            },
+            {
+              "type": "str",
+              "value": "core.resume_torrent"
+            },
+            {
+              "type": "str",
+              "value": "core.resume_torrents"
+            },
+            {
+              "type": "str",
+              "value": "core.set_config"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_auto_managed"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_file_priorities"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_max_connections"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_max_download_speed"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_max_upload_slots"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_max_upload_speed"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_move_completed"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_move_completed_path"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_options"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_prioritize_first_last"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_remove_at_ratio"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_stop_at_ratio"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_stop_ratio"
+            },
+            {
+              "type": "str",
+              "value": "core.set_torrent_trackers"
+            },
+            {
+              "type": "str",
+              "value": "core.test_listen_port"
+            },
+            {
+              "type": "str",
+              "value": "core.update_account"
+            },
+            {
+              "type": "str",
+              "value": "core.upload_plugin"
+            },
+            {
+              "type": "str",
+              "value": "daemon.authorized_call"
+            },
+            {
+              "type": "str",
+              "value": "daemon.get_method_list"
+            },
+            {
+              "type": "str",
+              "value": "daemon.get_version"
+            },
+            {
+              "type": "str",
+              "value": "daemon.shutdown"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "daemon.set_event_interest",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "TorrentAddedEvent"
+                },
+                {
+                  "type": "str",
+                  "value": "ConfigValueChangedEvent"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "daemon.authorized_call",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "core.get_config"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "daemon.shutdown",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}

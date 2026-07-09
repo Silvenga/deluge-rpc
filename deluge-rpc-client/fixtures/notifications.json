@@ -1,0 +1,340 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:01.735056101+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "notifications.get_config",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_enabled"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_from"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_host"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_pass"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_port"
+              },
+              "value": {
+                "type": "int",
+                "value": 25
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_recipients"
+              },
+              "value": {
+                "type": "list",
+                "value": []
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_tls"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "smtp_user"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "subscriptions"
+              },
+              "value": {
+                "type": "dict",
+                "value": [
+                  {
+                    "key": {
+                      "type": "str",
+                      "value": "email"
+                    },
+                    "value": {
+                      "type": "list",
+                      "value": []
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "notifications.get_handled_events",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "AutoaddOptionsChangedEvent"
+                },
+                {
+                  "type": "str",
+                  "value": "Emitted when the options for the plugin are changed."
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "ExecuteCommandAddedEvent"
+                },
+                {
+                  "type": "str",
+                  "value": "Emitted when a new command is added."
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "ExecuteCommandRemovedEvent"
+                },
+                {
+                  "type": "str",
+                  "value": "Emitted when a command is removed."
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "SchedulerEvent"
+                },
+                {
+                  "type": "str",
+                  "value": "Emitted when a schedule state changes."
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "TorrentFinishedEvent"
+                },
+                {
+                  "type": "str",
+                  "value": "Emitted when a torrent finishes downloading."
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "notifications.set_config",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_enabled"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_from"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_host"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_pass"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_port"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 25
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_recipients"
+                  },
+                  "value": {
+                    "type": "list",
+                    "value": []
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_tls"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "smtp_user"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "subscriptions"
+                  },
+                  "value": {
+                    "type": "dict",
+                    "value": [
+                      {
+                        "key": {
+                          "type": "str",
+                          "value": "email"
+                        },
+                        "value": {
+                          "type": "list",
+                          "value": []
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}

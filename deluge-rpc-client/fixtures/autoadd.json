@@ -1,0 +1,662 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:11:35.189769495+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "autoadd.get_config",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "next_id"
+              },
+              "value": {
+                "type": "int",
+                "value": 1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "watchdirs"
+              },
+              "value": {
+                "type": "dict",
+                "value": []
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.get_watchdirs",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": []
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.enable_watchdir",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "int",
+              "value": 1
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "'1'",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 377, in enable_watchdir\n    if not self.watchdirs[w_id]['enabled']:\n           ~~~~~~~~~~~~~~^^^^^^\nKeyError: '1'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'KeyError' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: '1'\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 377, in enable_watchdir\n    if not self.watchdirs[w_id]['enabled']:\n           ~~~~~~~~~~~~~~^^^^^^\nKeyError: '1'\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.disable_watchdir",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "int",
+              "value": 1
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "'1'",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 391, in disable_watchdir\n    if self.watchdirs[w_id]['enabled']:\n       ~~~~~~~~~~~~~~^^^^^^\nKeyError: '1'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'KeyError' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: '1'\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 391, in disable_watchdir\n    if self.watchdirs[w_id]['enabled']:\n       ~~~~~~~~~~~~~~^^^^^^\nKeyError: '1'\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.remove",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "int",
+              "value": 1
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "Unknown Watchdir: {}",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 471, in remove\n    check_input(\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 78, in check_input\n    raise Exception(message)\nException: Unknown Watchdir: {}\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'Exception' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: Unknown Watchdir: {}\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 471, in remove\n    check_input(\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 78, in check_input\n    raise Exception(message)\nException: Unknown Watchdir: {}\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.is_admin_level",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.get_auth_user",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "localclient"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.set_config",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "next_id"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 1
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "watchdirs"
+                  },
+                  "value": {
+                    "type": "dict",
+                    "value": []
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.add",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "none"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "'path'",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 448, in add\n    abswatchdir = os.path.abspath(options['path'])\n                                  ~~~~~~~^^^^^^^^\nKeyError: 'path'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'KeyError' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: 'path'\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 448, in add\n    abswatchdir = os.path.abspath(options['path'])\n                                  ~~~~~~~^^^^^^^^\nKeyError: 'path'\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "autoadd.set_options",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "int",
+              "value": 1
+            },
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "abspath"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "add_paused"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "add_paused_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "append_extension"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "auto_managed"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": true
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "auto_managed_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "copy_torrent"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "delete_copy_torrent_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "download_location"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "download_location_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "enabled"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "label"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "label_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_connections"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_connections_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_download_speed"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_download_speed_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_upload_slots"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_upload_slots_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_upload_speed"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_upload_speed_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "move_completed"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "move_completed_path"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "move_completed_path_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "move_completed_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "owner"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "path"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "/tmp"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "prioritize_first_last"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "prioritize_first_last_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "queue_to_top"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "queue_to_top_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "remove_at_ratio"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "remove_at_ratio_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "seed_mode"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "seed_mode_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "stop_at_ratio"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "stop_at_ratio_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "stop_ratio"
+                  },
+                  "value": {
+                    "type": "float",
+                    "value": 2.0
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "stop_ratio_toggle"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "Watch folder does not exist.",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 123, in set_options\n    check_input(watchdir_id in self.watchdirs, _('Watch folder does not exist.'))\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 78, in check_input\n    raise Exception(message)\nException: Watch folder does not exist.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'Exception' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: Watch folder does not exist.\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 123, in set_options\n    check_input(watchdir_id in self.watchdirs, _('Watch folder does not exist.'))\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/AutoAdd-1.8.egg/deluge_autoadd/core.py\", line 78, in check_input\n    raise Exception(message)\nException: Watch folder does not exist.\n\n"
+      }
+    }
+  ]
+}

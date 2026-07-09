@@ -16,7 +16,7 @@ pub struct AutoAddConfig {
 pub type WatchDirId = i64;
 
 /// Options for a single AutoAdd watch directory.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Default)]
 pub struct WatchDirOptions {
     /// Whether the watchdir is actively polling.
     pub enabled: bool,

@@ -1,0 +1,386 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:08:27.956198336+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "core.get_available_plugins",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "AutoAdd"
+            },
+            {
+              "type": "str",
+              "value": "Blocklist"
+            },
+            {
+              "type": "str",
+              "value": "Execute"
+            },
+            {
+              "type": "str",
+              "value": "Extractor"
+            },
+            {
+              "type": "str",
+              "value": "Label"
+            },
+            {
+              "type": "str",
+              "value": "Notifications"
+            },
+            {
+              "type": "str",
+              "value": "Scheduler"
+            },
+            {
+              "type": "str",
+              "value": "Stats"
+            },
+            {
+              "type": "str",
+              "value": "Toggle"
+            },
+            {
+              "type": "str",
+              "value": "WebUi"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Label"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Stats"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Toggle"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "AutoAdd"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Blocklist"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Execute"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Extractor"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Notifications"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Scheduler"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "WebUi"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.disable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Label"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.enable_plugin",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "Label"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.rescan_plugins",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}
