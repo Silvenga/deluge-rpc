@@ -2,4 +2,4 @@
 
 Typed input/output models for the Deluge daemon RPC protocol.
 
-Part of the [deluge-rpc](https://github.com/Silvenga/deluge-rpc) workspace.
+You likely want to use [`deluge-rpc-client`](https://crates.io/crates/deluge-rpc-client) directly instead.

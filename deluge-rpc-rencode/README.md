@@ -3,6 +3,8 @@
 Rencode is a compact serialization format similar to `bencode`. This crate implements the subset needed by Deluge RPC:
 `None`, bool, int, str, bytes, list, dict, float.
 
+You likely want to use [`deluge-rpc-client`](https://crates.io/crates/deluge-rpc-client) directly instead.
+
 ### Type codes
 
 | Type             | Encoding                          |
