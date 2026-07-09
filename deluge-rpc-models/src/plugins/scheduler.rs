@@ -19,7 +19,7 @@ pub struct SchedulerConfig {
 }
 
 /// Current schedule state returned by `scheduler.get_state`.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum SchedulerState {
     /// Unlimited bandwidth.
     #[serde(rename = "Green")]

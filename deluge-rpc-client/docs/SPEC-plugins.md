@@ -151,7 +151,7 @@ Assigns labels to torrents and applies per-label options.
 | `label.set_options` | `(label_id, options_dict)` | `None`                         | Updates a label's options and re-applies them to all torrents with that label. Keys: see "Label options". |
 | `label.get_options` | `(label_id)`               | `dict`                         | Returns a label's options. Keys: see "Label options".                                                     |
 | `label.set_torrent` | `(torrent_id, label_id)`   | `None`                         | Assigns a label to a torrent. Passing `"No Label"` as `label_id` removes the label.                       |
-| `label.get_config`  | `()`                       | `dict`                         | Returns the plugin's global config. Only contains `auto_add_trackers`.                                    |
+| `label.get_config`  | `()`                       | `dict`                         | Returns the plugin's global config. Contains `auto_add_trackers` when configured; the key may be absent if no trackers are set. |
 | `label.set_config`  | `(options)`                | `None`                         | Sets the plugin's global config. Only `auto_add_trackers` is settable.                                    |
 
 ### Label options

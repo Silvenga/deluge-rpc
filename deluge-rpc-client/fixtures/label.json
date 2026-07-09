@@ -1,0 +1,528 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:01.684151127+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "label.get_labels",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": []
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "label.add",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "test-label"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "label.get_options",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "test-label"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "apply_max"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "apply_move_completed"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "apply_queue"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "auto_add"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "auto_add_trackers"
+              },
+              "value": {
+                "type": "list",
+                "value": []
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "is_auto_managed"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_connections"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_download_speed"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_upload_slots"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "max_upload_speed"
+              },
+              "value": {
+                "type": "int",
+                "value": -1
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "move_completed"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "move_completed_path"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "prioritize_first_last"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "remove_at_ratio"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "stop_at_ratio"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "stop_ratio"
+              },
+              "value": {
+                "type": "float",
+                "value": 2.0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "label.set_options",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "test-label"
+            },
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "apply_max"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "apply_move_completed"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "apply_queue"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "auto_add"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "auto_add_trackers"
+                  },
+                  "value": {
+                    "type": "list",
+                    "value": []
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "is_auto_managed"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_connections"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_download_speed"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_upload_slots"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_upload_speed"
+                  },
+                  "value": {
+                    "type": "none"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "move_completed"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "move_completed_path"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "prioritize_first_last"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "remove_at_ratio"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "stop_at_ratio"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "stop_ratio"
+                  },
+                  "value": {
+                    "type": "float",
+                    "value": 2.0
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "label.get_config",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": []
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "label.set_config",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "auto_add_trackers"
+                  },
+                  "value": {
+                    "type": "list",
+                    "value": []
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "'builtin_function_or_method' object is not iterable",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/Label-0.3.egg/deluge_label/core.py\", line 341, in set_config\n    for key, value in options.items:\nTypeError: 'builtin_function_or_method' object is not iterable\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'TypeError' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: 'builtin_function_or_method' object is not iterable\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/Label-0.3.egg/deluge_label/core.py\", line 341, in set_config\n    for key, value in options.items:\nTypeError: 'builtin_function_or_method' object is not iterable\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "label.set_torrent",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "83d40fa6191f96716d36bee7bc04274ee792ec45"
+            },
+            {
+              "type": "str",
+              "value": "test-label"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "Unknown Torrent",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/Label-0.3.egg/deluge_label/core.py\", line 318, in set_torrent\n    check_input(torrent_id in self.torrents, _('Unknown Torrent'))\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/Label-0.3.egg/deluge_label/core.py\", line 65, in check_input\n    raise Exception(message)\nException: Unknown Torrent\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'Exception' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: Unknown Torrent\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/Label-0.3.egg/deluge_label/core.py\", line 318, in set_torrent\n    check_input(torrent_id in self.torrents, _('Unknown Torrent'))\n  File \"/usr/lib/python3/dist-packages/deluge/plugins/Label-0.3.egg/deluge_label/core.py\", line 65, in check_input\n    raise Exception(message)\nException: Unknown Torrent\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "label.remove",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "test-label"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}

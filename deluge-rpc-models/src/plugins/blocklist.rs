@@ -26,7 +26,7 @@ pub struct BlocklistConfig {
 }
 
 /// Current import status of the Blocklist plugin.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct BlocklistStatus {
     /// Current state: "Downloading", "Importing", or "Idle".
     pub state: String,

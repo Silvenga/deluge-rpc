@@ -1,0 +1,132 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:01.957711522+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "webui.get_config",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "enabled"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "port"
+              },
+              "value": {
+                "type": "int",
+                "value": 8112
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "ssl"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "webui.got_deluge_web",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "webui.set_config",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "enabled"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "port"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 8112
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "ssl"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "Couldn't listen on 0.0.0.0:8112: [Errno 98] Address already in use.",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/twisted/internet/tcp.py\", line 1346, in startListening\n    skt.bind(addr)\nOSError: [Errno 98] Address already in use\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 355, in on_fail\n    failure.raiseException()\n  File \"/usr/lib/python3/dist-packages/twisted/python/failure.py\", line 505, in raiseException\n    raise self.value.with_traceback(self.tb)\ntwisted.internet.error.CannotListenError: Couldn't listen on 0.0.0.0:8112: [Errno 98] Address already in use.\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'CannotListenError' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: Couldn't listen on 0.0.0.0:8112: [Errno 98] Address already in use.\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/twisted/internet/tcp.py\", line 1346, in startListening\n    skt.bind(addr)\nOSError: [Errno 98] Address already in use\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 355, in on_fail\n    failure.raiseException()\n  File \"/usr/lib/python3/dist-packages/twisted/python/failure.py\", line 505, in raiseException\n    raise self.value.with_traceback(self.tb)\ntwisted.internet.error.CannotListenError: Couldn't listen on 0.0.0.0:8112: [Errno 98] Address already in use.\n\n"
+      }
+    }
+  ]
+}

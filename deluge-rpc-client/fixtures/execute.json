@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:01.538031434+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "execute.get_commands",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": []
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "execute.add_command",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "complete"
+            },
+            {
+              "type": "str",
+              "value": "echo done"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "execute.save_command",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "abc123"
+            },
+            {
+              "type": "str",
+              "value": "added"
+            },
+            {
+              "type": "str",
+              "value": "echo hello"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "execute.remove_command",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "abc123"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}

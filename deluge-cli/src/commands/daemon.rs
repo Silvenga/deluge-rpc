@@ -14,6 +14,16 @@ pub enum DaemonCommand {
     Methods,
     /// Shut down the daemon. The response is unreliable.
     Shutdown,
+    /// Subscribe the session to event names (full-replace operation).
+    Events {
+        /// JSON array of event names to subscribe to (e.g. `["TorrentAddedEvent"]`).
+        names: String,
+    },
+    /// Check whether the current session can call a named RPC method.
+    Authorized {
+        /// The RPC method name to check (e.g. `core.get_config`).
+        rpc: String,
+    },
 }
 
 impl DaemonCommand {
@@ -34,6 +44,16 @@ impl DaemonCommand {
             DaemonCommand::Shutdown => {
                 client.daemon().shutdown().await?;
                 Ok("Shutdown requested.".to_owned())
+            }
+            DaemonCommand::Events { names } => {
+                let event_names: Vec<String> = serde_json::from_str(names)
+                    .map_err(|e| anyhow::anyhow!("failed to parse event names JSON: {e}"))?;
+                let result = client.daemon().set_event_interest(&event_names).await?;
+                Ok(serde_json::to_string_pretty(&result)?)
+            }
+            DaemonCommand::Authorized { rpc } => {
+                let result = client.daemon().authorized_call(rpc).await?;
+                Ok(serde_json::to_string_pretty(&result)?)
             }
         }
     }

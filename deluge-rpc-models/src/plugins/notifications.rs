@@ -25,7 +25,7 @@ pub struct NotificationsConfig {
 }
 
 /// An event that the Notifications plugin can handle.
-#[derive(Debug, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct HandledEvent {
     /// The event name (e.g. "TorrentFinishedEvent").
     pub event_name: String,

@@ -1,0 +1,171 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T21:50:30.945319353+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "core.glob",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "/root/Downloads/*"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": []
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_completion_paths",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "completion_text"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "/root/"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "show_hidden_files"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "completion_text"
+              },
+              "value": {
+                "type": "str",
+                "value": "/root/"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "paths"
+              },
+              "value": {
+                "type": "list",
+                "value": []
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "show_hidden_files"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.create_torrent",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "/config/testfile.txt"
+            },
+            {
+              "type": "str",
+              "value": "http://example.com/announce"
+            },
+            {
+              "type": "int",
+              "value": 262144
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "add_to_session"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "private"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "testfile.txt.torrent"
+            },
+            {
+              "type": "str",
+              "value": "ZDg6YW5ub3VuY2UyNzpodHRwOi8vZXhhbXBsZS5jb20vYW5ub3VuY2UxMzpjcmVhdGlvbiBkYXRlaTE3ODM1NDc0MzBlODplbmNvZGluZzU6VVRGLTg0OmluZm9kNjpsZW5ndGhpNWU0Om5hbWUxMjp0ZXN0ZmlsZS50eHQxMjpwaWVjZSBsZW5ndGhpMjYyMTQ0ZTY6cGllY2VzMjA6ThJDvSLGbnbCup7dwfkTlOV/n4NlZQ=="
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

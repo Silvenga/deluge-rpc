@@ -52,6 +52,35 @@ async fn when_torrent_lifecycle_cassette_then_get_torrent_status_returns_name() 
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn when_torrent_lifecycle_cassette_then_get_magnet_uri_returns_uri() {
+    let server = start_replay(load_fixture()).await;
+
+    let client = DelugeClientBuilder::new(
+        server.host(),
+        server.port(),
+        "any".to_owned(),
+        "any".to_owned(),
+    )
+    .build();
+
+    let magnet_uri = client
+        .core()
+        .torrents
+        .get_magnet_uri(TORRENT_ID)
+        .await
+        .expect("core.get_magnet_uri");
+
+    assert!(
+        magnet_uri.contains(&format!("xt=urn:btih:{TORRENT_ID}")),
+        "magnet URI should contain the info hash: {magnet_uri}"
+    );
+    assert!(
+        magnet_uri.contains("dn=debian-12.0.0-amd64-netinst.iso"),
+        "magnet URI should contain the display name: {magnet_uri}"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn when_torrent_lifecycle_cassette_then_remove_torrent_returns_true() {
     let server = start_replay(load_fixture()).await;
 

@@ -45,7 +45,9 @@ pub struct LabelOptions {
 /// Global configuration for the Label plugin.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub struct LabelConfig {
-    /// Tracker URLs that trigger auto-adding.
+    /// Tracker URLs that trigger auto-adding. May be absent from the daemon
+    /// response when no trackers have been configured.
+    #[serde(default)]
     pub auto_add_trackers: Vec<String>,
 }
 

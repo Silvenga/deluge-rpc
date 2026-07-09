@@ -1,0 +1,284 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:02.035477585+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "core.get_known_accounts",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "authlevel"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "ADMIN"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "authlevel_int"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 10
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "password"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "3B6E1642A258937868D22C64473F8EA6"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "username"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "localclient"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_auth_levels_mappings",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "ADMIN"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 10
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "DEFAULT"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 5
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "NONE"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 0
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "NORMAL"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 5
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "READONLY"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 1
+                  }
+                }
+              ]
+            },
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "int",
+                    "value": 0
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "NONE"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "int",
+                    "value": 1
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "READONLY"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "int",
+                    "value": 5
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "NORMAL"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "int",
+                    "value": 10
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "ADMIN"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.create_account",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "testuser"
+            },
+            {
+              "type": "str",
+              "value": "testpass"
+            },
+            {
+              "type": "str",
+              "value": "NORMAL"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.update_account",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "testuser"
+            },
+            {
+              "type": "str",
+              "value": "newpass"
+            },
+            {
+              "type": "str",
+              "value": "ADMIN"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.remove_account",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "testuser"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "bool",
+          "value": true
+        }
+      }
+    }
+  ]
+}

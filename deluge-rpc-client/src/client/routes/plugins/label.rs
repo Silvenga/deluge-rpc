@@ -25,7 +25,8 @@ pub trait LabelRpc: Send + Sync {
     async fn get_options(&self, label_id: &str) -> Result<LabelOptions, DelugeRpcError>;
     /// Assigns a label to a torrent.
     async fn set_torrent(&self, torrent_id: &str, label_id: &str) -> Result<(), DelugeRpcError>;
-    /// Returns the plugin's global config.
+    /// Returns the plugin's global config. The `auto_add_trackers` field may be
+    /// absent if no trackers have been configured.
     async fn get_config(&self) -> Result<LabelConfig, DelugeRpcError>;
     /// Sets the plugin's global config.
     async fn set_config(&self, config: &LabelConfig) -> Result<(), DelugeRpcError>;

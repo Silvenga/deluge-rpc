@@ -1,0 +1,397 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:01.474400496+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "blocklist.get_config",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "check_after_days"
+              },
+              "value": {
+                "type": "int",
+                "value": 4
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "last_update"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "list_compression"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "list_size"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "list_type"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "load_on_start"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "timeout"
+              },
+              "value": {
+                "type": "int",
+                "value": 180
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "try_times"
+              },
+              "value": {
+                "type": "int",
+                "value": 3
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "url"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "whitelisted"
+              },
+              "value": {
+                "type": "list",
+                "value": []
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "blocklist.get_status",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "file_date"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "file_progress"
+              },
+              "value": {
+                "type": "float",
+                "value": 0.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "file_size"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "file_type"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "file_url"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "num_blocked"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "num_whited"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "state"
+              },
+              "value": {
+                "type": "str",
+                "value": "Idle"
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "up_to_date"
+              },
+              "value": {
+                "type": "bool",
+                "value": false
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "whitelisted"
+              },
+              "value": {
+                "type": "list",
+                "value": []
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "blocklist.set_config",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "check_after_days"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 4
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "last_update"
+                  },
+                  "value": {
+                    "type": "float",
+                    "value": 0.0
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "list_compression"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "list_size"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 0
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "list_type"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": "text"
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "load_on_start"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": true
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "timeout"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 30
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "try_times"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 3
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "url"
+                  },
+                  "value": {
+                    "type": "str",
+                    "value": ""
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "whitelisted"
+                  },
+                  "value": {
+                    "type": "list",
+                    "value": []
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "blocklist.check_import",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "bool",
+              "value": true
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}

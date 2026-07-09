@@ -1,0 +1,222 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T21:47:55.621982364+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "core.get_config_value",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "download_location"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "/root/Downloads"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_config_values",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "download_location"
+                },
+                {
+                  "type": "str",
+                  "value": "daemon_port"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "daemon_port"
+              },
+              "value": {
+                "type": "int",
+                "value": 58846
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "download_location"
+              },
+              "value": {
+                "type": "str",
+                "value": "/root/Downloads"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.set_config",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "send_info"
+                  },
+                  "value": {
+                    "type": "bool",
+                    "value": false
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_proxy",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "hostname"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "password"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "port"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "proxy_hostnames"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "proxy_peer_connections"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "proxy_tracker_connections"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "type"
+              },
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "username"
+              },
+              "value": {
+                "type": "str",
+                "value": ""
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

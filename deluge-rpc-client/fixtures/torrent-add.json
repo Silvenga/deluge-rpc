@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T21:55:26.250528872+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "core.add_torrent_magnet",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "magnet:?xt=urn:btih:83d40fa6191f96716d36bee7bc04274ee792ec45&dn=test"
+            },
+            {
+              "type": "dict",
+              "value": []
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "83d40fa6191f96716d36bee7bc04274ee792ec45"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.add_torrent_file",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "test.torrent"
+            },
+            {
+              "type": "str",
+              "value": "ZDg6YW5ub3VuY2UyNzpodHRwOi8vZXhhbXBsZS5jb20vYW5ub3VuY2UxMzpjcmVhdGlvbiBkYXRlaTE3ODM1NDc1ODhlODplbmNvZGluZzU6VVRGLTg0OmluZm9kNjpsZW5ndGhpMTNlNDpuYW1lMTI6dGVzdGZpbGUudHh0MTI6cGllY2UgbGVuZ3RoaTI2MjE0NGU2OnBpZWNlczIwOk/iuN0SzZzWpBPqlgzYwJwl8ZUnZWU="
+            },
+            {
+              "type": "dict",
+              "value": []
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.add_torrent_file_async",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "test2.torrent"
+            },
+            {
+              "type": "str",
+              "value": "ZDg6YW5ub3VuY2UyNzpodHRwOi8vZXhhbXBsZS5jb20vYW5ub3VuY2UxMzpjcmVhdGlvbiBkYXRlaTE3ODM1NDc1ODhlODplbmNvZGluZzU6VVRGLTg0OmluZm9kNjpsZW5ndGhpMTNlNDpuYW1lMTI6dGVzdGZpbGUudHh0MTI6cGllY2UgbGVuZ3RoaTI2MjE0NGU2OnBpZWNlczIwOk/iuN0SzZzWpBPqlgzYwJwl8ZUnZWU="
+            },
+            {
+              "type": "dict",
+              "value": []
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "save_state"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "AddTorrentError",
+        "exc_msg": "Torrent already in session (38645727754424361ddcc6e14d974eac9e7c6456).",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 334, in dispatch\n    ret = self.factory.methods[method](*args, **kwargs)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/core/core.py\", line 421, in add_torrent_file_async\n    d = self.torrentmanager.add_async(\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/core/torrentmanager.py\", line 600, in add_async\n    torrent_id, add_torrent_params = self._build_torrent_params(\n                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib/python3/dist-packages/deluge/core/torrentmanager.py\", line 449, in _build_torrent_params\n    raise AddTorrentError('Torrent already in session (%s).' % torrent_id)\ndeluge.error.AddTorrentError: Torrent already in session (38645727754424361ddcc6e14d974eac9e7c6456).\n"
+      }
+    },
+    {
+      "request": {
+        "method": "core.add_torrent_files",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "list",
+                  "value": [
+                    {
+                      "type": "str",
+                      "value": "test3.torrent"
+                    },
+                    {
+                      "type": "str",
+                      "value": "ZDg6YW5ub3VuY2UyNzpodHRwOi8vZXhhbXBsZS5jb20vYW5ub3VuY2UxMzpjcmVhdGlvbiBkYXRlaTE3ODM1NDc1ODhlODplbmNvZGluZzU6VVRGLTg0OmluZm9kNjpsZW5ndGhpMTNlNDpuYW1lMTI6dGVzdGZpbGUudHh0MTI6cGllY2UgbGVuZ3RoaTI2MjE0NGU2OnBpZWNlczIwOk/iuN0SzZzWpBPqlgzYwJwl8ZUnZWU="
+                    },
+                    {
+                      "type": "dict",
+                      "value": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "type <class 'deluge.error.AddTorrentError'> not handled",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 348, in on_success\n    self.sendData((RPC_RESPONSE, request_id, result))\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 168, in sendData\n    self.transfer_message(data)\n  File \"/usr/lib/python3/dist-packages/deluge/transfer.py\", line 53, in transfer_message\n    body = zlib.compress(rencode.dumps(data))\n                         ^^^^^^^^^^^^^^^^^^^\n  File \"rencode/rencode.pyx\", line 336, in rencode._rencode.dumps\n  File \"rencode/rencode.pyx\", line 316, in rencode._rencode.encode\n  File \"rencode/rencode.pyx\", line 249, in rencode._rencode.encode_list\n  File \"rencode/rencode.pyx\", line 316, in rencode._rencode.encode\n  File \"rencode/rencode.pyx\", line 249, in rencode._rencode.encode_list\n  File \"rencode/rencode.pyx\", line 322, in rencode._rencode.encode\nException: type <class 'deluge.error.AddTorrentError'> not handled\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'Exception' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: type <class 'deluge.error.AddTorrentError'> not handled\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 348, in on_success\n    self.sendData((RPC_RESPONSE, request_id, result))\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 168, in sendData\n    self.transfer_message(data)\n  File \"/usr/lib/python3/dist-packages/deluge/transfer.py\", line 53, in transfer_message\n    body = zlib.compress(rencode.dumps(data))\n                         ^^^^^^^^^^^^^^^^^^^\n  File \"rencode/rencode.pyx\", line 336, in rencode._rencode.dumps\n  File \"rencode/rencode.pyx\", line 316, in rencode._rencode.encode\n  File \"rencode/rencode.pyx\", line 249, in rencode._rencode.encode_list\n  File \"rencode/rencode.pyx\", line 316, in rencode._rencode.encode\n  File \"rencode/rencode.pyx\", line 249, in rencode._rencode.encode_list\n  File \"rencode/rencode.pyx\", line 322, in rencode._rencode.encode\nException: type <class 'deluge.error.AddTorrentError'> not handled\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "core.prefetch_magnet_metadata",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": ""
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "timeout"
+              },
+              "value": {
+                "type": "int",
+                "value": 10
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "'info_hash'",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 355, in on_fail\n    failure.raiseException()\n  File \"/usr/lib/python3/dist-packages/twisted/python/failure.py\", line 505, in raiseException\n    raise self.value.with_traceback(self.tb)\nKeyError: 'info_hash'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'KeyError' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: 'info_hash'\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 355, in on_fail\n    failure.raiseException()\n  File \"/usr/lib/python3/dist-packages/twisted/python/failure.py\", line 505, in raiseException\n    raise self.value.with_traceback(self.tb)\nKeyError: 'info_hash'\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "core.remove_torrents",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "83d40fa6191f96716d36bee7bc04274ee792ec45"
+                },
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            },
+            {
+              "type": "bool",
+              "value": true
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": []
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.add_torrent_url",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "http://releases.ubuntu.com/24.04/ubuntu-24.04.3-desktop-amd64.iso.torrent"
+            },
+            {
+              "type": "dict",
+              "value": []
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "d160b8d8ea35a5b4e52837468fc8f03d55cef1f7"
+        }
+      }
+    }
+  ]
+}

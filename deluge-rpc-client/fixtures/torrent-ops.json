@@ -1,0 +1,868 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T21:59:42.577123827+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "core.get_filter_tree",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "show_zero_hits"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "owner"
+              },
+              "value": {
+                "type": "list",
+                "value": [
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": ""
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "localclient"
+                      },
+                      {
+                        "type": "int",
+                        "value": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "state"
+              },
+              "value": {
+                "type": "list",
+                "value": [
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "All"
+                      },
+                      {
+                        "type": "int",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Active"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Allocating"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Checking"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Downloading"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Seeding"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Paused"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Error"
+                      },
+                      {
+                        "type": "int",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Queued"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Moving"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "tracker_host"
+              },
+              "value": {
+                "type": "list",
+                "value": [
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "All"
+                      },
+                      {
+                        "type": "int",
+                        "value": 1
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "Error"
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "str",
+                        "value": "example.com"
+                      },
+                      {
+                        "type": "int",
+                        "value": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_session_state",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.get_path_size",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "/config"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "int",
+          "value": 16119
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.pause_torrent",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.pause_torrents",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "none"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.resume_torrent",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.resume_torrents",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "none"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.force_reannounce",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.force_recheck",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.set_torrent_options",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            },
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "max_connections"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": 10
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.connect_peer",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            },
+            {
+              "type": "str",
+              "value": "127.0.0.1"
+            },
+            {
+              "type": "int",
+              "value": 6881
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.move_storage",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            },
+            {
+              "type": "str",
+              "value": "/tmp"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.set_ssl_torrent_cert",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            },
+            {
+              "type": "str",
+              "value": "cert"
+            },
+            {
+              "type": "str",
+              "value": "key"
+            },
+            {
+              "type": "str",
+              "value": "dh"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "save_to_disk"
+              },
+              "value": {
+                "type": "bool",
+                "value": true
+              }
+            }
+          ]
+        }
+      },
+      "response": {
+        "type": "error",
+        "exc_type": "WrappedException",
+        "exc_msg": "RPC call on invalid function: core.set_ssl_torrent_cert",
+        "traceback": "Traceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 313, in dispatch\n    raise AttributeError('RPC call on invalid function: %s' % method)\nAttributeError: RPC call on invalid function: core.set_ssl_torrent_cert\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 239, in send_error\n    exc_value._args,\n    ^^^^^^^^^^^^^^^\nAttributeError: 'AttributeError' object has no attribute '_args'. Did you mean: 'args'?\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 253, in send_error\n    raise WrappedException(\ndeluge.error.WrappedException: RPC call on invalid function: core.set_ssl_torrent_cert\nTraceback (most recent call last):\n  File \"/usr/lib/python3/dist-packages/deluge/core/rpcserver.py\", line 313, in dispatch\n    raise AttributeError('RPC call on invalid function: %s' % method)\nAttributeError: RPC call on invalid function: core.set_ssl_torrent_cert\n\n"
+      }
+    },
+    {
+      "request": {
+        "method": "core.set_torrent_trackers",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            },
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "dict",
+                  "value": [
+                    {
+                      "key": {
+                        "type": "str",
+                        "value": "tier"
+                      },
+                      "value": {
+                        "type": "int",
+                        "value": 0
+                      }
+                    },
+                    {
+                      "key": {
+                        "type": "str",
+                        "value": "url"
+                      },
+                      "value": {
+                        "type": "str",
+                        "value": "http://example.com/announce"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.rename_files",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            },
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "list",
+                  "value": [
+                    {
+                      "type": "int",
+                      "value": 0
+                    },
+                    {
+                      "type": "str",
+                      "value": "renamed.txt"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.rename_folder",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "str",
+              "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+            },
+            {
+              "type": "str",
+              "value": "old"
+            },
+            {
+              "type": "str",
+              "value": "new"
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.queue_top",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.queue_up",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.queue_down",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "core.queue_bottom",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "list",
+              "value": [
+                {
+                  "type": "str",
+                  "value": "38645727754424361ddcc6e14d974eac9e7c6456"
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}

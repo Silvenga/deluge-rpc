@@ -1,0 +1,1778 @@
+{
+  "version": 1,
+  "recorded_at": "2026-07-08T22:12:01.788639821+00:00",
+  "interactions": [
+    {
+      "request": {
+        "method": "scheduler.get_config",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "dict",
+          "value": [
+            {
+              "key": {
+                "type": "str",
+                "value": "button_state"
+              },
+              "value": {
+                "type": "list",
+                "value": [
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  },
+                  {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      },
+                      {
+                        "type": "int",
+                        "value": 0
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "low_active"
+              },
+              "value": {
+                "type": "int",
+                "value": 8
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "low_active_down"
+              },
+              "value": {
+                "type": "int",
+                "value": 3
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "low_active_up"
+              },
+              "value": {
+                "type": "int",
+                "value": 5
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "low_down"
+              },
+              "value": {
+                "type": "float",
+                "value": -1.0
+              }
+            },
+            {
+              "key": {
+                "type": "str",
+                "value": "low_up"
+              },
+              "value": {
+                "type": "float",
+                "value": -1.0
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "scheduler.get_state",
+        "args": {
+          "type": "list",
+          "value": []
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "str",
+          "value": "Green"
+        }
+      }
+    },
+    {
+      "request": {
+        "method": "scheduler.set_config",
+        "args": {
+          "type": "list",
+          "value": [
+            {
+              "type": "dict",
+              "value": [
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "button_state"
+                  },
+                  "value": {
+                    "type": "list",
+                    "value": [
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "list",
+                        "value": [
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          },
+                          {
+                            "type": "int",
+                            "value": 0
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "low_active"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": -1
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "low_active_down"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": -1
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "low_active_up"
+                  },
+                  "value": {
+                    "type": "int",
+                    "value": -1
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "low_down"
+                  },
+                  "value": {
+                    "type": "float",
+                    "value": -1.0
+                  }
+                },
+                {
+                  "key": {
+                    "type": "str",
+                    "value": "low_up"
+                  },
+                  "value": {
+                    "type": "float",
+                    "value": -1.0
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "kwargs": {
+          "type": "dict",
+          "value": []
+        }
+      },
+      "response": {
+        "type": "ok",
+        "value": {
+          "type": "none"
+        }
+      }
+    }
+  ]
+}
