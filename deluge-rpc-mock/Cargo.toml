@@ -19,6 +19,7 @@ workspace = true
 
 [dependencies]
 deluge-rpc-client = { path = "../deluge-rpc-client" }
+deluge-rpc-rencode = { path = "../deluge-rpc-rencode" }
 flate2 = { workspace = true }
 rcgen = { workspace = true }
 rustls = { workspace = true }

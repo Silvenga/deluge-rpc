@@ -2,7 +2,7 @@ use serde::de::{self, Deserializer, Visitor};
 use std::fmt;
 
 /// Deserialize an `Option<i64>` where `-1` represents unlimited (None).
-pub fn deserialize_unlimited_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
+pub(crate) fn deserialize_unlimited_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -30,7 +30,7 @@ where
 }
 
 /// Deserialize an `Option<f64>` where `-1.0` represents unlimited (None).
-pub fn deserialize_unlimited_f64<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
+pub(crate) fn deserialize_unlimited_f64<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -72,7 +72,7 @@ where
 /// Deserialize an `Option<i64>` where `-1` represents never (None).
 ///
 /// Used for timestamps like `completed_time`, `time_since_download`, etc.
-pub fn deserialize_never_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
+pub(crate) fn deserialize_never_i64<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -102,7 +102,7 @@ where
 /// Deserialize an `Option<f64>` where `-1.0` represents infinity (None).
 ///
 /// Used for ratio fields where `-1.0` means infinity (when `total_done == 0`).
-pub fn deserialize_ratio<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
+pub(crate) fn deserialize_ratio<'de, D>(deserializer: D) -> Result<Option<f64>, D::Error>
 where
     D: Deserializer<'de>,
 {

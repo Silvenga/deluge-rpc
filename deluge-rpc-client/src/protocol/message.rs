@@ -1,6 +1,6 @@
-use crate::RencodeValue;
 use crate::protocol::error::ProtocolError;
 use crate::protocol::helpers::field_as_str;
+use crate::RencodeValue;
 
 const RPC_RESPONSE: i64 = 1;
 const RPC_ERROR: i64 = 2;

@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use serde::de::{self, Deserializer, SeqAccess, Visitor};
+use serde::Deserialize;
 use std::fmt;
 
 /// Private helper: deserializes `Vec<u8>` via `deserialize_bytes` instead of `deserialize_seq`.

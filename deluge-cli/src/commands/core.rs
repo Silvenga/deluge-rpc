@@ -658,7 +658,7 @@ impl CoreConfigCommand {
             CoreConfigCommand::Get { key } => match key {
                 Some(k) => {
                     let value = client.core().config.get_config_value(k).await?;
-                    let tagged = deluge_rpc_client::to_json(&value);
+                    let tagged = deluge_rpc_rencode::to_json(&value);
                     Ok(serde_json::to_string_pretty(&tagged)?)
                 }
                 None => {

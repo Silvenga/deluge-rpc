@@ -23,6 +23,7 @@ base64 = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 deluge-rpc-client = { path = "../deluge-rpc-client", features = ["recorder"] }
+deluge-rpc-rencode = { path = "../deluge-rpc-rencode" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

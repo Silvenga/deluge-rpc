@@ -367,6 +367,7 @@ dependencies = [
  "chrono",
  "clap",
  "deluge-rpc-client",
+ "deluge-rpc-rencode",
  "flate2",
  "rcgen",
  "rustls",
@@ -400,6 +401,7 @@ name = "deluge-rpc-mock"
 version = "0.1.0"
 dependencies = [
  "deluge-rpc-client",
+ "deluge-rpc-rencode",
  "flate2",
  "rcgen",
  "rustls",

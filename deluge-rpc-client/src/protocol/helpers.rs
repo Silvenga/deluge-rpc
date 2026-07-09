@@ -1,14 +1,14 @@
-use crate::RencodeValue;
 use crate::protocol::error::ProtocolError;
+use crate::RencodeValue;
 use std::collections::BTreeMap;
 
 /// Extracts the return value from an RPC response.
-pub fn extract_single(value: &RencodeValue) -> Result<RencodeValue, ProtocolError> {
+pub(crate) fn extract_single(value: &RencodeValue) -> Result<RencodeValue, ProtocolError> {
     Ok(value.clone())
 }
 
 /// Extracts an `i64` return value from an RPC response.
-pub fn extract_single_int(value: &RencodeValue, method: &str) -> Result<i64, ProtocolError> {
+pub(crate) fn extract_single_int(value: &RencodeValue, method: &str) -> Result<i64, ProtocolError> {
     let single = extract_single(value)?;
     match single {
         RencodeValue::Int(i) => Ok(i),
@@ -20,7 +20,7 @@ pub fn extract_single_int(value: &RencodeValue, method: &str) -> Result<i64, Pro
 }
 
 /// Extracts a dict reference from an RPC response.
-pub fn extract_single_dict<'a>(
+pub(crate) fn extract_single_dict<'a>(
     value: &'a RencodeValue,
     method: &str,
 ) -> Result<&'a BTreeMap<RencodeValue, RencodeValue>, ProtocolError> {
@@ -33,7 +33,7 @@ pub fn extract_single_dict<'a>(
     }
 }
 
-pub fn field_as_str(value: Option<&RencodeValue>) -> Option<String> {
+pub(crate) fn field_as_str(value: Option<&RencodeValue>) -> Option<String> {
     match value? {
         RencodeValue::Str(s) => Some(s.clone()),
         RencodeValue::Bytes(b) => String::from_utf8(b.clone()).ok(),

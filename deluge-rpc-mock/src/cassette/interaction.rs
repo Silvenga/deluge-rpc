@@ -1,6 +1,7 @@
-use deluge_rpc_client::{RencodeValue, from_json, to_json};
+use deluge_rpc_client::RencodeValue;
+use deluge_rpc_rencode::{from_json, to_json};
 use serde::ser::SerializeStruct;
-use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
+use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
 
 /// A recorded request-response pair from a Deluge RPC interaction.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
