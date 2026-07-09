@@ -18,8 +18,8 @@ workspace = true
 
 [dependencies]
 
-deluge-rpc-rencode = { path = "../deluge-rpc-rencode", version = "0.2.0" }
-deluge-rpc-models = { path = "../deluge-rpc-models", version = "0.2.0" }
+deluge-rpc-rencode = { path = "../deluge-rpc-rencode", version = "0.3.0" }
+deluge-rpc-models = { path = "../deluge-rpc-models", version = "0.3.0" }
 flate2 = { workspace = true }
 rustls = { workspace = true }
 serde = { workspace = true }
