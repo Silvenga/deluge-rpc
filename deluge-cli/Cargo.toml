@@ -20,6 +20,7 @@ workspace = true
 [dependencies]
 anyhow = { workspace = true }
 base64 = { workspace = true }
+bytesize = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 deluge-rpc-client = { path = "../deluge-rpc-client", features = ["recorder"] }

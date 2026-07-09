@@ -39,6 +39,7 @@ pub async fn run() -> anyhow::Result<()> {
             Command::Daemon(cmd) => cmd.run(&client).await.map(|output| info!("{output}")),
             Command::Core(cmd) => cmd.run(&client).await.map(|output| info!("{output}")),
             Command::Plugin(cmd) => cmd.run(&client).await.map(|output| info!("{output}")),
+            Command::Status(cmd) => cmd.run(&client).await.map(|output| info!("{output}")),
         }
     };
 

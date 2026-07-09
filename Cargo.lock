@@ -224,6 +224,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8ae3f5d315924270530207e2a68396c3cc547f6dca3fbdca317cfb1a51edb593"
 
 [[package]]
+name = "bytesize"
+version = "2.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d7c8918969267b2932ffd5655509bbbea0833823058c378876953217f5fc50e"
+dependencies = [
+ "serde_core",
+]
+
+[[package]]
 name = "cc"
 version = "1.2.65"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -358,12 +367,13 @@ checksum = "a4ae5f15dda3c708c0ade84bfee31ccab44a3da4f88015ed22f63732abe300c8"
 
 [[package]]
 name = "deluge-cli"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "assert_cmd",
  "assert_fs",
  "base64",
+ "bytesize",
  "chrono",
  "clap",
  "deluge-rpc-client",
@@ -382,7 +392,7 @@ dependencies = [
 
 [[package]]
 name = "deluge-rpc-client"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "deluge-rpc-mock",
  "deluge-rpc-models",
@@ -400,7 +410,7 @@ dependencies = [
 
 [[package]]
 name = "deluge-rpc-mock"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "deluge-rpc-client",
  "deluge-rpc-rencode",
@@ -417,7 +427,7 @@ dependencies = [
 
 [[package]]
 name = "deluge-rpc-models"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "deluge-rpc-rencode",
  "serde",
@@ -426,7 +436,7 @@ dependencies = [
 
 [[package]]
 name = "deluge-rpc-rencode"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "base64",
  "serde",
