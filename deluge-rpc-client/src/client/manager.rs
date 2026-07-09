@@ -26,6 +26,7 @@ impl ConnectionManager {
         }
     }
 
+    // Acquire a connection, re-using an existing one if possible.
     pub async fn acquire(&self) -> Result<Arc<Connection>, DelugeRpcError> {
         let mut guard = self.connection.lock().await;
 
@@ -37,6 +38,16 @@ impl ConnectionManager {
         };
 
         // Connection never existed or is now dead, create a new one.
+        let connection = self.create().await?;
+
+        // The old connection will fail until dropped.
+        *guard = Some(connection.clone());
+
+        Ok(connection)
+    }
+
+    /// Create a new connection and login.
+    pub async fn create(&self) -> Result<Arc<Connection>, DelugeRpcError> {
         let connection: Arc<_> = Connection::connect(
             &self.info.host,
             self.info.port,
@@ -62,9 +73,6 @@ impl ConnectionManager {
                     }),
             )
             .await?;
-
-        // The old connection will fail until dropped.
-        *guard = Some(connection.clone());
 
         Ok(connection)
     }
