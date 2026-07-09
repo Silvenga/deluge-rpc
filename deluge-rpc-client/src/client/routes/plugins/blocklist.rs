@@ -6,18 +6,6 @@ use crate::{RencodeValue, to_rencode_value};
 
 use serde::Deserialize;
 
-/// RPC methods for the `blocklist.*` namespace.
-pub trait BlocklistRpc: Send + Sync {
-    /// Downloads and imports the blocklist from the configured URL.
-    async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError>;
-    /// Returns the plugin config.
-    async fn get_config(&self) -> Result<BlocklistConfig, DelugeRpcError>;
-    /// Sets the plugin config. May trigger a re-import if the URL changed.
-    async fn set_config(&self, config: &BlocklistConfig) -> Result<(), DelugeRpcError>;
-    /// Returns the current import status.
-    async fn get_status(&self) -> Result<BlocklistStatus, DelugeRpcError>;
-}
-
 /// Client for `blocklist.*` RPC methods.
 pub struct BlocklistClient {
     dispatcher: DelugeClientDispatcher,
@@ -37,8 +25,9 @@ impl Clone for BlocklistClient {
     }
 }
 
-impl BlocklistRpc for BlocklistClient {
-    async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError> {
+impl BlocklistClient {
+    /// Downloads and imports the blocklist from the configured URL.
+    pub async fn check_import(&self, force: bool) -> Result<Option<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
@@ -56,8 +45,8 @@ impl BlocklistRpc for BlocklistClient {
             }),
         }
     }
-
-    async fn get_config(&self) -> Result<BlocklistConfig, DelugeRpcError> {
+    /// Returns the plugin config.
+    pub async fn get_config(&self) -> Result<BlocklistConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.get_config"))
@@ -65,16 +54,16 @@ impl BlocklistRpc for BlocklistClient {
         let value = extract_single(&result)?;
         Ok(BlocklistConfig::deserialize(&value)?)
     }
-
-    async fn set_config(&self, config: &BlocklistConfig) -> Result<(), DelugeRpcError> {
+    /// Sets the plugin config. May trigger a re-import if the URL changed.
+    pub async fn set_config(&self, config: &BlocklistConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
-
-    async fn get_status(&self) -> Result<BlocklistStatus, DelugeRpcError> {
+    /// Returns the current import status.
+    pub async fn get_status(&self) -> Result<BlocklistStatus, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("blocklist.get_status"))

@@ -6,34 +6,6 @@ use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_int};
 
 use serde::Deserialize;
 
-/// RPC methods for the `core.*` session namespace.
-pub trait CoreSessionRpc: Send + Sync {
-    /// Pauses the entire session (all torrents).
-    async fn pause_session(&self) -> Result<(), DelugeRpcError>;
-    /// Resumes the entire session.
-    async fn resume_session(&self) -> Result<(), DelugeRpcError>;
-    /// Returns whether the session is paused.
-    async fn is_session_paused(&self) -> Result<bool, DelugeRpcError>;
-    /// Returns the active listen port for incoming connections.
-    async fn get_listen_port(&self) -> Result<i64, DelugeRpcError>;
-    /// Returns the active SSL listen port. This method may not exist on all daemon versions.
-    async fn get_ssl_listen_port(&self) -> Result<i64, DelugeRpcError>;
-    /// Returns the external IP address as determined by libtorrent.
-    async fn get_external_ip(&self) -> Result<String, DelugeRpcError>;
-    /// Returns the libtorrent version string.
-    async fn get_libtorrent_version(&self) -> Result<String, DelugeRpcError>;
-    /// Tests whether the active listen port is open by making an HTTP request to a Deluge test service.
-    async fn test_listen_port(&self) -> Result<Option<bool>, DelugeRpcError>;
-    /// Returns libtorrent session statistics for the requested keys.
-    ///
-    /// `keys` is a required positional argument. Pass an empty slice `&[]`
-    /// to request all available keys. The daemon returns a flat dict of
-    /// `{key: value}` where values are `int` or `float`.
-    async fn get_session_status(&self, keys: &[String]) -> Result<SessionStatus, DelugeRpcError>;
-    /// Returns free space in bytes at `path`. Negative on error.
-    async fn get_free_space(&self, path: Option<String>) -> Result<i64, DelugeRpcError>;
-}
-
 /// Client for `core.*` session RPC methods.
 pub struct CoreSessionClient {
     dispatcher: DelugeClientDispatcher,
@@ -53,22 +25,25 @@ impl Clone for CoreSessionClient {
     }
 }
 
-impl CoreSessionRpc for CoreSessionClient {
-    async fn pause_session(&self) -> Result<(), DelugeRpcError> {
+impl CoreSessionClient {
+    /// Pauses the entire session (all torrents).
+    pub async fn pause_session(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.pause_session"))
             .await?;
         Ok(())
     }
 
-    async fn resume_session(&self) -> Result<(), DelugeRpcError> {
+    /// Resumes the entire session.
+    pub async fn resume_session(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.resume_session"))
             .await?;
         Ok(())
     }
 
-    async fn is_session_paused(&self) -> Result<bool, DelugeRpcError> {
+    /// Returns whether the session is paused.
+    pub async fn is_session_paused(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.is_session_paused"))
@@ -83,7 +58,8 @@ impl CoreSessionRpc for CoreSessionClient {
         }
     }
 
-    async fn get_listen_port(&self) -> Result<i64, DelugeRpcError> {
+    /// Returns the active listen port for incoming connections.
+    pub async fn get_listen_port(&self) -> Result<i64, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_listen_port"))
@@ -91,7 +67,8 @@ impl CoreSessionRpc for CoreSessionClient {
         Ok(extract_single_int(&result, "core.get_listen_port")?)
     }
 
-    async fn get_ssl_listen_port(&self) -> Result<i64, DelugeRpcError> {
+    /// Returns the active SSL listen port. This method may not exist on all daemon versions.
+    pub async fn get_ssl_listen_port(&self) -> Result<i64, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_ssl_listen_port"))
@@ -99,7 +76,8 @@ impl CoreSessionRpc for CoreSessionClient {
         Ok(extract_single_int(&result, "core.get_ssl_listen_port")?)
     }
 
-    async fn get_external_ip(&self) -> Result<String, DelugeRpcError> {
+    /// Returns the external IP address as determined by libtorrent.
+    pub async fn get_external_ip(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_external_ip"))
@@ -114,7 +92,8 @@ impl CoreSessionRpc for CoreSessionClient {
         }
     }
 
-    async fn get_libtorrent_version(&self) -> Result<String, DelugeRpcError> {
+    /// Returns the libtorrent version string.
+    pub async fn get_libtorrent_version(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_libtorrent_version"))
@@ -131,7 +110,7 @@ impl CoreSessionRpc for CoreSessionClient {
 
     /// Tests whether the active listen port is open by making an HTTP request to a Deluge
     /// test service. This call may be slow (network-dependent) and can return None on error.
-    async fn test_listen_port(&self) -> Result<Option<bool>, DelugeRpcError> {
+    pub async fn test_listen_port(&self) -> Result<Option<bool>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.test_listen_port"))
@@ -147,7 +126,15 @@ impl CoreSessionRpc for CoreSessionClient {
         }
     }
 
-    async fn get_session_status(&self, keys: &[String]) -> Result<SessionStatus, DelugeRpcError> {
+    /// Returns libtorrent session statistics for the requested keys.
+    ///
+    /// `keys` is a required positional argument. Pass an empty slice `&[]`
+    /// to request all available keys. The daemon returns a flat dict of
+    /// `{key: value}` where values are `int` or `float`.
+    pub async fn get_session_status(
+        &self,
+        keys: &[String],
+    ) -> Result<SessionStatus, DelugeRpcError> {
         let key_values: Vec<RencodeValue> =
             keys.iter().map(|k| RencodeValue::Str(k.clone())).collect();
         let result = self
@@ -161,7 +148,8 @@ impl CoreSessionRpc for CoreSessionClient {
         Ok(SessionStatus::deserialize(&value)?)
     }
 
-    async fn get_free_space(&self, path: Option<String>) -> Result<i64, DelugeRpcError> {
+    /// Returns free space in bytes at `path`. Negative on error.
+    pub async fn get_free_space(&self, path: Option<String>) -> Result<i64, DelugeRpcError> {
         let args = match path {
             Some(p) => vec![RencodeValue::Str(p)],
             None => vec![RencodeValue::None],

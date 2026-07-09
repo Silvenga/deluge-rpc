@@ -2,8 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::DaemonRpc;
-
 const FIXTURE: &str = "daemon-methods.json";
 
 #[tokio::test(flavor = "multi_thread")]
@@ -13,7 +11,7 @@ async fn when_daemon_methods_cassette_then_get_method_list_returns_non_empty() {
     let client = common::build_client(&server).await;
 
     let methods = client
-        .daemon()
+        .daemon
         .get_method_list()
         .await
         .expect("daemon.get_method_list");
@@ -35,7 +33,7 @@ async fn when_daemon_methods_cassette_then_set_event_interest_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .daemon()
+        .daemon
         .set_event_interest(&[
             "TorrentAddedEvent".to_owned(),
             "ConfigValueChangedEvent".to_owned(),
@@ -53,7 +51,7 @@ async fn when_daemon_methods_cassette_then_authorized_call_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .daemon()
+        .daemon
         .authorized_call("core.get_config")
         .await
         .expect("daemon.authorized_call");
@@ -71,7 +69,7 @@ async fn when_daemon_methods_cassette_then_shutdown_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .daemon()
+        .daemon
         .shutdown()
         .await
         .expect("daemon.shutdown should succeed against cassette");

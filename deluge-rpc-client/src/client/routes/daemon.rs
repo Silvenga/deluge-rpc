@@ -6,29 +6,6 @@ use crate::protocol::{extract_single, extract_single_int};
 
 use std::collections::BTreeMap;
 
-/// RPC methods for the `daemon.*` namespace.
-pub trait DaemonRpc: Send + Sync {
-    /// Returns the daemon version string. Used in the initial handshake before login.
-    async fn info(&self) -> Result<String, DelugeRpcError>;
-    /// Authenticates the session. Returns the auth level (0/1/5/10).
-    async fn login(
-        &self,
-        username: &str,
-        password: &str,
-        client_version: &str,
-    ) -> Result<i64, DelugeRpcError>;
-    /// Subscribes the current session to the listed event names (full-replace operation).
-    async fn set_event_interest(&self, event_names: &[String]) -> Result<bool, DelugeRpcError>;
-    /// Shuts down the daemon. The response may never arrive - close the connection after sending.
-    async fn shutdown(&self) -> Result<(), DelugeRpcError>;
-    /// Returns all registered RPC method names.
-    async fn get_method_list(&self) -> Result<Vec<String>, DelugeRpcError>;
-    /// Returns the daemon version string (e.g. `"2.1.1"`).
-    async fn get_version(&self) -> Result<String, DelugeRpcError>;
-    /// Checks whether the current session's auth level is sufficient to call the named RPC method.
-    async fn authorized_call(&self, rpc: &str) -> Result<bool, DelugeRpcError>;
-}
-
 /// Client for `daemon.*` RPC methods.
 pub struct DaemonClient {
     dispatcher: DelugeClientDispatcher,
@@ -38,10 +15,9 @@ impl DaemonClient {
     pub(crate) fn new(dispatcher: DelugeClientDispatcher) -> Self {
         Self { dispatcher }
     }
-}
 
-impl DaemonRpc for DaemonClient {
-    async fn info(&self) -> Result<String, DelugeRpcError> {
+    /// Returns the daemon version string. Used in the initial handshake before login.
+    pub async fn info(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.info"))
@@ -56,7 +32,8 @@ impl DaemonRpc for DaemonClient {
         }
     }
 
-    async fn login(
+    /// Authenticates the session. Returns the auth level (0/1/5/10).
+    pub async fn login(
         &self,
         username: &str,
         password: &str,
@@ -81,7 +58,8 @@ impl DaemonRpc for DaemonClient {
         Ok(extract_single_int(&result, "daemon.login")?)
     }
 
-    async fn set_event_interest(&self, event_names: &[String]) -> Result<bool, DelugeRpcError> {
+    /// Subscribes the current session to the listed event names (full-replace operation).
+    pub async fn set_event_interest(&self, event_names: &[String]) -> Result<bool, DelugeRpcError> {
         let names: Vec<RencodeValue> = event_names
             .iter()
             .map(|n| RencodeValue::Str(n.clone()))
@@ -106,14 +84,15 @@ impl DaemonRpc for DaemonClient {
     /// Shuts down the daemon. The daemon's reactor stops before the response is flushed,
     /// so this call may time out (30s) waiting for a response that never arrives.
     /// This is expected behavior per the Deluge spec - do not reduce the timeout.
-    async fn shutdown(&self) -> Result<(), DelugeRpcError> {
+    pub async fn shutdown(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.shutdown"))
             .await?;
         Ok(())
     }
 
-    async fn get_method_list(&self) -> Result<Vec<String>, DelugeRpcError> {
+    /// Returns all registered RPC method names.
+    pub async fn get_method_list(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.get_method_list"))
@@ -142,7 +121,8 @@ impl DaemonRpc for DaemonClient {
         }
     }
 
-    async fn get_version(&self) -> Result<String, DelugeRpcError> {
+    /// Returns the daemon version string (e.g. `"2.1.1"`).
+    pub async fn get_version(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("daemon.get_version"))
@@ -157,7 +137,8 @@ impl DaemonRpc for DaemonClient {
         }
     }
 
-    async fn authorized_call(&self, rpc: &str) -> Result<bool, DelugeRpcError> {
+    /// Checks whether the current session's auth level is sufficient to call the named RPC method.
+    pub async fn authorized_call(&self, rpc: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(

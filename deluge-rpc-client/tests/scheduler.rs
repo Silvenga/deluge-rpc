@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::SchedulerRpc;
 use deluge_rpc_client::models::{SchedulerConfig, SchedulerState};
 
 const FIXTURE: &str = "scheduler.json";
@@ -13,7 +12,7 @@ async fn when_scheduler_cassette_then_get_config_returns_dict() {
     let client = common::build_client(&server).await;
 
     let config = client
-        .plugins()
+        .plugins
         .scheduler
         .get_config()
         .await
@@ -32,7 +31,7 @@ async fn when_scheduler_cassette_then_get_state_returns_green() {
     let client = common::build_client(&server).await;
 
     let state = client
-        .plugins()
+        .plugins
         .scheduler
         .get_state()
         .await
@@ -56,7 +55,7 @@ async fn when_scheduler_cassette_then_set_config_succeeds() {
     };
 
     client
-        .plugins()
+        .plugins
         .scheduler
         .set_config(&config)
         .await

@@ -1,8 +1,6 @@
 //! E2e tests against a cassette recorded from a real Deluge daemon.
 
-use deluge_rpc_client::{
-    CoreConfigRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc, DaemonRpc, DelugeClientBuilder,
-};
+use deluge_rpc_client::DelugeClientBuilder;
 use deluge_rpc_mock::{Cassette, Matcher, ReplayServer};
 use std::fs;
 use std::path::PathBuf;
@@ -37,7 +35,7 @@ async fn when_live_daemon_cassette_then_daemon_info_returns_version() {
     )
     .build();
 
-    let info = client.daemon().info().await.expect("daemon.info");
+    let info = client.daemon.info().await.expect("daemon.info");
     assert_eq!(info, "2.1.2.dev0");
 }
 
@@ -54,7 +52,7 @@ async fn when_live_daemon_cassette_then_get_version_returns_version() {
     .build();
 
     let version = client
-        .daemon()
+        .daemon
         .get_version()
         .await
         .expect("daemon.get_version");
@@ -74,7 +72,7 @@ async fn when_live_daemon_cassette_then_free_space_returns_bytes() {
     .build();
 
     let space = client
-        .core()
+        .core
         .session
         .get_free_space(None)
         .await
@@ -95,7 +93,7 @@ async fn when_live_daemon_cassette_then_torrents_list_returns_entries() {
     .build();
 
     let entries = client
-        .core()
+        .core
         .torrents
         .get_torrents_status(&Default::default(), &[], false)
         .await
@@ -120,7 +118,7 @@ async fn when_live_daemon_cassette_then_session_status_has_metrics() {
     .build();
 
     let status = client
-        .core()
+        .core
         .session
         .get_session_status(&[])
         .await
@@ -145,7 +143,7 @@ async fn when_live_daemon_cassette_then_config_deserializes() {
     .build();
 
     let config = client
-        .core()
+        .core
         .config
         .get_config()
         .await
@@ -171,7 +169,7 @@ async fn when_live_daemon_cassette_then_enabled_plugins_returns_list() {
     .build();
 
     let plugins = client
-        .core()
+        .core
         .plugins
         .get_enabled_plugins()
         .await

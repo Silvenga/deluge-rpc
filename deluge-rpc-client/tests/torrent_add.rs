@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::CoreTorrentRpc;
 use deluge_rpc_client::models::AddTorrentOptions;
 
 const FIXTURE: &str = "torrent-add.json";
@@ -14,7 +13,7 @@ async fn when_torrent_add_cassette_then_add_magnet_returns_id() {
 
     let options = AddTorrentOptions::default();
     let result = client
-        .core()
+        .core
         .torrents
         .add_torrent_magnet(
             "magnet:?xt=urn:btih:83d40fa6191f96716d36bee7bc04274ee792ec45&dn=test",
@@ -36,7 +35,7 @@ async fn when_torrent_add_cassette_then_add_file_returns_id() {
 
     let options = AddTorrentOptions::default();
     let result = client
-        .core()
+        .core
         .torrents
         .add_torrent_file("test.torrent", "ZGFrZQ==", &options)
         .await
@@ -52,7 +51,7 @@ async fn when_torrent_add_cassette_then_add_file_async_returns_error_for_duplica
 
     let options = AddTorrentOptions::default();
     let result = client
-        .core()
+        .core
         .torrents
         .add_torrent_file_async("test2.torrent", "ZGFrZQ==", &options, true)
         .await;
@@ -79,11 +78,7 @@ async fn when_torrent_add_cassette_then_add_files_returns_error_for_duplicate() 
         "ZGFrZQ==".to_owned(),
         AddTorrentOptions::default(),
     )];
-    let result = client
-        .core()
-        .torrents
-        .add_torrent_files(&torrent_files)
-        .await;
+    let result = client.core.torrents.add_torrent_files(&torrent_files).await;
 
     assert!(
         result.is_err(),
@@ -98,7 +93,7 @@ async fn when_torrent_add_cassette_then_add_url_returns_id() {
 
     let options = AddTorrentOptions::default();
     let result = client
-        .core()
+        .core
         .torrents
         .add_torrent_url(
             "http://releases.ubuntu.com/24.04/ubuntu-24.04.3-desktop-amd64.iso.torrent",
@@ -117,7 +112,7 @@ async fn when_torrent_add_cassette_then_prefetch_returns_error_for_invalid_magne
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .torrents
         .prefetch_magnet_metadata(
             "magnet:?xt=urn:btih:83d40fa6191f96716d36bee7bc04274ee792ec45&dn=test",
@@ -141,7 +136,7 @@ async fn when_torrent_add_cassette_then_remove_torrents_succeeds() {
         "38645727754424361ddcc6e14d974eac9e7c6456".to_owned(),
     ];
     let result = client
-        .core()
+        .core
         .torrents
         .remove_torrents(&ids, true)
         .await

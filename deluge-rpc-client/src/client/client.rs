@@ -10,9 +10,12 @@ use crate::{
 /// The top-level Deluge RPC client providing access to daemon, core, and plugin sub-clients.
 pub struct DelugeClient {
     dispatcher: DelugeClientDispatcher,
-    daemon_client: DaemonClient,
-    core_client: CoreClient,
-    plugins_client: PluginsClient,
+    /// Access the `daemon.*` RPC sub-client.
+    pub daemon: DaemonClient,
+    /// Access the `core.*` RPC sub-client.
+    pub core: CoreClient,
+    /// Access the plugin RPC sub-client.
+    pub plugins: PluginsClient,
 }
 
 impl DelugeClient {
@@ -20,26 +23,11 @@ impl DelugeClient {
     pub fn new(info: DelugeConnectionInfo) -> Self {
         let dispatcher = DelugeClientDispatcher::new(info.into());
         Self {
-            daemon_client: DaemonClient::new(dispatcher.clone()),
-            core_client: CoreClient::new(dispatcher.clone()),
-            plugins_client: PluginsClient::new(dispatcher.clone()),
+            daemon: DaemonClient::new(dispatcher.clone()),
+            core: CoreClient::new(dispatcher.clone()),
+            plugins: PluginsClient::new(dispatcher.clone()),
             dispatcher,
         }
-    }
-
-    /// Access the `daemon.*` RPC sub-client.
-    pub fn daemon(&self) -> &DaemonClient {
-        &self.daemon_client
-    }
-
-    /// Access the `core.*` RPC sub-client.
-    pub fn core(&self) -> &CoreClient {
-        &self.core_client
-    }
-
-    /// Access the plugin RPC sub-client.
-    pub fn plugins(&self) -> &PluginsClient {
-        &self.plugins_client
     }
 
     /// Check whether the underlying transport connection is still open.
@@ -127,7 +115,6 @@ impl PluginsClient {
 mod tests {
     use super::*;
     use crate::DelugeClientBuilder;
-    use crate::client::DaemonRpc;
     use flate2::Compression;
     use flate2::read::ZlibDecoder;
     use flate2::write::ZlibEncoder;
@@ -320,8 +307,8 @@ mod tests {
         )
         .build();
 
-        let _daemon = client.daemon();
-        let core = client.core();
+        let _daemon = client.daemon;
+        let core = client.core;
         let _torrents = &core.torrents;
         let _session = &core.session;
         let _config = &core.config;
@@ -329,7 +316,7 @@ mod tests {
         let _accounts = &core.accounts;
         let _misc = &core.misc;
 
-        let plugins = client.plugins();
+        let plugins = client.plugins;
         let _auto_add = &plugins.auto_add;
         let _blocklist = &plugins.blocklist;
         let _execute = &plugins.execute;
@@ -354,7 +341,7 @@ mod tests {
         )
         .build();
 
-        let result = client.daemon().info().await;
+        let result = client.daemon.info().await;
         assert!(result.is_ok(), "first call should succeed: {result:?}");
 
         // Wait for the socket to die.
@@ -366,7 +353,7 @@ mod tests {
         .await;
         assert!(deadline.is_ok(), "deadline should not have expired");
 
-        let result2 = client.daemon().info().await;
+        let result2 = client.daemon.info().await;
         assert!(
             result2.is_ok(),
             "second call after reconnect should succeed: {result2:?}"
@@ -385,7 +372,7 @@ mod tests {
         )
         .build();
 
-        let result = client.daemon().info().await;
+        let result = client.daemon.info().await;
         assert!(
             result.is_err(),
             "call should fail (connection dropped): {result:?}"

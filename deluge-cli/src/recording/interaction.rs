@@ -1,7 +1,7 @@
 use deluge_rpc_client::RencodeValue;
 use deluge_rpc_rencode::{from_json, to_json};
 use serde::ser::SerializeStruct;
-use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Interaction {

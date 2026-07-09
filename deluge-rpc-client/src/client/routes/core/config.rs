@@ -8,26 +8,6 @@ use crate::protocol::extract_single;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for the `core.*` config namespace.
-pub trait CoreConfigRpc: Send + Sync {
-    /// Returns all config preferences.
-    async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError>;
-    /// Returns a single config value.
-    async fn get_config_value(&self, key: &str) -> Result<RencodeValue, DelugeRpcError>;
-    /// Returns a subset of config values.
-    async fn get_config_values(
-        &self,
-        keys: &[String],
-    ) -> Result<BTreeMap<String, RencodeValue>, DelugeRpcError>;
-    /// Sets config values from a dictionary.
-    async fn set_config(
-        &self,
-        config: &BTreeMap<String, RencodeValue>,
-    ) -> Result<(), DelugeRpcError>;
-    /// Returns live proxy settings from the libtorrent session.
-    async fn get_proxy(&self) -> Result<ProxyConfig, DelugeRpcError>;
-}
-
 /// Client for `core.*` config RPC methods.
 pub struct CoreConfigClient {
     dispatcher: DelugeClientDispatcher,
@@ -47,8 +27,9 @@ impl Clone for CoreConfigClient {
     }
 }
 
-impl CoreConfigRpc for CoreConfigClient {
-    async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError> {
+impl CoreConfigClient {
+    /// Returns all config preferences.
+    pub async fn get_config(&self) -> Result<DaemonConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_config"))
@@ -56,8 +37,8 @@ impl CoreConfigRpc for CoreConfigClient {
         let value = extract_single(&result)?;
         Ok(DaemonConfig::deserialize(&value)?)
     }
-
-    async fn get_config_value(&self, key: &str) -> Result<RencodeValue, DelugeRpcError> {
+    /// Returns a single config value.
+    pub async fn get_config_value(&self, key: &str) -> Result<RencodeValue, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
@@ -67,8 +48,8 @@ impl CoreConfigRpc for CoreConfigClient {
             .await?;
         Ok(extract_single(&result)?)
     }
-
-    async fn get_config_values(
+    /// Returns a subset of config values.
+    pub async fn get_config_values(
         &self,
         keys: &[String],
     ) -> Result<BTreeMap<String, RencodeValue>, DelugeRpcError> {
@@ -106,8 +87,8 @@ impl CoreConfigRpc for CoreConfigClient {
             }),
         }
     }
-
-    async fn set_config(
+    /// Sets config values from a dictionary.
+    pub async fn set_config(
         &self,
         config: &BTreeMap<String, RencodeValue>,
     ) -> Result<(), DelugeRpcError> {
@@ -123,8 +104,8 @@ impl CoreConfigRpc for CoreConfigClient {
             .await?;
         Ok(())
     }
-
-    async fn get_proxy(&self) -> Result<ProxyConfig, DelugeRpcError> {
+    /// Returns live proxy settings from the libtorrent session.
+    pub async fn get_proxy(&self) -> Result<ProxyConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_proxy"))

@@ -1,5 +1,5 @@
 use clap::Subcommand;
-use deluge_rpc_client::{DaemonRpc, DelugeClient};
+use deluge_rpc_client::DelugeClient;
 
 /// `daemon.*` methods (e.g., daemon info, version, and shutdown).
 #[derive(Subcommand, Debug, Clone)]
@@ -30,29 +30,29 @@ impl DaemonCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             DaemonCommand::Info => {
-                let info = client.daemon().info().await?;
+                let info = client.daemon.info().await?;
                 Ok(serde_json::to_string_pretty(&info)?)
             }
             DaemonCommand::Version => {
-                let version = client.daemon().get_version().await?;
+                let version = client.daemon.get_version().await?;
                 Ok(serde_json::to_string_pretty(&version)?)
             }
             DaemonCommand::Methods => {
-                let methods = client.daemon().get_method_list().await?;
+                let methods = client.daemon.get_method_list().await?;
                 Ok(serde_json::to_string_pretty(&methods)?)
             }
             DaemonCommand::Shutdown => {
-                client.daemon().shutdown().await?;
+                client.daemon.shutdown().await?;
                 Ok("Shutdown requested.".to_owned())
             }
             DaemonCommand::Events { names } => {
                 let event_names: Vec<String> = serde_json::from_str(names)
                     .map_err(|e| anyhow::anyhow!("failed to parse event names JSON: {e}"))?;
-                let result = client.daemon().set_event_interest(&event_names).await?;
+                let result = client.daemon.set_event_interest(&event_names).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             DaemonCommand::Authorized { rpc } => {
-                let result = client.daemon().authorized_call(rpc).await?;
+                let result = client.daemon.authorized_call(rpc).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
         }

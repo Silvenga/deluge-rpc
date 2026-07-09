@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::LabelRpc;
 use deluge_rpc_client::models::{LabelConfig, LabelOptions};
 
 const FIXTURE: &str = "label.json";
@@ -13,7 +12,7 @@ async fn when_label_cassette_then_get_labels_returns_list() {
     let client = common::build_client(&server).await;
 
     let labels = client
-        .plugins()
+        .plugins
         .label
         .get_labels()
         .await
@@ -28,7 +27,7 @@ async fn when_label_cassette_then_add_label_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .plugins()
+        .plugins
         .label
         .add("test-label")
         .await
@@ -41,7 +40,7 @@ async fn when_label_cassette_then_get_options_returns_dict() {
     let client = common::build_client(&server).await;
 
     let options = client
-        .plugins()
+        .plugins
         .label
         .get_options("test-label")
         .await
@@ -75,7 +74,7 @@ async fn when_label_cassette_then_set_options_succeeds() {
     };
 
     client
-        .plugins()
+        .plugins
         .label
         .set_options("test-label", &options)
         .await
@@ -88,7 +87,7 @@ async fn when_label_cassette_then_get_config_succeeds_with_defaults() {
     let client = common::build_client(&server).await;
 
     let config =
-        client.plugins().label.get_config().await.expect(
+        client.plugins.label.get_config().await.expect(
             "label.get_config should succeed with serde default for missing auto_add_trackers",
         );
 
@@ -107,7 +106,7 @@ async fn when_label_cassette_then_set_config_returns_error() {
         auto_add_trackers: vec![],
     };
 
-    let result = client.plugins().label.set_config(&config).await;
+    let result = client.plugins.label.set_config(&config).await;
     assert!(result.is_err(), "set_config should fail against cassette");
 }
 
@@ -117,7 +116,7 @@ async fn when_label_cassette_then_set_torrent_returns_error() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .plugins()
+        .plugins
         .label
         .set_torrent("83d40fa6191f96716d36bee7bc04274ee792ec45", "test-label")
         .await;
@@ -133,7 +132,7 @@ async fn when_label_cassette_then_remove_label_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .plugins()
+        .plugins
         .label
         .remove("test-label")
         .await

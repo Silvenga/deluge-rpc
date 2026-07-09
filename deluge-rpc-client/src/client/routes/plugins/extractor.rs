@@ -6,14 +6,6 @@ use crate::to_rencode_value;
 
 use serde::Deserialize;
 
-/// RPC methods for the `extractor.*` namespace.
-pub trait ExtractorRpc: Send + Sync {
-    /// Sets the plugin config.
-    async fn set_config(&self, config: &ExtractorConfig) -> Result<(), DelugeRpcError>;
-    /// Returns the plugin config.
-    async fn get_config(&self) -> Result<ExtractorConfig, DelugeRpcError>;
-}
-
 /// Client for `extractor.*` RPC methods.
 pub struct ExtractorClient {
     dispatcher: DelugeClientDispatcher,
@@ -33,16 +25,17 @@ impl Clone for ExtractorClient {
     }
 }
 
-impl ExtractorRpc for ExtractorClient {
-    async fn set_config(&self, config: &ExtractorConfig) -> Result<(), DelugeRpcError> {
+impl ExtractorClient {
+    /// Sets the plugin config.
+    pub async fn set_config(&self, config: &ExtractorConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("extractor.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
-
-    async fn get_config(&self) -> Result<ExtractorConfig, DelugeRpcError> {
+    /// Returns the plugin config.
+    pub async fn get_config(&self) -> Result<ExtractorConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("extractor.get_config"))

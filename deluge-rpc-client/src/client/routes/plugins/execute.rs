@@ -6,23 +6,6 @@ use crate::{RencodeValue, to_rencode_value};
 
 use serde::Deserialize;
 
-/// RPC methods for the `execute.*` namespace.
-pub trait ExecuteRpc: Send + Sync {
-    /// Adds a command to run on a torrent event.
-    async fn add_command(&self, event: &ExecuteEvent, command: &str) -> Result<(), DelugeRpcError>;
-    /// Returns all commands.
-    async fn get_commands(&self) -> Result<Vec<ExecuteCommand>, DelugeRpcError>;
-    /// Removes a command by its ID.
-    async fn remove_command(&self, command_id: &str) -> Result<(), DelugeRpcError>;
-    /// Updates an existing command in-place by ID.
-    async fn save_command(
-        &self,
-        command_id: &str,
-        event: &ExecuteEvent,
-        command: &str,
-    ) -> Result<(), DelugeRpcError>;
-}
-
 /// Client for `execute.*` RPC methods.
 pub struct ExecuteClient {
     dispatcher: DelugeClientDispatcher,
@@ -42,8 +25,13 @@ impl Clone for ExecuteClient {
     }
 }
 
-impl ExecuteRpc for ExecuteClient {
-    async fn add_command(&self, event: &ExecuteEvent, command: &str) -> Result<(), DelugeRpcError> {
+impl ExecuteClient {
+    /// Adds a command to run on a torrent event.
+    pub async fn add_command(
+        &self,
+        event: &ExecuteEvent,
+        command: &str,
+    ) -> Result<(), DelugeRpcError> {
         let event_value = to_rencode_value(event)?;
         self.dispatcher
             .dispatch(
@@ -53,8 +41,8 @@ impl ExecuteRpc for ExecuteClient {
             .await?;
         Ok(())
     }
-
-    async fn get_commands(&self) -> Result<Vec<ExecuteCommand>, DelugeRpcError> {
+    /// Returns all commands.
+    pub async fn get_commands(&self) -> Result<Vec<ExecuteCommand>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("execute.get_commands"))
@@ -62,8 +50,8 @@ impl ExecuteRpc for ExecuteClient {
         let value = extract_single(&result)?;
         Ok(Vec::<ExecuteCommand>::deserialize(&value)?)
     }
-
-    async fn remove_command(&self, command_id: &str) -> Result<(), DelugeRpcError> {
+    /// Removes a command by its ID.
+    pub async fn remove_command(&self, command_id: &str) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("execute.remove_command")
@@ -72,8 +60,8 @@ impl ExecuteRpc for ExecuteClient {
             .await?;
         Ok(())
     }
-
-    async fn save_command(
+    /// Updates an existing command in-place by ID.
+    pub async fn save_command(
         &self,
         command_id: &str,
         event: &ExecuteEvent,

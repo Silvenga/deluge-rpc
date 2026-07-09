@@ -1,6 +1,6 @@
 //! E2e tests for the cassette replay mock server.
 
-use deluge_rpc_client::{DaemonRpc, DelugeClientBuilder, RencodeValue};
+use deluge_rpc_client::{DelugeClientBuilder, RencodeValue};
 use deluge_rpc_mock::{
     Cassette, Interaction, InteractionRequest, InteractionResponse as CassetteResponse, Matcher,
     ReplayServer,
@@ -60,7 +60,7 @@ async fn when_method_not_in_cassette_then_returns_unknown_method_error() {
     )
     .build();
 
-    let result = client.daemon().info().await;
+    let result = client.daemon.info().await;
     assert!(result.is_err(), "unknown method should error: {result:?}");
     let msg = format!("{result:?}");
     assert!(
@@ -87,6 +87,6 @@ async fn when_cassette_has_interaction_then_response_replayed_to_client() {
     )
     .build();
 
-    let info = client.daemon().info().await.expect("daemon.info");
+    let info = client.daemon.info().await.expect("daemon.info");
     assert_eq!(info, "2.1.1");
 }

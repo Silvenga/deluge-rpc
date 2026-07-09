@@ -1,10 +1,7 @@
 use crate::helpers::{rencode_from_json_value, rencode_to_plain_json};
 use clap::Subcommand;
+use deluge_rpc_client::DelugeClient;
 use deluge_rpc_client::models::{AddTorrentOptions, FilterDict, SetTorrentOptions, TrackerInfo};
-use deluge_rpc_client::{
-    CoreAccountRpc, CoreConfigRpc, CoreMiscRpc, CorePluginRpc, CoreSessionRpc, CoreTorrentRpc,
-    DelugeClient,
-};
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
@@ -42,7 +39,7 @@ impl CoreCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             CoreCommand::FreeSpace { path } => {
-                let space = client.core().session.get_free_space(path.clone()).await?;
+                let space = client.core.session.get_free_space(path.clone()).await?;
                 Ok(serde_json::to_string_pretty(&space)?)
             }
             CoreCommand::Torrents(sub) => sub.run(client).await,
@@ -232,7 +229,7 @@ impl CoreTorrentsCommand {
                 let filter_dict = parse_filter_dict(filter)?;
                 let keys_list = parse_keys(keys);
                 let entries = client
-                    .core()
+                    .core
                     .torrents
                     .get_torrents_status(&filter_dict, &keys_list, false)
                     .await?;
@@ -241,7 +238,7 @@ impl CoreTorrentsCommand {
             CoreTorrentsCommand::Status { torrent_id, keys } => {
                 let keys_list = parse_keys(keys);
                 let status = client
-                    .core()
+                    .core
                     .torrents
                     .get_torrent_status(torrent_id, &keys_list, false)
                     .await?;
@@ -252,7 +249,7 @@ impl CoreTorrentsCommand {
                 keep_data,
             } => {
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .remove_torrent(torrent_id, !keep_data)
                     .await?;
@@ -261,7 +258,7 @@ impl CoreTorrentsCommand {
             CoreTorrentsCommand::AddMagnet { uri } => {
                 let options = AddTorrentOptions::default();
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .add_torrent_magnet(uri, &options)
                     .await?;
@@ -270,7 +267,7 @@ impl CoreTorrentsCommand {
             CoreTorrentsCommand::AddFile { filename, filedump } => {
                 let options = AddTorrentOptions::default();
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .add_torrent_file(filename, filedump, &options)
                     .await?;
@@ -283,7 +280,7 @@ impl CoreTorrentsCommand {
             } => {
                 let options = AddTorrentOptions::default();
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .add_torrent_file_async(filename, filedump, &options, *save_state)
                     .await?;
@@ -293,13 +290,13 @@ impl CoreTorrentsCommand {
                 let parsed: Vec<(String, String, AddTorrentOptions)> =
                     serde_json::from_str(json)
                         .map_err(|e| anyhow::anyhow!("failed to parse torrent files JSON: {e}"))?;
-                let result = client.core().torrents.add_torrent_files(&parsed).await?;
+                let result = client.core.torrents.add_torrent_files(&parsed).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreTorrentsCommand::AddUrl { url } => {
                 let options = AddTorrentOptions::default();
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .add_torrent_url(url, &options, None)
                     .await?;
@@ -307,7 +304,7 @@ impl CoreTorrentsCommand {
             }
             CoreTorrentsCommand::Prefetch { magnet, timeout } => {
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .prefetch_magnet_metadata(magnet, *timeout)
                     .await?;
@@ -326,42 +323,38 @@ impl CoreTorrentsCommand {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .remove_torrents(&torrent_ids, *remove_data)
                     .await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreTorrentsCommand::Pause { torrent_id } => {
-                client.core().torrents.pause_torrent(torrent_id).await?;
+                client.core.torrents.pause_torrent(torrent_id).await?;
                 Ok("Torrent paused.".to_owned())
             }
             CoreTorrentsCommand::PauseAll => {
-                client.core().torrents.pause_torrents(None).await?;
+                client.core.torrents.pause_torrents(None).await?;
                 Ok("All torrents paused.".to_owned())
             }
             CoreTorrentsCommand::Resume { torrent_id } => {
-                client.core().torrents.resume_torrent(torrent_id).await?;
+                client.core.torrents.resume_torrent(torrent_id).await?;
                 Ok("Torrent resumed.".to_owned())
             }
             CoreTorrentsCommand::ResumeAll => {
-                client.core().torrents.resume_torrents(None).await?;
+                client.core.torrents.resume_torrents(None).await?;
                 Ok("All torrents resumed.".to_owned())
             }
             CoreTorrentsCommand::Reannounce { ids } => {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
-                client
-                    .core()
-                    .torrents
-                    .force_reannounce(&torrent_ids)
-                    .await?;
+                client.core.torrents.force_reannounce(&torrent_ids).await?;
                 Ok("Reannounce sent.".to_owned())
             }
             CoreTorrentsCommand::Recheck { ids } => {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
-                client.core().torrents.force_recheck(&torrent_ids).await?;
+                client.core.torrents.force_recheck(&torrent_ids).await?;
                 Ok("Recheck sent.".to_owned())
             }
             CoreTorrentsCommand::SetOptions { ids, json } => {
@@ -370,7 +363,7 @@ impl CoreTorrentsCommand {
                 let options: SetTorrentOptions = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse options JSON: {e}"))?;
                 client
-                    .core()
+                    .core
                     .torrents
                     .set_torrent_options(&torrent_ids, &options)
                     .await?;
@@ -382,7 +375,7 @@ impl CoreTorrentsCommand {
                 port,
             } => {
                 client
-                    .core()
+                    .core
                     .torrents
                     .connect_peer(torrent_id, ip, *port)
                     .await?;
@@ -392,7 +385,7 @@ impl CoreTorrentsCommand {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
                 client
-                    .core()
+                    .core
                     .torrents
                     .move_storage(&torrent_ids, dest)
                     .await?;
@@ -406,7 +399,7 @@ impl CoreTorrentsCommand {
                 save_to_disk,
             } => {
                 client
-                    .core()
+                    .core
                     .torrents
                     .set_ssl_torrent_cert(
                         torrent_id,
@@ -420,25 +413,25 @@ impl CoreTorrentsCommand {
             }
             CoreTorrentsCommand::FilterTree { show_zero_hits } => {
                 let result = client
-                    .core()
+                    .core
                     .torrents
                     .get_filter_tree(*show_zero_hits, None)
                     .await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreTorrentsCommand::SessionState => {
-                let result = client.core().torrents.get_session_state().await?;
+                let result = client.core.torrents.get_session_state().await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreTorrentsCommand::PathSize { path } => {
-                let result = client.core().torrents.get_path_size(path).await?;
+                let result = client.core.torrents.get_path_size(path).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreTorrentsCommand::SetTrackers { torrent_id, json } => {
                 let trackers: Vec<TrackerInfo> = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse trackers JSON: {e}"))?;
                 client
-                    .core()
+                    .core
                     .torrents
                     .set_torrent_trackers(torrent_id, &trackers)
                     .await?;
@@ -448,7 +441,7 @@ impl CoreTorrentsCommand {
                 let filenames: Vec<(i64, String)> = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse filenames JSON: {e}"))?;
                 client
-                    .core()
+                    .core
                     .torrents
                     .rename_files(torrent_id, &filenames)
                     .await?;
@@ -460,7 +453,7 @@ impl CoreTorrentsCommand {
                 new_folder,
             } => {
                 client
-                    .core()
+                    .core
                     .torrents
                     .rename_folder(torrent_id, folder, new_folder)
                     .await?;
@@ -469,25 +462,25 @@ impl CoreTorrentsCommand {
             CoreTorrentsCommand::QueueTop { ids } => {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
-                client.core().torrents.queue_top(&torrent_ids).await?;
+                client.core.torrents.queue_top(&torrent_ids).await?;
                 Ok("Queue top.".to_owned())
             }
             CoreTorrentsCommand::QueueUp { ids } => {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
-                client.core().torrents.queue_up(&torrent_ids).await?;
+                client.core.torrents.queue_up(&torrent_ids).await?;
                 Ok("Queue up.".to_owned())
             }
             CoreTorrentsCommand::QueueDown { ids } => {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
-                client.core().torrents.queue_down(&torrent_ids).await?;
+                client.core.torrents.queue_down(&torrent_ids).await?;
                 Ok("Queue down.".to_owned())
             }
             CoreTorrentsCommand::QueueBottom { ids } => {
                 let torrent_ids: Vec<String> = serde_json::from_str(ids)
                     .map_err(|e| anyhow::anyhow!("failed to parse torrent IDs JSON: {e}"))?;
-                client.core().torrents.queue_bottom(&torrent_ids).await?;
+                client.core.torrents.queue_bottom(&torrent_ids).await?;
                 Ok("Queue bottom.".to_owned())
             }
         }
@@ -535,7 +528,7 @@ impl CoreSessionCommand {
         match self {
             CoreSessionCommand::Status { keys } => {
                 let keys_list = parse_keys(keys);
-                let status = client.core().session.get_session_status(&keys_list).await?;
+                let status = client.core.session.get_session_status(&keys_list).await?;
 
                 let mut map = serde_json::Map::new();
                 map.insert(
@@ -595,35 +588,35 @@ impl CoreSessionCommand {
                 Ok(serde_json::to_string_pretty(&JsonValue::Object(map))?)
             }
             CoreSessionCommand::PauseSession => {
-                client.core().session.pause_session().await?;
+                client.core.session.pause_session().await?;
                 Ok("Session paused.".to_owned())
             }
             CoreSessionCommand::ResumeSession => {
-                client.core().session.resume_session().await?;
+                client.core.session.resume_session().await?;
                 Ok("Session resumed.".to_owned())
             }
             CoreSessionCommand::IsSessionPaused => {
-                let paused = client.core().session.is_session_paused().await?;
+                let paused = client.core.session.is_session_paused().await?;
                 Ok(serde_json::to_string_pretty(&paused)?)
             }
             CoreSessionCommand::ListenPort => {
-                let port = client.core().session.get_listen_port().await?;
+                let port = client.core.session.get_listen_port().await?;
                 Ok(serde_json::to_string_pretty(&port)?)
             }
             CoreSessionCommand::SslListenPort => {
-                let port = client.core().session.get_ssl_listen_port().await?;
+                let port = client.core.session.get_ssl_listen_port().await?;
                 Ok(serde_json::to_string_pretty(&port)?)
             }
             CoreSessionCommand::ExternalIp => {
-                let ip = client.core().session.get_external_ip().await?;
+                let ip = client.core.session.get_external_ip().await?;
                 Ok(serde_json::to_string_pretty(&ip)?)
             }
             CoreSessionCommand::LibtorrentVersion => {
-                let version = client.core().session.get_libtorrent_version().await?;
+                let version = client.core.session.get_libtorrent_version().await?;
                 Ok(serde_json::to_string_pretty(&version)?)
             }
             CoreSessionCommand::TestListenPort => {
-                let result = client.core().session.test_listen_port().await?;
+                let result = client.core.session.test_listen_port().await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
         }
@@ -657,19 +650,19 @@ impl CoreConfigCommand {
         match self {
             CoreConfigCommand::Get { key } => match key {
                 Some(k) => {
-                    let value = client.core().config.get_config_value(k).await?;
+                    let value = client.core.config.get_config_value(k).await?;
                     let tagged = deluge_rpc_rencode::to_json(&value);
                     Ok(serde_json::to_string_pretty(&tagged)?)
                 }
                 None => {
-                    let config = client.core().config.get_config().await?;
+                    let config = client.core.config.get_config().await?;
                     Ok(serde_json::to_string_pretty(&config)?)
                 }
             },
             CoreConfigCommand::GetValues { keys } => {
                 let keys_list: Vec<String> = serde_json::from_str(keys)
                     .map_err(|e| anyhow::anyhow!("failed to parse keys JSON: {e}"))?;
-                let values = client.core().config.get_config_values(&keys_list).await?;
+                let values = client.core.config.get_config_values(&keys_list).await?;
                 let mut map = serde_json::Map::new();
                 for (k, v) in &values {
                     map.insert(k.clone(), rencode_to_plain_json(v));
@@ -687,11 +680,11 @@ impl CoreConfigCommand {
                     let rencode_val = rencode_from_json_value(v)?;
                     config.insert(k.clone(), rencode_val);
                 }
-                client.core().config.set_config(&config).await?;
+                client.core.config.set_config(&config).await?;
                 Ok("Config updated.".to_owned())
             }
             CoreConfigCommand::Proxy => {
-                let proxy = client.core().config.get_proxy().await?;
+                let proxy = client.core.config.get_proxy().await?;
                 Ok(serde_json::to_string_pretty(&proxy)?)
             }
         }
@@ -722,31 +715,31 @@ impl PluginsListCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             PluginsListCommand::List => {
-                let enabled = client.core().plugins.get_enabled_plugins().await?;
+                let enabled = client.core.plugins.get_enabled_plugins().await?;
                 Ok(serde_json::to_string_pretty(&enabled)?)
             }
             PluginsListCommand::Available => {
-                let available = client.core().plugins.get_available_plugins().await?;
+                let available = client.core.plugins.get_available_plugins().await?;
                 Ok(serde_json::to_string_pretty(&available)?)
             }
             PluginsListCommand::Enable { name } => {
-                let result = client.core().plugins.enable_plugin(name).await?;
+                let result = client.core.plugins.enable_plugin(name).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             PluginsListCommand::Disable { name } => {
-                let result = client.core().plugins.disable_plugin(name).await?;
+                let result = client.core.plugins.disable_plugin(name).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             PluginsListCommand::Upload { filename, filedump } => {
                 client
-                    .core()
+                    .core
                     .plugins
                     .upload_plugin(filename, filedump)
                     .await?;
                 Ok("Plugin uploaded.".to_owned())
             }
             PluginsListCommand::Rescan => {
-                client.core().plugins.rescan_plugins().await?;
+                client.core.plugins.rescan_plugins().await?;
                 Ok("Plugins rescanned.".to_owned())
             }
         }
@@ -789,12 +782,12 @@ impl CoreMiscCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             CoreMiscCommand::Glob { path } => {
-                let result = client.core().misc.glob(path).await?;
+                let result = client.core.misc.glob(path).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreMiscCommand::CompletionPaths { text, show_hidden } => {
                 let result = client
-                    .core()
+                    .core
                     .misc
                     .get_completion_paths(text, *show_hidden)
                     .await?;
@@ -819,7 +812,7 @@ impl CoreMiscCommand {
                 piece_length,
             } => {
                 let result = client
-                    .core()
+                    .core
                     .misc
                     .create_torrent(
                         path,
@@ -881,7 +874,7 @@ impl CoreAccountsCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             CoreAccountsCommand::List => {
-                let accounts = client.core().accounts.get_known_accounts().await?;
+                let accounts = client.core.accounts.get_known_accounts().await?;
                 let arr: Vec<JsonValue> = accounts
                     .iter()
                     .map(|a| {
@@ -906,7 +899,7 @@ impl CoreAccountsCommand {
                 auth_level,
             } => {
                 let result = client
-                    .core()
+                    .core
                     .accounts
                     .create_account(username, password, auth_level)
                     .await?;
@@ -918,19 +911,19 @@ impl CoreAccountsCommand {
                 auth_level,
             } => {
                 let result = client
-                    .core()
+                    .core
                     .accounts
                     .update_account(username, password, auth_level)
                     .await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreAccountsCommand::Remove { username } => {
-                let result = client.core().accounts.remove_account(username).await?;
+                let result = client.core.accounts.remove_account(username).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             CoreAccountsCommand::Mappings => {
                 let (name_to_int, int_to_name) =
-                    client.core().accounts.get_auth_levels_mappings().await?;
+                    client.core.accounts.get_auth_levels_mappings().await?;
                 let mut map = serde_json::Map::new();
                 map.insert(
                     "name_to_int".to_owned(),

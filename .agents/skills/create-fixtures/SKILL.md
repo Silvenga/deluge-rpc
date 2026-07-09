@@ -98,7 +98,7 @@ async fn when_<condition>_then_<expected>() {
     .build();
 
     // Call typed methods and assert on the response
-    let info = client.daemon().info().await.expect("daemon.info");
+    let info = client.daemon.info().await.expect("daemon.info");
     assert_eq!(info, "2.1.2.dev0");
 }
 ```

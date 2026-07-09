@@ -6,31 +6,6 @@ use crate::{RencodeValue, to_rencode_value};
 
 use serde::Deserialize;
 
-/// RPC methods for the `label.*` namespace.
-pub trait LabelRpc: Send + Sync {
-    /// Returns all label IDs.
-    async fn get_labels(&self) -> Result<Vec<String>, DelugeRpcError>;
-    /// Creates a new label with default options.
-    async fn add(&self, label_id: &str) -> Result<(), DelugeRpcError>;
-    /// Removes a label.
-    async fn remove(&self, label_id: &str) -> Result<(), DelugeRpcError>;
-    /// Updates a label's options and re-applies them to all torrents with that label.
-    async fn set_options(
-        &self,
-        label_id: &str,
-        options: &LabelOptions,
-    ) -> Result<(), DelugeRpcError>;
-    /// Returns a label's options.
-    async fn get_options(&self, label_id: &str) -> Result<LabelOptions, DelugeRpcError>;
-    /// Assigns a label to a torrent.
-    async fn set_torrent(&self, torrent_id: &str, label_id: &str) -> Result<(), DelugeRpcError>;
-    /// Returns the plugin's global config. The `auto_add_trackers` field may be
-    /// absent if no trackers have been configured.
-    async fn get_config(&self) -> Result<LabelConfig, DelugeRpcError>;
-    /// Sets the plugin's global config.
-    async fn set_config(&self, config: &LabelConfig) -> Result<(), DelugeRpcError>;
-}
-
 /// Client for `label.*` RPC methods.
 pub struct LabelClient {
     dispatcher: DelugeClientDispatcher,
@@ -50,8 +25,9 @@ impl Clone for LabelClient {
     }
 }
 
-impl LabelRpc for LabelClient {
-    async fn get_labels(&self) -> Result<Vec<String>, DelugeRpcError> {
+impl LabelClient {
+    /// Returns all label IDs.
+    pub async fn get_labels(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("label.get_labels"))
@@ -59,8 +35,8 @@ impl LabelRpc for LabelClient {
         let value = extract_single(&result)?;
         Ok(Vec::<String>::deserialize(&value)?)
     }
-
-    async fn add(&self, label_id: &str) -> Result<(), DelugeRpcError> {
+    /// Creates a new label with default options.
+    pub async fn add(&self, label_id: &str) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("label.add")
@@ -69,8 +45,8 @@ impl LabelRpc for LabelClient {
             .await?;
         Ok(())
     }
-
-    async fn remove(&self, label_id: &str) -> Result<(), DelugeRpcError> {
+    /// Removes a label.
+    pub async fn remove(&self, label_id: &str) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("label.remove")
@@ -79,8 +55,8 @@ impl LabelRpc for LabelClient {
             .await?;
         Ok(())
     }
-
-    async fn set_options(
+    /// Updates a label's options and re-applies them to all torrents with that label.
+    pub async fn set_options(
         &self,
         label_id: &str,
         options: &LabelOptions,
@@ -94,8 +70,8 @@ impl LabelRpc for LabelClient {
             .await?;
         Ok(())
     }
-
-    async fn get_options(&self, label_id: &str) -> Result<LabelOptions, DelugeRpcError> {
+    /// Returns a label's options.
+    pub async fn get_options(&self, label_id: &str) -> Result<LabelOptions, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
@@ -106,8 +82,12 @@ impl LabelRpc for LabelClient {
         let value = extract_single(&result)?;
         Ok(LabelOptions::deserialize(&value)?)
     }
-
-    async fn set_torrent(&self, torrent_id: &str, label_id: &str) -> Result<(), DelugeRpcError> {
+    /// Assigns a label to a torrent.
+    pub async fn set_torrent(
+        &self,
+        torrent_id: &str,
+        label_id: &str,
+    ) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("label.set_torrent").with_args(vec![
                 RencodeValue::Str(torrent_id.to_owned()),
@@ -116,8 +96,9 @@ impl LabelRpc for LabelClient {
             .await?;
         Ok(())
     }
-
-    async fn get_config(&self) -> Result<LabelConfig, DelugeRpcError> {
+    /// Returns the plugin's global config. The `auto_add_trackers` field may be
+    /// absent if no trackers have been configured.
+    pub async fn get_config(&self) -> Result<LabelConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("label.get_config"))
@@ -125,8 +106,8 @@ impl LabelRpc for LabelClient {
         let value = extract_single(&result)?;
         Ok(LabelConfig::deserialize(&value)?)
     }
-
-    async fn set_config(&self, config: &LabelConfig) -> Result<(), DelugeRpcError> {
+    /// Sets the plugin's global config.
+    pub async fn set_config(&self, config: &LabelConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("label.set_config").with_args(vec![config_value]))

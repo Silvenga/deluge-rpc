@@ -1,5 +1,5 @@
-use crate::protocol::error::ProtocolError;
 use crate::RencodeValue;
+use crate::protocol::error::ProtocolError;
 use std::collections::BTreeMap;
 
 /// Extracts the return value from an RPC response.

@@ -2,8 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::CoreMiscRpc;
-
 const FIXTURE: &str = "misc-methods.json";
 
 #[tokio::test(flavor = "multi_thread")]
@@ -12,7 +10,7 @@ async fn when_misc_methods_cassette_then_glob_returns_list() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .misc
         .glob("/root/Downloads/*")
         .await
@@ -30,7 +28,7 @@ async fn when_misc_methods_cassette_then_completion_paths_returns_dict() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .misc
         .get_completion_paths("/root/", false)
         .await
@@ -46,7 +44,7 @@ async fn when_misc_methods_cassette_then_create_torrent_returns_filename_and_dum
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .misc
         .create_torrent(
             "/config/testfile.txt",

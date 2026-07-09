@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::NotificationsRpc;
 use deluge_rpc_client::models::NotificationsConfig;
 
 const FIXTURE: &str = "notifications.json";
@@ -13,7 +12,7 @@ async fn when_notifications_cassette_then_get_config_returns_dict() {
     let client = common::build_client(&server).await;
 
     let config = client
-        .plugins()
+        .plugins
         .notifications
         .get_config()
         .await
@@ -31,7 +30,7 @@ async fn when_notifications_cassette_then_get_handled_events_returns_list() {
     let client = common::build_client(&server).await;
 
     let events = client
-        .plugins()
+        .plugins
         .notifications
         .get_handled_events()
         .await
@@ -58,7 +57,7 @@ async fn when_notifications_cassette_then_set_config_succeeds() {
     };
 
     client
-        .plugins()
+        .plugins
         .notifications
         .set_config(&config)
         .await

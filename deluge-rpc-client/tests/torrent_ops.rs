@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::CoreTorrentRpc;
 use deluge_rpc_client::models::{SetTorrentOptions, TrackerInfo};
 
 const FIXTURE: &str = "torrent-ops.json";
@@ -14,7 +13,7 @@ async fn when_torrent_ops_cassette_then_get_filter_tree_returns_dict() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .torrents
         .get_filter_tree(true, None)
         .await
@@ -29,7 +28,7 @@ async fn when_torrent_ops_cassette_then_get_session_state_returns_list() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .torrents
         .get_session_state()
         .await
@@ -47,7 +46,7 @@ async fn when_torrent_ops_cassette_then_get_path_size_returns_positive() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .torrents
         .get_path_size("/config")
         .await
@@ -65,14 +64,14 @@ async fn when_torrent_ops_cassette_then_pause_and_resume_torrent_succeed() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .pause_torrent(TORRENT_ID)
         .await
         .expect("core.pause_torrent");
 
     client
-        .core()
+        .core
         .torrents
         .resume_torrent(TORRENT_ID)
         .await
@@ -85,14 +84,14 @@ async fn when_torrent_ops_cassette_then_pause_all_and_resume_all_succeed() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .pause_torrents(None)
         .await
         .expect("core.pause_torrents");
 
     client
-        .core()
+        .core
         .torrents
         .resume_torrents(None)
         .await
@@ -105,7 +104,7 @@ async fn when_torrent_ops_cassette_then_force_reannounce_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .force_reannounce(&[TORRENT_ID.to_owned()])
         .await
@@ -118,7 +117,7 @@ async fn when_torrent_ops_cassette_then_force_recheck_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .force_recheck(&[TORRENT_ID.to_owned()])
         .await
@@ -136,7 +135,7 @@ async fn when_torrent_ops_cassette_then_set_torrent_options_succeeds() {
     };
 
     client
-        .core()
+        .core
         .torrents
         .set_torrent_options(&[TORRENT_ID.to_owned()], &options)
         .await
@@ -149,7 +148,7 @@ async fn when_torrent_ops_cassette_then_connect_peer_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .connect_peer(TORRENT_ID, "127.0.0.1", 6881)
         .await
@@ -162,7 +161,7 @@ async fn when_torrent_ops_cassette_then_move_storage_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .move_storage(&[TORRENT_ID.to_owned()], "/tmp")
         .await
@@ -175,7 +174,7 @@ async fn when_torrent_ops_cassette_then_set_ssl_cert_returns_error() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .torrents
         .set_ssl_torrent_cert(TORRENT_ID, "cert", "key", "dh", true)
         .await;
@@ -197,7 +196,7 @@ async fn when_torrent_ops_cassette_then_set_trackers_succeeds() {
     }];
 
     client
-        .core()
+        .core
         .torrents
         .set_torrent_trackers(TORRENT_ID, &trackers)
         .await
@@ -210,7 +209,7 @@ async fn when_torrent_ops_cassette_then_rename_files_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .rename_files(TORRENT_ID, &[(0, "renamed.txt".to_owned())])
         .await
@@ -223,7 +222,7 @@ async fn when_torrent_ops_cassette_then_rename_folder_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .torrents
         .rename_folder(TORRENT_ID, "old", "new")
         .await
@@ -237,25 +236,25 @@ async fn when_torrent_ops_cassette_then_queue_ops_succeed() {
     let ids = [TORRENT_ID.to_owned()];
 
     client
-        .core()
+        .core
         .torrents
         .queue_top(&ids)
         .await
         .expect("core.queue_top");
     client
-        .core()
+        .core
         .torrents
         .queue_up(&ids)
         .await
         .expect("core.queue_up");
     client
-        .core()
+        .core
         .torrents
         .queue_down(&ids)
         .await
         .expect("core.queue_down");
     client
-        .core()
+        .core
         .torrents
         .queue_bottom(&ids)
         .await

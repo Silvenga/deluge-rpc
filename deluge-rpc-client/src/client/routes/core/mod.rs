@@ -5,9 +5,9 @@ mod plugins;
 mod session;
 mod torrents;
 
-pub use accounts::{CoreAccountClient, CoreAccountRpc};
-pub use config::{CoreConfigClient, CoreConfigRpc};
-pub use misc::{CoreMiscClient, CoreMiscRpc};
-pub use plugins::{CorePluginClient, CorePluginRpc};
-pub use session::{CoreSessionClient, CoreSessionRpc};
-pub use torrents::{CoreTorrentClient, CoreTorrentRpc};
+pub use accounts::CoreAccountClient;
+pub use config::CoreConfigClient;
+pub use misc::CoreMiscClient;
+pub use plugins::CorePluginClient;
+pub use session::CoreSessionClient;
+pub use torrents::CoreTorrentClient;

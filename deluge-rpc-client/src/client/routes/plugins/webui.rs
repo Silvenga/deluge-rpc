@@ -7,16 +7,6 @@ use crate::{RencodeValue, to_rencode_value};
 
 use serde::Deserialize;
 
-/// RPC methods for the `webui.*` namespace.
-pub trait WebUiRpc: Send + Sync {
-    /// Returns `true` if the `deluge-web` module is installed and importable.
-    async fn got_deluge_web(&self) -> Result<bool, DelugeRpcError>;
-    /// Sets the plugin config.
-    async fn set_config(&self, config: &WebUiConfig) -> Result<(), DelugeRpcError>;
-    /// Returns the plugin config.
-    async fn get_config(&self) -> Result<WebUiConfig, DelugeRpcError>;
-}
-
 /// Client for `webui.*` RPC methods.
 pub struct WebUiClient {
     dispatcher: DelugeClientDispatcher,
@@ -36,8 +26,9 @@ impl Clone for WebUiClient {
     }
 }
 
-impl WebUiRpc for WebUiClient {
-    async fn got_deluge_web(&self) -> Result<bool, DelugeRpcError> {
+impl WebUiClient {
+    /// Returns `true` if the `deluge-web` module is installed and importable.
+    pub async fn got_deluge_web(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("webui.got_deluge_web"))
@@ -51,16 +42,16 @@ impl WebUiRpc for WebUiClient {
             }),
         }
     }
-
-    async fn set_config(&self, config: &WebUiConfig) -> Result<(), DelugeRpcError> {
+    /// Sets the plugin config.
+    pub async fn set_config(&self, config: &WebUiConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("webui.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
-
-    async fn get_config(&self) -> Result<WebUiConfig, DelugeRpcError> {
+    /// Returns the plugin config.
+    pub async fn get_config(&self) -> Result<WebUiConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("webui.get_config"))

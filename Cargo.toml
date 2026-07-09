@@ -41,12 +41,6 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt"] }
 [workspace.lints.rust]
 missing_docs = "warn"
 
-# Native async fn in traits can't express a `Send` bound on the returned
-# future in the trait signature. All impls are Send (Arc-backed dispatcher),
-# so the guarantee holds at the impl level. Using #[async_trait] would regress
-# docs back to Pin<Box<dyn Future>>.
-async_fn_in_trait = "allow"
-
 [workspace.lints.clippy]
 allow_attributes = "warn"
 allow_attributes_without_reason = "warn"

@@ -7,34 +7,6 @@ use crate::{RencodeValue, to_rencode_value};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for the `autoadd.*` namespace.
-pub trait AutoAddRpc: Send + Sync {
-    /// Updates the options for an existing watch folder.
-    async fn set_options(
-        &self,
-        watch_dir_id: WatchDirId,
-        options: &WatchDirOptions,
-    ) -> Result<(), DelugeRpcError>;
-    /// Enables a watch folder - starts polling for new .torrent files.
-    async fn enable_watch_dir(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
-    /// Disables a watch folder - stops polling.
-    async fn disable_watch_dir(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
-    /// Sets the plugin config.
-    async fn set_config(&self, config: &AutoAddConfig) -> Result<(), DelugeRpcError>;
-    /// Returns the plugin config.
-    async fn get_config(&self) -> Result<AutoAddConfig, DelugeRpcError>;
-    /// Returns all watch folders.
-    async fn get_watch_dirs(&self) -> Result<BTreeMap<String, WatchDirOptions>, DelugeRpcError>;
-    /// Creates a new watch folder with the given options. Returns the numeric ID of the new watchdir.
-    async fn add(&self, options: Option<WatchDirOptions>) -> Result<WatchDirId, DelugeRpcError>;
-    /// Removes a watch folder.
-    async fn remove(&self, watch_dir_id: WatchDirId) -> Result<(), DelugeRpcError>;
-    /// Returns `true` if the current session has admin auth level.
-    async fn is_admin_level(&self) -> Result<bool, DelugeRpcError>;
-    /// Returns the username of the current session.
-    async fn get_auth_user(&self) -> Result<String, DelugeRpcError>;
-}
-
 /// Client for `autoadd.*` RPC methods.
 pub struct AutoAddClient {
     dispatcher: DelugeClientDispatcher,
@@ -54,8 +26,9 @@ impl Clone for AutoAddClient {
     }
 }
 
-impl AutoAddRpc for AutoAddClient {
-    async fn set_options(
+impl AutoAddClient {
+    /// Updates the options for an existing watch folder.
+    pub async fn set_options(
         &self,
         watch_dir_id: WatchDirId,
         options: &WatchDirOptions,
@@ -69,8 +42,8 @@ impl AutoAddRpc for AutoAddClient {
             .await?;
         Ok(())
     }
-
-    async fn enable_watch_dir(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
+    /// Enables a watch folder - starts polling for new .torrent files.
+    pub async fn enable_watch_dir(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("autoadd.enable_watchdir")
@@ -79,8 +52,8 @@ impl AutoAddRpc for AutoAddClient {
             .await?;
         Ok(())
     }
-
-    async fn disable_watch_dir(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
+    /// Disables a watch folder - stops polling.
+    pub async fn disable_watch_dir(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("autoadd.disable_watchdir")
@@ -89,16 +62,16 @@ impl AutoAddRpc for AutoAddClient {
             .await?;
         Ok(())
     }
-
-    async fn set_config(&self, config: &AutoAddConfig) -> Result<(), DelugeRpcError> {
+    /// Sets the plugin config.
+    pub async fn set_config(&self, config: &AutoAddConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
-
-    async fn get_config(&self) -> Result<AutoAddConfig, DelugeRpcError> {
+    /// Returns the plugin config.
+    pub async fn get_config(&self) -> Result<AutoAddConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.get_config"))
@@ -106,8 +79,10 @@ impl AutoAddRpc for AutoAddClient {
         let value = extract_single(&result)?;
         Ok(AutoAddConfig::deserialize(&value)?)
     }
-
-    async fn get_watch_dirs(&self) -> Result<BTreeMap<String, WatchDirOptions>, DelugeRpcError> {
+    /// Returns all watch folders.
+    pub async fn get_watch_dirs(
+        &self,
+    ) -> Result<BTreeMap<String, WatchDirOptions>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.get_watchdirs"))
@@ -115,8 +90,11 @@ impl AutoAddRpc for AutoAddClient {
         let value = extract_single(&result)?;
         Ok(BTreeMap::<String, WatchDirOptions>::deserialize(&value)?)
     }
-
-    async fn add(&self, options: Option<WatchDirOptions>) -> Result<WatchDirId, DelugeRpcError> {
+    /// Creates a new watch folder with the given options. Returns the numeric ID of the new watchdir.
+    pub async fn add(
+        &self,
+        options: Option<WatchDirOptions>,
+    ) -> Result<WatchDirId, DelugeRpcError> {
         let args = match options {
             Some(opts) => vec![to_rencode_value(&opts)?],
             None => vec![RencodeValue::None],
@@ -128,8 +106,8 @@ impl AutoAddRpc for AutoAddClient {
         let id = extract_single_int(&result, "autoadd.add")?;
         Ok(id)
     }
-
-    async fn remove(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
+    /// Removes a watch folder.
+    pub async fn remove(&self, watchdir_id: WatchDirId) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(
                 DelugeRpcRequest::new("autoadd.remove")
@@ -138,8 +116,8 @@ impl AutoAddRpc for AutoAddClient {
             .await?;
         Ok(())
     }
-
-    async fn is_admin_level(&self) -> Result<bool, DelugeRpcError> {
+    /// Returns `true` if the current session has admin auth level.
+    pub async fn is_admin_level(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.is_admin_level"))
@@ -153,8 +131,8 @@ impl AutoAddRpc for AutoAddClient {
             }),
         }
     }
-
-    async fn get_auth_user(&self) -> Result<String, DelugeRpcError> {
+    /// Returns the username of the current session.
+    pub async fn get_auth_user(&self) -> Result<String, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("autoadd.get_auth_user"))

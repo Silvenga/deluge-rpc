@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::AutoAddRpc;
 use deluge_rpc_client::models::{AutoAddConfig, WatchDirOptions};
 
 const FIXTURE: &str = "autoadd.json";
@@ -13,7 +12,7 @@ async fn when_autoadd_cassette_then_get_config_returns_dict() {
     let client = common::build_client(&server).await;
 
     let config = client
-        .plugins()
+        .plugins
         .auto_add
         .get_config()
         .await
@@ -28,7 +27,7 @@ async fn when_autoadd_cassette_then_get_watchdirs_returns_map() {
     let client = common::build_client(&server).await;
 
     let dirs = client
-        .plugins()
+        .plugins
         .auto_add
         .get_watch_dirs()
         .await
@@ -43,7 +42,7 @@ async fn when_autoadd_cassette_then_is_admin_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .plugins()
+        .plugins
         .auto_add
         .is_admin_level()
         .await
@@ -61,7 +60,7 @@ async fn when_autoadd_cassette_then_get_auth_user_returns_string() {
     let client = common::build_client(&server).await;
 
     let user = client
-        .plugins()
+        .plugins
         .auto_add
         .get_auth_user()
         .await
@@ -81,7 +80,7 @@ async fn when_autoadd_cassette_then_set_config_succeeds() {
     };
 
     client
-        .plugins()
+        .plugins
         .auto_add
         .set_config(&config)
         .await
@@ -93,7 +92,7 @@ async fn when_autoadd_cassette_then_enable_watchdir_returns_error_for_invalid_id
     let server = common::start_replay(common::load_fixture(FIXTURE)).await;
     let client = common::build_client(&server).await;
 
-    let result = client.plugins().auto_add.enable_watch_dir(1).await;
+    let result = client.plugins.auto_add.enable_watch_dir(1).await;
     assert!(
         result.is_err(),
         "enable_watchdir should fail for non-existent watchdir"
@@ -105,7 +104,7 @@ async fn when_autoadd_cassette_then_disable_watchdir_returns_error_for_invalid_i
     let server = common::start_replay(common::load_fixture(FIXTURE)).await;
     let client = common::build_client(&server).await;
 
-    let result = client.plugins().auto_add.disable_watch_dir(1).await;
+    let result = client.plugins.auto_add.disable_watch_dir(1).await;
     assert!(
         result.is_err(),
         "disable_watchdir should fail for non-existent watchdir"
@@ -117,7 +116,7 @@ async fn when_autoadd_cassette_then_remove_returns_error_for_invalid_id() {
     let server = common::start_replay(common::load_fixture(FIXTURE)).await;
     let client = common::build_client(&server).await;
 
-    let result = client.plugins().auto_add.remove(1).await;
+    let result = client.plugins.auto_add.remove(1).await;
     assert!(
         result.is_err(),
         "remove should fail for non-existent watchdir"
@@ -129,7 +128,7 @@ async fn when_autoadd_cassette_then_add_returns_error() {
     let server = common::start_replay(common::load_fixture(FIXTURE)).await;
     let client = common::build_client(&server).await;
 
-    let result = client.plugins().auto_add.add(None).await;
+    let result = client.plugins.auto_add.add(None).await;
     assert!(result.is_err(), "add should fail against cassette");
 }
 
@@ -143,7 +142,7 @@ async fn when_autoadd_cassette_then_set_options_returns_error() {
         ..Default::default()
     };
 
-    let result = client.plugins().auto_add.set_options(1, &options).await;
+    let result = client.plugins.auto_add.set_options(1, &options).await;
     assert!(
         result.is_err(),
         "set_options should fail for non-existent watchdir"

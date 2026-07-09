@@ -22,7 +22,7 @@ an error. The next call will attempt to connect and login using a new connection
 All models are re-exported from [`deluge-rpc-models`](https://crates.io/crates/deluge-rpc-models).
 
 ```rust
-use deluge_rpc_client::{models::FilterDict, CoreTorrentRpc, DelugeClientBuilder};
+use deluge_rpc_client::{DelugeClientBuilder, models::FilterDict};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -39,7 +39,7 @@ async fn main() -> anyhow::Result<()> {
     // List all torrents. An empty FilterDict returns every torrent.
     // The `CoreTorrentRpc` trait must be in scope for typed torrent methods.
     let entries = client
-        .core()
+        .core
         .torrents
         .get_torrents_status(&FilterDict::default(), &[], false)
         .await?;
@@ -74,6 +74,7 @@ the `.call(...)` fn to make RPC calls directly.
 
 ```rust
 use deluge_rpc_client::{DelugeClientBuilder, DelugeRpcRequest, RencodeValue};
+use std::collections::BTreeMap;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -83,7 +84,7 @@ async fn main() -> anyhow::Result<()> {
         "localclient",
         "password",
     )
-        .build();
+    .build();
 
     // Call a plugin-provided method not covered by the typed API.
     // Args are positional (a Vec<RencodeValue>), kwargs are keyed. Both are optional.

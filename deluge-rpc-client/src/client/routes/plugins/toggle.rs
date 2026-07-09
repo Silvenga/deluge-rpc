@@ -3,14 +3,6 @@ use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::{DelugeRpcRequest, extract_single};
 
-/// RPC methods for the `toggle.*` namespace.
-pub trait ToggleRpc: Send + Sync {
-    /// Returns `true` if the session is paused.
-    async fn get_status(&self) -> Result<bool, DelugeRpcError>;
-    /// Toggles the session between paused and running. Returns the new paused state.
-    async fn toggle(&self) -> Result<bool, DelugeRpcError>;
-}
-
 /// Client for `toggle.*` RPC methods.
 pub struct ToggleClient {
     dispatcher: DelugeClientDispatcher,
@@ -30,8 +22,9 @@ impl Clone for ToggleClient {
     }
 }
 
-impl ToggleRpc for ToggleClient {
-    async fn get_status(&self) -> Result<bool, DelugeRpcError> {
+impl ToggleClient {
+    /// Returns `true` if the session is paused.
+    pub async fn get_status(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("toggle.get_status"))
@@ -45,8 +38,8 @@ impl ToggleRpc for ToggleClient {
             }),
         }
     }
-
-    async fn toggle(&self) -> Result<bool, DelugeRpcError> {
+    /// Toggles the session between paused and running. Returns the new paused state.
+    pub async fn toggle(&self) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("toggle.toggle"))

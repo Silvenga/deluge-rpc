@@ -91,7 +91,6 @@ mod tests {
     use crate::{
         Cassette, Interaction, InteractionRequest, InteractionResponse as CassetteResponse,
     };
-    use deluge_rpc_client::DaemonRpc;
     use deluge_rpc_client::DelugeClientBuilder;
     use deluge_rpc_client::RencodeValue;
 
@@ -133,7 +132,7 @@ mod tests {
         )
         .build();
 
-        let result = client.daemon().info().await;
+        let result = client.daemon.info().await;
         assert!(result.is_ok(), "daemon.info should succeed: {result:?}");
     }
 
@@ -162,7 +161,7 @@ mod tests {
         )
         .build();
 
-        let result = client.daemon().get_version().await;
+        let result = client.daemon.get_version().await;
         assert!(
             result.is_ok(),
             "first call (fallback) should succeed: {result:?}"
@@ -188,10 +187,10 @@ mod tests {
         )
         .build();
 
-        let first = client.daemon().info().await;
+        let first = client.daemon.info().await;
         assert!(first.is_ok(), "first call should succeed: {first:?}");
 
-        let second = client.daemon().info().await;
+        let second = client.daemon.info().await;
         assert!(
             second.is_err(),
             "second call should fail (consumed): {second:?}"
@@ -223,7 +222,7 @@ mod tests {
         )
         .build();
 
-        let result = client.daemon().info().await;
+        let result = client.daemon.info().await;
         assert!(result.is_err(), "should receive error: {result:?}");
         let err_msg = format!("{result:?}");
         assert!(
@@ -246,7 +245,7 @@ mod tests {
         )
         .build();
 
-        let version = client.daemon().get_version().await;
+        let version = client.daemon.get_version().await;
         assert!(
             version.is_err(),
             "calling non-existent method should fail, got: {version:?}"
@@ -272,7 +271,7 @@ mod tests {
         )
         .build();
 
-        let result = client.daemon().info().await;
+        let result = client.daemon.info().await;
         assert!(result.is_err(), "unknown method should error: {result:?}");
         let err_msg = format!("{result:?}");
         assert!(

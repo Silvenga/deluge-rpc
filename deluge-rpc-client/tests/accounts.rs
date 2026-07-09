@@ -2,8 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::CoreAccountRpc;
-
 const FIXTURE: &str = "accounts.json";
 
 #[tokio::test(flavor = "multi_thread")]
@@ -12,7 +10,7 @@ async fn when_accounts_cassette_then_get_known_accounts_returns_list() {
     let client = common::build_client(&server).await;
 
     let accounts = client
-        .core()
+        .core
         .accounts
         .get_known_accounts()
         .await
@@ -30,7 +28,7 @@ async fn when_accounts_cassette_then_get_auth_levels_mappings_returns_tuple() {
     let client = common::build_client(&server).await;
 
     let (name_to_int, int_to_name) = client
-        .core()
+        .core
         .accounts
         .get_auth_levels_mappings()
         .await
@@ -52,7 +50,7 @@ async fn when_accounts_cassette_then_create_account_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .accounts
         .create_account("testuser", "testpass", "NORMAL")
         .await
@@ -67,7 +65,7 @@ async fn when_accounts_cassette_then_update_account_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .accounts
         .update_account("testuser", "newpass", "ADMIN")
         .await
@@ -82,7 +80,7 @@ async fn when_accounts_cassette_then_remove_account_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .accounts
         .remove_account("testuser")
         .await

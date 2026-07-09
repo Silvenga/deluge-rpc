@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::ExecuteRpc;
 use deluge_rpc_client::models::ExecuteEvent;
 
 const FIXTURE: &str = "execute.json";
@@ -13,7 +12,7 @@ async fn when_execute_cassette_then_get_commands_returns_list() {
     let client = common::build_client(&server).await;
 
     let commands = client
-        .plugins()
+        .plugins
         .execute
         .get_commands()
         .await
@@ -31,7 +30,7 @@ async fn when_execute_cassette_then_add_command_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .plugins()
+        .plugins
         .execute
         .add_command(&ExecuteEvent::Complete, "echo done")
         .await
@@ -44,7 +43,7 @@ async fn when_execute_cassette_then_save_command_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .plugins()
+        .plugins
         .execute
         .save_command("abc123", &ExecuteEvent::Added, "echo hello")
         .await
@@ -57,7 +56,7 @@ async fn when_execute_cassette_then_remove_command_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .plugins()
+        .plugins
         .execute
         .remove_command("abc123")
         .await

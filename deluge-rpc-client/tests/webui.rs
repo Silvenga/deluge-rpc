@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::WebUiRpc;
 use deluge_rpc_client::models::WebUiConfig;
 
 const FIXTURE: &str = "webui.json";
@@ -13,7 +12,7 @@ async fn when_webui_cassette_then_get_config_returns_dict() {
     let client = common::build_client(&server).await;
 
     let config = client
-        .plugins()
+        .plugins
         .webui
         .get_config()
         .await
@@ -29,7 +28,7 @@ async fn when_webui_cassette_then_got_deluge_web_returns_bool() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .plugins()
+        .plugins
         .webui
         .got_deluge_web()
         .await
@@ -52,7 +51,7 @@ async fn when_webui_cassette_then_set_config_returns_error_for_port_in_use() {
         port: 8112,
     };
 
-    let result = client.plugins().webui.set_config(&config).await;
+    let result = client.plugins.webui.set_config(&config).await;
     assert!(
         result.is_err(),
         "set_config should fail when port is already in use"

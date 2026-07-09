@@ -1,11 +1,8 @@
 use clap::Subcommand;
+use deluge_rpc_client::DelugeClient;
 use deluge_rpc_client::models::{
     AutoAddConfig, BlocklistConfig, ExecuteEvent, ExtractorConfig, LabelConfig, LabelOptions,
     NotificationsConfig, SchedulerConfig, StatsConfig, WatchDirOptions, WebUiConfig,
-};
-use deluge_rpc_client::{
-    AutoAddRpc, BlocklistRpc, DelugeClient, ExecuteRpc, ExtractorRpc, LabelRpc, NotificationsRpc,
-    SchedulerRpc, StatsRpc, ToggleRpc, WebUiRpc,
 };
 
 /// Plugin RPC methods. Plugin methods only exist when the plugin is enabled.
@@ -77,25 +74,25 @@ impl LabelCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             LabelCommand::List => {
-                let labels = client.plugins().label.get_labels().await?;
+                let labels = client.plugins.label.get_labels().await?;
                 Ok(serde_json::to_string_pretty(&labels)?)
             }
             LabelCommand::Add { id } => {
-                client.plugins().label.add(id).await?;
+                client.plugins.label.add(id).await?;
                 Ok(format!("Label '{id}' added."))
             }
             LabelCommand::Remove { id } => {
-                client.plugins().label.remove(id).await?;
+                client.plugins.label.remove(id).await?;
                 Ok(format!("Label '{id}' removed."))
             }
             LabelCommand::SetOptions { id, json } => {
                 let options: LabelOptions = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse options: {e}"))?;
-                client.plugins().label.set_options(id, &options).await?;
+                client.plugins.label.set_options(id, &options).await?;
                 Ok("Options set.".to_owned())
             }
             LabelCommand::GetOptions { id } => {
-                let options = client.plugins().label.get_options(id).await?;
+                let options = client.plugins.label.get_options(id).await?;
                 Ok(serde_json::to_string_pretty(&options)?)
             }
             LabelCommand::SetTorrent {
@@ -103,20 +100,20 @@ impl LabelCommand {
                 label_id,
             } => {
                 client
-                    .plugins()
+                    .plugins
                     .label
                     .set_torrent(torrent_id, label_id)
                     .await?;
                 Ok("Label set on torrent.".to_owned())
             }
             LabelCommand::GetConfig => {
-                let config = client.plugins().label.get_config().await?;
+                let config = client.plugins.label.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             LabelCommand::SetConfig { json } => {
                 let config: LabelConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().label.set_config(&config).await?;
+                client.plugins.label.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
         }
@@ -151,17 +148,17 @@ impl AutoAddCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             AutoAddCommand::GetConfig => {
-                let config = client.plugins().auto_add.get_config().await?;
+                let config = client.plugins.auto_add.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             AutoAddCommand::SetConfig { json } => {
                 let config: AutoAddConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().auto_add.set_config(&config).await?;
+                client.plugins.auto_add.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
             AutoAddCommand::GetWatchdirs => {
-                let dirs = client.plugins().auto_add.get_watch_dirs().await?;
+                let dirs = client.plugins.auto_add.get_watch_dirs().await?;
                 Ok(serde_json::to_string_pretty(&dirs)?)
             }
             AutoAddCommand::Add { json } => {
@@ -172,33 +169,33 @@ impl AutoAddCommand {
                     ),
                     None => None,
                 };
-                let id = client.plugins().auto_add.add(options).await?;
+                let id = client.plugins.auto_add.add(options).await?;
                 Ok(serde_json::to_string_pretty(&id)?)
             }
             AutoAddCommand::Remove { id } => {
-                client.plugins().auto_add.remove(*id).await?;
+                client.plugins.auto_add.remove(*id).await?;
                 Ok("Watchdir removed.".to_owned())
             }
             AutoAddCommand::EnableWatchdir { id } => {
-                client.plugins().auto_add.enable_watch_dir(*id).await?;
+                client.plugins.auto_add.enable_watch_dir(*id).await?;
                 Ok("Watchdir enabled.".to_owned())
             }
             AutoAddCommand::DisableWatchdir { id } => {
-                client.plugins().auto_add.disable_watch_dir(*id).await?;
+                client.plugins.auto_add.disable_watch_dir(*id).await?;
                 Ok("Watchdir disabled.".to_owned())
             }
             AutoAddCommand::SetOptions { id, json } => {
                 let options: WatchDirOptions = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse options: {e}"))?;
-                client.plugins().auto_add.set_options(*id, &options).await?;
+                client.plugins.auto_add.set_options(*id, &options).await?;
                 Ok("Options set.".to_owned())
             }
             AutoAddCommand::IsAdmin => {
-                let result = client.plugins().auto_add.is_admin_level().await?;
+                let result = client.plugins.auto_add.is_admin_level().await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             AutoAddCommand::GetAuthUser => {
-                let result = client.plugins().auto_add.get_auth_user().await?;
+                let result = client.plugins.auto_add.get_auth_user().await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
         }
@@ -224,21 +221,21 @@ impl BlocklistCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             BlocklistCommand::CheckImport { force } => {
-                let result = client.plugins().blocklist.check_import(*force).await?;
+                let result = client.plugins.blocklist.check_import(*force).await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             BlocklistCommand::GetConfig => {
-                let config = client.plugins().blocklist.get_config().await?;
+                let config = client.plugins.blocklist.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             BlocklistCommand::SetConfig { json } => {
                 let config: BlocklistConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().blocklist.set_config(&config).await?;
+                client.plugins.blocklist.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
             BlocklistCommand::GetStatus => {
-                let status = client.plugins().blocklist.get_status().await?;
+                let status = client.plugins.blocklist.get_status().await?;
                 Ok(serde_json::to_string_pretty(&status)?)
             }
         }
@@ -266,21 +263,21 @@ impl ExecuteCommand {
         match self {
             ExecuteCommand::AddCommand { event, command } => {
                 let evt = parse_execute_event(event)?;
-                client.plugins().execute.add_command(&evt, command).await?;
+                client.plugins.execute.add_command(&evt, command).await?;
                 Ok("Command added.".to_owned())
             }
             ExecuteCommand::GetCommands => {
-                let commands = client.plugins().execute.get_commands().await?;
+                let commands = client.plugins.execute.get_commands().await?;
                 Ok(serde_json::to_string_pretty(&commands)?)
             }
             ExecuteCommand::RemoveCommand { id } => {
-                client.plugins().execute.remove_command(id).await?;
+                client.plugins.execute.remove_command(id).await?;
                 Ok("Command removed.".to_owned())
             }
             ExecuteCommand::SaveCommand { id, event, command } => {
                 let evt = parse_execute_event(event)?;
                 client
-                    .plugins()
+                    .plugins
                     .execute
                     .save_command(id, &evt, command)
                     .await?;
@@ -302,13 +299,13 @@ impl ExtractorCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             ExtractorCommand::GetConfig => {
-                let config = client.plugins().extractor.get_config().await?;
+                let config = client.plugins.extractor.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             ExtractorCommand::SetConfig { json } => {
                 let config: ExtractorConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().extractor.set_config(&config).await?;
+                client.plugins.extractor.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
         }
@@ -329,17 +326,17 @@ impl NotificationsCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             NotificationsCommand::GetConfig => {
-                let config = client.plugins().notifications.get_config().await?;
+                let config = client.plugins.notifications.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             NotificationsCommand::SetConfig { json } => {
                 let config: NotificationsConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().notifications.set_config(&config).await?;
+                client.plugins.notifications.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
             NotificationsCommand::GetHandledEvents => {
-                let events = client.plugins().notifications.get_handled_events().await?;
+                let events = client.plugins.notifications.get_handled_events().await?;
                 Ok(serde_json::to_string_pretty(&events)?)
             }
         }
@@ -360,17 +357,17 @@ impl SchedulerCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             SchedulerCommand::GetConfig => {
-                let config = client.plugins().scheduler.get_config().await?;
+                let config = client.plugins.scheduler.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             SchedulerCommand::SetConfig { json } => {
                 let config: SchedulerConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().scheduler.set_config(&config).await?;
+                client.plugins.scheduler.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
             SchedulerCommand::GetState => {
-                let state = client.plugins().scheduler.get_state().await?;
+                let state = client.plugins.scheduler.get_state().await?;
                 Ok(serde_json::to_string_pretty(&state)?)
             }
         }
@@ -400,32 +397,32 @@ impl StatsCommand {
                 let keys_list: Vec<String> = serde_json::from_str(keys)
                     .map_err(|e| anyhow::anyhow!("failed to parse keys: {e}"))?;
                 let result = client
-                    .plugins()
+                    .plugins
                     .stats
                     .get_stats(&keys_list, *interval)
                     .await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             StatsCommand::GetTotals => {
-                let totals = client.plugins().stats.get_totals().await?;
+                let totals = client.plugins.stats.get_totals().await?;
                 Ok(serde_json::to_string_pretty(&totals)?)
             }
             StatsCommand::GetSessionTotals => {
-                let totals = client.plugins().stats.get_session_totals().await?;
+                let totals = client.plugins.stats.get_session_totals().await?;
                 Ok(serde_json::to_string_pretty(&totals)?)
             }
             StatsCommand::GetConfig => {
-                let config = client.plugins().stats.get_config().await?;
+                let config = client.plugins.stats.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             StatsCommand::SetConfig { json } => {
                 let config: StatsConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().stats.set_config(&config).await?;
+                client.plugins.stats.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
             StatsCommand::GetIntervals => {
-                let intervals = client.plugins().stats.get_intervals().await?;
+                let intervals = client.plugins.stats.get_intervals().await?;
                 Ok(serde_json::to_string_pretty(&intervals)?)
             }
         }
@@ -444,11 +441,11 @@ impl ToggleCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             ToggleCommand::GetStatus => {
-                let status = client.plugins().toggle.get_status().await?;
+                let status = client.plugins.toggle.get_status().await?;
                 Ok(serde_json::to_string_pretty(&status)?)
             }
             ToggleCommand::Toggle => {
-                let result = client.plugins().toggle.toggle().await?;
+                let result = client.plugins.toggle.toggle().await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
         }
@@ -469,17 +466,17 @@ impl WebUiCommand {
     pub async fn run(&self, client: &DelugeClient) -> anyhow::Result<String> {
         match self {
             WebUiCommand::GotDelugeWeb => {
-                let result = client.plugins().webui.got_deluge_web().await?;
+                let result = client.plugins.webui.got_deluge_web().await?;
                 Ok(serde_json::to_string_pretty(&result)?)
             }
             WebUiCommand::GetConfig => {
-                let config = client.plugins().webui.get_config().await?;
+                let config = client.plugins.webui.get_config().await?;
                 Ok(serde_json::to_string_pretty(&config)?)
             }
             WebUiCommand::SetConfig { json } => {
                 let config: WebUiConfig = serde_json::from_str(json)
                     .map_err(|e| anyhow::anyhow!("failed to parse config: {e}"))?;
-                client.plugins().webui.set_config(&config).await?;
+                client.plugins.webui.set_config(&config).await?;
                 Ok("Config set.".to_owned())
             }
         }

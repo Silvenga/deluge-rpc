@@ -6,16 +6,6 @@ use crate::to_rencode_value;
 
 use serde::Deserialize;
 
-/// RPC methods for the `notifications.*` namespace.
-pub trait NotificationsRpc: Send + Sync {
-    /// Sets the plugin config.
-    async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError>;
-    /// Returns the plugin config.
-    async fn get_config(&self) -> Result<NotificationsConfig, DelugeRpcError>;
-    /// Returns events that the plugin can handle.
-    async fn get_handled_events(&self) -> Result<Vec<HandledEvent>, DelugeRpcError>;
-}
-
 /// Client for `notifications.*` RPC methods.
 pub struct NotificationsClient {
     dispatcher: DelugeClientDispatcher,
@@ -35,8 +25,9 @@ impl Clone for NotificationsClient {
     }
 }
 
-impl NotificationsRpc for NotificationsClient {
-    async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError> {
+impl NotificationsClient {
+    /// Sets the plugin config.
+    pub async fn set_config(&self, config: &NotificationsConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(
@@ -45,8 +36,8 @@ impl NotificationsRpc for NotificationsClient {
             .await?;
         Ok(())
     }
-
-    async fn get_config(&self) -> Result<NotificationsConfig, DelugeRpcError> {
+    /// Returns the plugin config.
+    pub async fn get_config(&self) -> Result<NotificationsConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("notifications.get_config"))
@@ -54,8 +45,8 @@ impl NotificationsRpc for NotificationsClient {
         let value = extract_single(&result)?;
         Ok(NotificationsConfig::deserialize(&value)?)
     }
-
-    async fn get_handled_events(&self) -> Result<Vec<HandledEvent>, DelugeRpcError> {
+    /// Returns events that the plugin can handle.
+    pub async fn get_handled_events(&self) -> Result<Vec<HandledEvent>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("notifications.get_handled_events"))

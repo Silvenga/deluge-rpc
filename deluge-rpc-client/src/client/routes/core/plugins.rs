@@ -4,22 +4,6 @@ use crate::client::dispatcher::DelugeClientDispatcher;
 use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 
-/// RPC methods for the `core.*` plugin namespace.
-pub trait CorePluginRpc: Send + Sync {
-    /// Returns names of all plugins available on the daemon.
-    async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;
-    /// Returns names of currently enabled plugins.
-    async fn get_enabled_plugins(&self) -> Result<Vec<String>, DelugeRpcError>;
-    /// Enables a plugin. Returns `true` on success or if already enabled.
-    async fn enable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError>;
-    /// Disables a plugin. Returns `true` on success or if already disabled.
-    async fn disable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError>;
-    /// Uploads and installs a new plugin from base64-encoded data.
-    async fn upload_plugin(&self, filename: &str, file_dump: &str) -> Result<(), DelugeRpcError>;
-    /// Rescans the plugin folders for newly installed plugins.
-    async fn rescan_plugins(&self) -> Result<(), DelugeRpcError>;
-}
-
 /// Client for `core.*` plugin RPC methods.
 pub struct CorePluginClient {
     dispatcher: DelugeClientDispatcher,
@@ -39,8 +23,9 @@ impl Clone for CorePluginClient {
     }
 }
 
-impl CorePluginRpc for CorePluginClient {
-    async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError> {
+impl CorePluginClient {
+    /// Returns names of all plugins available on the daemon.
+    pub async fn get_available_plugins(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_available_plugins"))
@@ -69,8 +54,8 @@ impl CorePluginRpc for CorePluginClient {
             }),
         }
     }
-
-    async fn get_enabled_plugins(&self) -> Result<Vec<String>, DelugeRpcError> {
+    /// Returns names of currently enabled plugins.
+    pub async fn get_enabled_plugins(&self) -> Result<Vec<String>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_enabled_plugins"))
@@ -98,8 +83,8 @@ impl CorePluginRpc for CorePluginClient {
             }),
         }
     }
-
-    async fn enable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError> {
+    /// Enables a plugin. Returns `true` on success or if already enabled.
+    pub async fn enable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
@@ -116,8 +101,8 @@ impl CorePluginRpc for CorePluginClient {
             }),
         }
     }
-
-    async fn disable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError> {
+    /// Disables a plugin. Returns `true` on success or if already disabled.
+    pub async fn disable_plugin(&self, plugin: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
@@ -134,8 +119,12 @@ impl CorePluginRpc for CorePluginClient {
             }),
         }
     }
-
-    async fn upload_plugin(&self, filename: &str, filedump: &str) -> Result<(), DelugeRpcError> {
+    /// Uploads and installs a new plugin from base64-encoded data.
+    pub async fn upload_plugin(
+        &self,
+        filename: &str,
+        filedump: &str,
+    ) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.upload_plugin").with_args(vec![
                 RencodeValue::Str(filename.to_owned()),
@@ -144,8 +133,8 @@ impl CorePluginRpc for CorePluginClient {
             .await?;
         Ok(())
     }
-
-    async fn rescan_plugins(&self) -> Result<(), DelugeRpcError> {
+    /// Rescans the plugin folders for newly installed plugins.
+    pub async fn rescan_plugins(&self) -> Result<(), DelugeRpcError> {
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("core.rescan_plugins"))
             .await?;

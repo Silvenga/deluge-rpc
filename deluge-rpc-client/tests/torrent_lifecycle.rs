@@ -1,6 +1,6 @@
 //! E2e tests for torrent lifecycle RPC methods against a cassette replay server.
 
-use deluge_rpc_client::{CoreTorrentRpc, DelugeClientBuilder};
+use deluge_rpc_client::DelugeClientBuilder;
 use deluge_rpc_mock::{Cassette, Matcher, ReplayServer};
 use std::fs;
 use std::path::PathBuf;
@@ -37,7 +37,7 @@ async fn when_torrent_lifecycle_cassette_then_get_torrent_status_returns_name() 
     .build();
 
     let status = client
-        .core()
+        .core
         .torrents
         .get_torrent_status(
             TORRENT_ID,
@@ -64,7 +64,7 @@ async fn when_torrent_lifecycle_cassette_then_get_magnet_uri_returns_uri() {
     .build();
 
     let magnet_uri = client
-        .core()
+        .core
         .torrents
         .get_magnet_uri(TORRENT_ID)
         .await
@@ -93,7 +93,7 @@ async fn when_torrent_lifecycle_cassette_then_remove_torrent_returns_true() {
     .build();
 
     let result = client
-        .core()
+        .core
         .torrents
         .remove_torrent(TORRENT_ID, true)
         .await

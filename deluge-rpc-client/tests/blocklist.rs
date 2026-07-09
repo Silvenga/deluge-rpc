@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::BlocklistRpc;
 use deluge_rpc_client::models::BlocklistConfig;
 
 const FIXTURE: &str = "blocklist.json";
@@ -13,7 +12,7 @@ async fn when_blocklist_cassette_then_get_config_returns_dict() {
     let client = common::build_client(&server).await;
 
     let config = client
-        .plugins()
+        .plugins
         .blocklist
         .get_config()
         .await
@@ -28,7 +27,7 @@ async fn when_blocklist_cassette_then_get_status_returns_dict() {
     let client = common::build_client(&server).await;
 
     let status = client
-        .plugins()
+        .plugins
         .blocklist
         .get_status()
         .await
@@ -56,7 +55,7 @@ async fn when_blocklist_cassette_then_set_config_succeeds() {
     };
 
     client
-        .plugins()
+        .plugins
         .blocklist
         .set_config(&config)
         .await
@@ -69,7 +68,7 @@ async fn when_blocklist_cassette_then_check_import_returns_none() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .plugins()
+        .plugins
         .blocklist
         .check_import(true)
         .await

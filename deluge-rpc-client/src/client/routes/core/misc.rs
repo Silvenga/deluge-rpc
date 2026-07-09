@@ -7,36 +7,6 @@ use crate::protocol::{DelugeRpcRequest, extract_single};
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for the `core.*` misc namespace.
-pub trait CoreMiscRpc: Send + Sync {
-    /// Creates a torrent file from `path`. Returns `(filename, filedump)`.
-    #[expect(
-        clippy::too_many_arguments,
-        reason = "create_torrent has many optional params per Deluge API"
-    )]
-    async fn create_torrent(
-        &self,
-        path: &str,
-        tracker: &str,
-        piece_length: i64,
-        comment: Option<String>,
-        target: Option<String>,
-        web_seeds: Option<Vec<String>>,
-        private: bool,
-        created_by: Option<String>,
-        trackers: Option<Vec<Vec<String>>>,
-        add_to_session: bool,
-    ) -> Result<CreateTorrentResult, DelugeRpcError>;
-    /// Returns filesystem paths matching the glob pattern.
-    async fn glob(&self, path: &str) -> Result<GlobResult, DelugeRpcError>;
-    /// Returns path completions for a partial path input.
-    async fn get_completion_paths(
-        &self,
-        completion_text: &str,
-        show_hidden_files: bool,
-    ) -> Result<CompletionPaths, DelugeRpcError>;
-}
-
 /// Client for `core.*` misc RPC methods.
 pub struct CoreMiscClient {
     dispatcher: DelugeClientDispatcher,
@@ -56,8 +26,13 @@ impl Clone for CoreMiscClient {
     }
 }
 
-impl CoreMiscRpc for CoreMiscClient {
-    async fn create_torrent(
+impl CoreMiscClient {
+    /// Creates a torrent file from `path`. Returns `(filename, filedump)`.
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "create_torrent has many optional params per Deluge API"
+    )]
+    pub async fn create_torrent(
         &self,
         path: &str,
         tracker: &str,
@@ -124,8 +99,8 @@ impl CoreMiscRpc for CoreMiscClient {
         let value = extract_single(&result)?;
         Ok(CreateTorrentResult::deserialize(&value)?)
     }
-
-    async fn glob(&self, path: &str) -> Result<GlobResult, DelugeRpcError> {
+    /// Returns filesystem paths matching the glob pattern.
+    pub async fn glob(&self, path: &str) -> Result<GlobResult, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
@@ -136,8 +111,8 @@ impl CoreMiscRpc for CoreMiscClient {
         let value = extract_single(&result)?;
         Ok(GlobResult::deserialize(&value)?)
     }
-
-    async fn get_completion_paths(
+    /// Returns path completions for a partial path input.
+    pub async fn get_completion_paths(
         &self,
         completion_text: &str,
         show_hidden_files: bool,

@@ -2,8 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::CoreSessionRpc;
-
 const FIXTURE: &str = "session-methods.json";
 
 #[tokio::test(flavor = "multi_thread")]
@@ -12,14 +10,14 @@ async fn when_session_methods_cassette_then_pause_is_paused_resume_not_paused() 
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .session
         .pause_session()
         .await
         .expect("core.pause_session");
 
     let paused = client
-        .core()
+        .core
         .session
         .is_session_paused()
         .await
@@ -27,14 +25,14 @@ async fn when_session_methods_cassette_then_pause_is_paused_resume_not_paused() 
     assert!(paused, "session should be paused after pause_session");
 
     client
-        .core()
+        .core
         .session
         .resume_session()
         .await
         .expect("core.resume_session");
 
     let paused = client
-        .core()
+        .core
         .session
         .is_session_paused()
         .await
@@ -48,7 +46,7 @@ async fn when_session_methods_cassette_then_listen_port_is_positive() {
     let client = common::build_client(&server).await;
 
     let port = client
-        .core()
+        .core
         .session
         .get_listen_port()
         .await
@@ -63,7 +61,7 @@ async fn when_session_methods_cassette_then_external_ip_is_non_empty() {
     let client = common::build_client(&server).await;
 
     let ip = client
-        .core()
+        .core
         .session
         .get_external_ip()
         .await
@@ -81,7 +79,7 @@ async fn when_session_methods_cassette_then_libtorrent_version_is_string() {
     let client = common::build_client(&server).await;
 
     let version = client
-        .core()
+        .core
         .session
         .get_libtorrent_version()
         .await
@@ -99,7 +97,7 @@ async fn when_session_methods_cassette_then_test_listen_port_returns_bool() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .session
         .test_listen_port()
         .await

@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::ExtractorRpc;
 use deluge_rpc_client::models::ExtractorConfig;
 
 const FIXTURE: &str = "extractor.json";
@@ -13,7 +12,7 @@ async fn when_extractor_cassette_then_get_config_returns_dict() {
     let client = common::build_client(&server).await;
 
     let config = client
-        .plugins()
+        .plugins
         .extractor
         .get_config()
         .await
@@ -36,7 +35,7 @@ async fn when_extractor_cassette_then_set_config_succeeds() {
     };
 
     client
-        .plugins()
+        .plugins
         .extractor
         .set_config(&config)
         .await

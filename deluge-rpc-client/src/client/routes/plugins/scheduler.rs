@@ -6,16 +6,6 @@ use crate::to_rencode_value;
 
 use serde::Deserialize;
 
-/// RPC methods for the `scheduler.*` namespace.
-pub trait SchedulerRpc: Send + Sync {
-    /// Sets the plugin config and re-runs the scheduler.
-    async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError>;
-    /// Returns the plugin config.
-    async fn get_config(&self) -> Result<SchedulerConfig, DelugeRpcError>;
-    /// Returns the current schedule state.
-    async fn get_state(&self) -> Result<SchedulerState, DelugeRpcError>;
-}
-
 /// Client for `scheduler.*` RPC methods.
 pub struct SchedulerClient {
     dispatcher: DelugeClientDispatcher,
@@ -35,16 +25,17 @@ impl Clone for SchedulerClient {
     }
 }
 
-impl SchedulerRpc for SchedulerClient {
-    async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError> {
+impl SchedulerClient {
+    /// Sets the plugin config and re-runs the scheduler.
+    pub async fn set_config(&self, config: &SchedulerConfig) -> Result<(), DelugeRpcError> {
         let config_value = to_rencode_value(config)?;
         self.dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.set_config").with_args(vec![config_value]))
             .await?;
         Ok(())
     }
-
-    async fn get_config(&self) -> Result<SchedulerConfig, DelugeRpcError> {
+    /// Returns the plugin config.
+    pub async fn get_config(&self) -> Result<SchedulerConfig, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.get_config"))
@@ -52,8 +43,8 @@ impl SchedulerRpc for SchedulerClient {
         let value = extract_single(&result)?;
         Ok(SchedulerConfig::deserialize(&value)?)
     }
-
-    async fn get_state(&self) -> Result<SchedulerState, DelugeRpcError> {
+    /// Returns the current schedule state.
+    pub async fn get_state(&self) -> Result<SchedulerState, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("scheduler.get_state"))

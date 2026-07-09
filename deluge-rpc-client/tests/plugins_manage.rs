@@ -2,8 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::CorePluginRpc;
-
 const FIXTURE: &str = "plugins-manage.json";
 
 #[tokio::test(flavor = "multi_thread")]
@@ -12,7 +10,7 @@ async fn when_plugins_manage_cassette_then_get_available_returns_list() {
     let client = common::build_client(&server).await;
 
     let plugins = client
-        .core()
+        .core
         .plugins
         .get_available_plugins()
         .await
@@ -30,7 +28,7 @@ async fn when_plugins_manage_cassette_then_enable_label_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .plugins
         .enable_plugin("Label")
         .await
@@ -45,7 +43,7 @@ async fn when_plugins_manage_cassette_then_disable_label_returns_true() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .core()
+        .core
         .plugins
         .disable_plugin("Label")
         .await
@@ -60,7 +58,7 @@ async fn when_plugins_manage_cassette_then_rescan_succeeds() {
     let client = common::build_client(&server).await;
 
     client
-        .core()
+        .core
         .plugins
         .rescan_plugins()
         .await

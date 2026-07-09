@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::StatsRpc;
 use deluge_rpc_client::models::StatsConfig;
 
 const FIXTURE: &str = "stats.json";
@@ -13,7 +12,7 @@ async fn when_stats_cassette_then_get_totals_returns_dict() {
     let client = common::build_client(&server).await;
 
     let totals = client
-        .plugins()
+        .plugins
         .stats
         .get_totals()
         .await
@@ -28,7 +27,7 @@ async fn when_stats_cassette_then_get_session_totals_returns_dict() {
     let client = common::build_client(&server).await;
 
     let totals = client
-        .plugins()
+        .plugins
         .stats
         .get_session_totals()
         .await
@@ -43,7 +42,7 @@ async fn when_stats_cassette_then_get_intervals_returns_list() {
     let client = common::build_client(&server).await;
 
     let intervals = client
-        .plugins()
+        .plugins
         .stats
         .get_intervals()
         .await
@@ -62,7 +61,7 @@ async fn when_stats_cassette_then_get_config_returns_dict() {
     let client = common::build_client(&server).await;
 
     let config = client
-        .plugins()
+        .plugins
         .stats
         .get_config()
         .await
@@ -83,7 +82,7 @@ async fn when_stats_cassette_then_set_config_succeeds() {
     };
 
     client
-        .plugins()
+        .plugins
         .stats
         .set_config(&config)
         .await
@@ -96,7 +95,7 @@ async fn when_stats_cassette_then_get_stats_returns_result() {
     let client = common::build_client(&server).await;
 
     let result = client
-        .plugins()
+        .plugins
         .stats
         .get_stats(&["upload_rate".to_owned(), "download_rate".to_owned()], 1)
         .await

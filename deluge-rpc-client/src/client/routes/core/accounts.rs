@@ -8,32 +8,6 @@ use crate::protocol::extract_single;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for the `core.*` account namespace.
-pub trait CoreAccountRpc: Send + Sync {
-    /// Returns all known user accounts.
-    async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError>;
-    /// Creates a new user account.
-    async fn create_account(
-        &self,
-        username: &str,
-        password: &str,
-        auth_level: &str,
-    ) -> Result<bool, DelugeRpcError>;
-    /// Updates an existing account's password and/or auth level.
-    async fn update_account(
-        &self,
-        username: &str,
-        password: &str,
-        auth_level: &str,
-    ) -> Result<bool, DelugeRpcError>;
-    /// Removes a user account.
-    async fn remove_account(&self, username: &str) -> Result<bool, DelugeRpcError>;
-    /// Returns auth level name-to-int and int-to-name mappings.
-    async fn get_auth_levels_mappings(
-        &self,
-    ) -> Result<(BTreeMap<String, i64>, BTreeMap<i64, String>), DelugeRpcError>;
-}
-
 /// Client for `core.*` account RPC methods.
 pub struct CoreAccountClient {
     dispatcher: DelugeClientDispatcher,
@@ -53,8 +27,9 @@ impl Clone for CoreAccountClient {
     }
 }
 
-impl CoreAccountRpc for CoreAccountClient {
-    async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError> {
+impl CoreAccountClient {
+    /// Returns all known user accounts.
+    pub async fn get_known_accounts(&self) -> Result<Vec<AccountInfo>, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(DelugeRpcRequest::new("core.get_known_accounts"))
@@ -62,8 +37,8 @@ impl CoreAccountRpc for CoreAccountClient {
         let value = extract_single(&result)?;
         Ok(Vec::<AccountInfo>::deserialize(&value)?)
     }
-
-    async fn create_account(
+    /// Creates a new user account.
+    pub async fn create_account(
         &self,
         username: &str,
         password: &str,
@@ -86,8 +61,8 @@ impl CoreAccountRpc for CoreAccountClient {
             }),
         }
     }
-
-    async fn update_account(
+    /// Updates an existing account's password and/or auth level.
+    pub async fn update_account(
         &self,
         username: &str,
         password: &str,
@@ -110,8 +85,8 @@ impl CoreAccountRpc for CoreAccountClient {
             }),
         }
     }
-
-    async fn remove_account(&self, username: &str) -> Result<bool, DelugeRpcError> {
+    /// Removes a user account.
+    pub async fn remove_account(&self, username: &str) -> Result<bool, DelugeRpcError> {
         let result = self
             .dispatcher
             .dispatch(
@@ -128,8 +103,8 @@ impl CoreAccountRpc for CoreAccountClient {
             }),
         }
     }
-
-    async fn get_auth_levels_mappings(
+    /// Returns auth level name-to-int and int-to-name mappings.
+    pub async fn get_auth_levels_mappings(
         &self,
     ) -> Result<(BTreeMap<String, i64>, BTreeMap<i64, String>), DelugeRpcError> {
         let result = self

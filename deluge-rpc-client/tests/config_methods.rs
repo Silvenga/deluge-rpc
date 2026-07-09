@@ -2,7 +2,6 @@
 
 mod common;
 
-use deluge_rpc_client::CoreConfigRpc;
 use std::collections::BTreeMap;
 
 const FIXTURE: &str = "config-methods.json";
@@ -13,7 +12,7 @@ async fn when_config_methods_cassette_then_get_config_value_returns_path() {
     let client = common::build_client(&server).await;
 
     let value = client
-        .core()
+        .core
         .config
         .get_config_value("download_location")
         .await
@@ -33,7 +32,7 @@ async fn when_config_methods_cassette_then_get_config_values_returns_dict() {
     let client = common::build_client(&server).await;
 
     let values = client
-        .core()
+        .core
         .config
         .get_config_values(&["download_location".to_owned(), "daemon_port".to_owned()])
         .await
@@ -73,7 +72,7 @@ async fn when_config_methods_cassette_then_set_config_succeeds() {
     );
 
     client
-        .core()
+        .core
         .config
         .set_config(&config)
         .await
@@ -86,7 +85,7 @@ async fn when_config_methods_cassette_then_get_proxy_returns_config() {
     let client = common::build_client(&server).await;
 
     let proxy = client
-        .core()
+        .core
         .config
         .get_proxy()
         .await
