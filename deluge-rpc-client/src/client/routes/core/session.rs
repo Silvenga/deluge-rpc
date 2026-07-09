@@ -6,7 +6,7 @@ use crate::protocol::{DelugeRpcRequest, extract_single, extract_single_int};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for core.* session queries.
+/// RPC methods for the `core.*` session namespace.
 #[async_trait]
 pub trait CoreSessionRpc: Send + Sync {
     /// Pauses the entire session (all torrents).
@@ -35,7 +35,7 @@ pub trait CoreSessionRpc: Send + Sync {
     async fn get_free_space(&self, path: Option<String>) -> Result<i64, DelugeRpcError>;
 }
 
-/// Client for core.* session RPC methods.
+/// Client for `core.*` session RPC methods.
 pub struct CoreSessionClient {
     dispatcher: DelugeClientDispatcher,
 }

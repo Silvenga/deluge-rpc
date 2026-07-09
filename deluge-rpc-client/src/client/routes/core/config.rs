@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for core.* config queries.
+/// RPC methods for the `core.*` config namespace.
 #[async_trait]
 pub trait CoreConfigRpc: Send + Sync {
     /// Returns all config preferences.
@@ -29,7 +29,7 @@ pub trait CoreConfigRpc: Send + Sync {
     async fn get_proxy(&self) -> Result<ProxyConfig, DelugeRpcError>;
 }
 
-/// Client for core.* config RPC methods.
+/// Client for `core.*` config RPC methods.
 pub struct CoreConfigClient {
     dispatcher: DelugeClientDispatcher,
 }

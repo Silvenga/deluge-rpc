@@ -6,7 +6,7 @@ use crate::to_rencode_value;
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for the scheduler.* namespace.
+/// RPC methods for the `scheduler.*` namespace.
 #[async_trait]
 pub trait SchedulerRpc: Send + Sync {
     /// Sets the plugin config and re-runs the scheduler.
@@ -17,7 +17,7 @@ pub trait SchedulerRpc: Send + Sync {
     async fn get_state(&self) -> Result<SchedulerState, DelugeRpcError>;
 }
 
-/// Client for scheduler.* RPC methods.
+/// Client for `scheduler.*` RPC methods.
 pub struct SchedulerClient {
     dispatcher: DelugeClientDispatcher,
 }

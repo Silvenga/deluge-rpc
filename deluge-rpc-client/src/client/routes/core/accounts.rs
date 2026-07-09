@@ -8,7 +8,7 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for core.* account management.
+/// RPC methods for the `core.*` account namespace.
 #[async_trait]
 pub trait CoreAccountRpc: Send + Sync {
     /// Returns all known user accounts.
@@ -35,7 +35,7 @@ pub trait CoreAccountRpc: Send + Sync {
     ) -> Result<(BTreeMap<String, i64>, BTreeMap<i64, String>), DelugeRpcError>;
 }
 
-/// Client for core.* account RPC methods.
+/// Client for `core.*` account RPC methods.
 pub struct CoreAccountClient {
     dispatcher: DelugeClientDispatcher,
 }

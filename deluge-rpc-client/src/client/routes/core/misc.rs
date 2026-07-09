@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for core.* torrent creation and misc queries.
+/// RPC methods for the `core.*` misc namespace.
 #[async_trait]
 pub trait CoreMiscRpc: Send + Sync {
     /// Creates a torrent file from `path`. Returns `(filename, filedump)`.
@@ -38,7 +38,7 @@ pub trait CoreMiscRpc: Send + Sync {
     ) -> Result<CompletionPaths, DelugeRpcError>;
 }
 
-/// Client for core.* misc RPC methods.
+/// Client for `core.*` misc RPC methods.
 pub struct CoreMiscClient {
     dispatcher: DelugeClientDispatcher,
 }

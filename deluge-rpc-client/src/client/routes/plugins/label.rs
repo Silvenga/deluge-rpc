@@ -6,7 +6,7 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for the label.* namespace.
+/// RPC methods for the `label.*` namespace.
 #[async_trait]
 pub trait LabelRpc: Send + Sync {
     /// Returns all label IDs.
@@ -32,7 +32,7 @@ pub trait LabelRpc: Send + Sync {
     async fn set_config(&self, config: &LabelConfig) -> Result<(), DelugeRpcError>;
 }
 
-/// Client for label.* RPC methods.
+/// Client for `label.*` RPC methods.
 pub struct LabelClient {
     dispatcher: DelugeClientDispatcher,
 }

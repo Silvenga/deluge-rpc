@@ -6,7 +6,7 @@ use crate::to_rencode_value;
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for the extractor.* namespace.
+/// RPC methods for the `extractor.*` namespace.
 #[async_trait]
 pub trait ExtractorRpc: Send + Sync {
     /// Sets the plugin config.
@@ -15,7 +15,7 @@ pub trait ExtractorRpc: Send + Sync {
     async fn get_config(&self) -> Result<ExtractorConfig, DelugeRpcError>;
 }
 
-/// Client for extractor.* RPC methods.
+/// Client for `extractor.*` RPC methods.
 pub struct ExtractorClient {
     dispatcher: DelugeClientDispatcher,
 }

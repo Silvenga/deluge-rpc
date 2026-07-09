@@ -7,7 +7,7 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
-/// RPC methods for the autoadd.* namespace.
+/// RPC methods for the `autoadd.*` namespace.
 #[async_trait]
 pub trait AutoAddRpc: Send + Sync {
     /// Updates the options for an existing watch folder.
@@ -36,7 +36,7 @@ pub trait AutoAddRpc: Send + Sync {
     async fn get_auth_user(&self) -> Result<String, DelugeRpcError>;
 }
 
-/// Client for autoadd.* RPC methods.
+/// Client for `autoadd.*` RPC methods.
 pub struct AutoAddClient {
     dispatcher: DelugeClientDispatcher,
 }

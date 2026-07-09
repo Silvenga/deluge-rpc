@@ -6,7 +6,7 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for the blocklist.* namespace.
+/// RPC methods for the `blocklist.*` namespace.
 #[async_trait]
 pub trait BlocklistRpc: Send + Sync {
     /// Downloads and imports the blocklist from the configured URL.
@@ -19,7 +19,7 @@ pub trait BlocklistRpc: Send + Sync {
     async fn get_status(&self) -> Result<BlocklistStatus, DelugeRpcError>;
 }
 
-/// Client for blocklist.* RPC methods.
+/// Client for `blocklist.*` RPC methods.
 pub struct BlocklistClient {
     dispatcher: DelugeClientDispatcher,
 }

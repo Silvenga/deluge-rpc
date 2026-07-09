@@ -6,7 +6,7 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for the execute.* namespace.
+/// RPC methods for the `execute.*` namespace.
 #[async_trait]
 pub trait ExecuteRpc: Send + Sync {
     /// Adds a command to run on a torrent event.
@@ -24,7 +24,7 @@ pub trait ExecuteRpc: Send + Sync {
     ) -> Result<(), DelugeRpcError>;
 }
 
-/// Client for execute.* RPC methods.
+/// Client for `execute.*` RPC methods.
 pub struct ExecuteClient {
     dispatcher: DelugeClientDispatcher,
 }

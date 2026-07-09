@@ -5,7 +5,7 @@ use crate::protocol::DelugeRpcRequest;
 use crate::protocol::extract_single;
 use async_trait::async_trait;
 
-/// RPC methods for core.* plugin management.
+/// RPC methods for the `core.*` plugin namespace.
 #[async_trait]
 pub trait CorePluginRpc: Send + Sync {
     /// Returns names of all plugins available on the daemon.
@@ -22,7 +22,7 @@ pub trait CorePluginRpc: Send + Sync {
     async fn rescan_plugins(&self) -> Result<(), DelugeRpcError>;
 }
 
-/// Client for core.* plugin RPC methods.
+/// Client for `core.*` plugin RPC methods.
 pub struct CorePluginClient {
     dispatcher: DelugeClientDispatcher,
 }

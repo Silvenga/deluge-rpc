@@ -7,7 +7,7 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for the webui.* namespace.
+/// RPC methods for the `webui.*` namespace.
 #[async_trait]
 pub trait WebUiRpc: Send + Sync {
     /// Returns `true` if the `deluge-web` module is installed and importable.
@@ -18,7 +18,7 @@ pub trait WebUiRpc: Send + Sync {
     async fn get_config(&self) -> Result<WebUiConfig, DelugeRpcError>;
 }
 
-/// Client for webui.* RPC methods.
+/// Client for `webui.*` RPC methods.
 pub struct WebUiClient {
     dispatcher: DelugeClientDispatcher,
 }

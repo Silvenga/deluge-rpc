@@ -6,7 +6,7 @@ use crate::{RencodeValue, to_rencode_value};
 use async_trait::async_trait;
 use serde::Deserialize;
 
-/// RPC methods for the stats.* namespace.
+/// RPC methods for the `stats.*` namespace.
 #[async_trait]
 pub trait StatsRpc: Send + Sync {
     /// Returns historical stats for the requested keys at the given interval.
@@ -27,7 +27,7 @@ pub trait StatsRpc: Send + Sync {
     async fn get_intervals(&self) -> Result<Vec<i64>, DelugeRpcError>;
 }
 
-/// Client for stats.* RPC methods.
+/// Client for `stats.*` RPC methods.
 pub struct StatsClient {
     dispatcher: DelugeClientDispatcher,
 }
