@@ -28,7 +28,7 @@ pub enum Command {
     /// Plugin RPC methods (e.g., label, etc.). Plugin methods require the plugin to be enabled.
     #[command(subcommand)]
     Plugin(PluginsCommand),
-    /// High-level operator status overview (designed for `watch deluge-cli status`).
+    /// High-level status overview.
     Status(StatusCommand),
 }
 

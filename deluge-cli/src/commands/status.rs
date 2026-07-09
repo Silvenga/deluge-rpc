@@ -6,11 +6,7 @@ use deluge_rpc_client::models::FilterDict;
 use serde::Deserialize;
 use std::collections::{BTreeMap, HashMap, HashSet};
 
-/// High-level operator status overview. Designed for `watch deluge-cli status`.
-///
-/// Aggregates session rates, limits, disk space, external IP, and per-state
-/// torrent counts in a single human-readable block. All RPCs are dispatched
-/// concurrently on the shared client connection.
+/// High-level status overview.
 #[derive(Args, Debug, Clone)]
 pub struct StatusCommand;
 
