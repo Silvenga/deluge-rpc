@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/Silvenga/deluge-rpc/compare/v0.1.1...v0.1.2) (2026-07-09)
+
+
+### Bug Fixes
+
+* **ci:** remove release-type input so release-please reads config-file ([#5](https://github.com/Silvenga/deluge-rpc/issues/5)) ([8515d9e](https://github.com/Silvenga/deluge-rpc/commit/8515d9ef907e80a8415fb939bbbcc4d8792202f8))
+
 ## [0.1.1](https://github.com/Silvenga/deluge-rpc/compare/v0.1.0...v0.1.1) (2026-07-09)
 
 
