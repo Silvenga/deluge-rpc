@@ -134,3 +134,65 @@ impl Connection {
         })
     }
 }
+
+impl Drop for Connection {
+    fn drop(&mut self) {
+        self.transport_reader_handle.abort();
+    }
+}
+
+#[cfg(test)]
+#[cfg(target_os = "linux")]
+mod tests {
+    use super::*;
+    use deluge_rpc_mock::{Matcher, ReplayServer};
+    use std::fs;
+    use tokio::task;
+
+    /// This is a regression test of leaked file descriptors.
+    #[tokio::test(flavor = "multi_thread")]
+    async fn when_connection_dropped_then_reader_task_releases_socket_fd() {
+        let server = ReplayServer::start(Matcher::new(vec![]))
+            .await
+            .expect("start replay server");
+        let fd_count_baseline = count_fds();
+
+        let mut connections = Vec::new();
+        for _ in 0..5 {
+            let conn = Connection::connect(&server.host(), server.port(), 16)
+                .await
+                .expect("connect to replay server");
+            connections.push(conn);
+        }
+        let fd_count_with_connections = count_fds();
+        assert!(
+            fd_count_with_connections > fd_count_baseline,
+            "expected open connections to hold FDs, fd_count_baseline={fd_count_baseline} fd_count_with_connections={fd_count_with_connections}"
+        );
+
+        drop(connections);
+
+        let mut released = false;
+        for _ in 0..10_000 {
+            task::yield_now().await;
+            if count_fds() == fd_count_baseline {
+                released = true;
+                break;
+            }
+        }
+        assert!(
+            released,
+            "reader task leaked: FDs not released after dropping connections \
+             (fd_count_baseline={fd_count_baseline}, final={})",
+            count_fds()
+        );
+
+        drop(server);
+    }
+
+    fn count_fds() -> usize {
+        fs::read_dir("/proc/self/fd")
+            .expect("open /proc/self/fd")
+            .count()
+    }
+}
