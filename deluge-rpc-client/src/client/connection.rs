@@ -142,57 +142,52 @@ impl Drop for Connection {
 }
 
 #[cfg(test)]
-#[cfg(target_os = "linux")]
 mod tests {
     use super::*;
     use deluge_rpc_mock::{Matcher, ReplayServer};
-    use std::fs;
     use tokio::task;
 
-    /// This is a regression test of leaked file descriptors.
+    /// Regression test: when a Connection is dropped, the spawned reader task
+    /// must be aborted so it releases its broadcast::Sender (and, transitively,
+    /// the TLS read half and its socket FD). Dropping a JoinHandle in tokio is
+    /// a no-op, so without an explicit Drop the reader task would leak for the
+    /// lifetime of the process.
     #[tokio::test(flavor = "multi_thread")]
-    async fn when_connection_dropped_then_reader_task_releases_socket_fd() {
+    async fn when_connection_dropped_then_reader_task_is_aborted() {
         let server = ReplayServer::start(Matcher::new(vec![]))
             .await
             .expect("start replay server");
-        let fd_count_baseline = count_fds();
 
-        let mut connections = Vec::new();
-        for _ in 0..5 {
-            let conn = Connection::connect(&server.host(), server.port(), 16)
-                .await
-                .expect("connect to replay server");
-            connections.push(conn);
-        }
-        let fd_count_with_connections = count_fds();
+        let conn = Connection::connect(&server.host(), server.port(), 16)
+            .await
+            .expect("connect to replay server");
+
+        // The reader task holds the only strong Sender; the WeakSender on the
+        // Connection can upgrade while the task is alive.
+        let weak = conn.message_queue.clone();
         assert!(
-            fd_count_with_connections > fd_count_baseline,
-            "expected open connections to hold FDs, fd_count_baseline={fd_count_baseline} fd_count_with_connections={fd_count_with_connections}"
+            weak.upgrade().is_some(),
+            "WeakSender should upgrade while reader task is running"
         );
 
-        drop(connections);
+        drop(conn);
 
-        let mut released = false;
+        // After Drop aborts the reader task, its Sender is released and the
+        // WeakSender can no longer upgrade.
+        let mut downgraded = false;
         for _ in 0..10_000 {
             task::yield_now().await;
-            if count_fds() == fd_count_baseline {
-                released = true;
+            if weak.upgrade().is_none() {
+                downgraded = true;
                 break;
             }
         }
         assert!(
-            released,
-            "reader task leaked: FDs not released after dropping connections \
-             (fd_count_baseline={fd_count_baseline}, final={})",
-            count_fds()
+            downgraded,
+            "reader task was not aborted on drop; WeakSender still upgrades, \
+             meaning the task (and its Sender and socket FD) leaked"
         );
 
         drop(server);
-    }
-
-    fn count_fds() -> usize {
-        fs::read_dir("/proc/self/fd")
-            .expect("open /proc/self/fd")
-            .count()
     }
 }
