@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/Silvenga/deluge-rpc/compare/v0.3.0...v0.4.0) (2026-09-13)
+
+
+### Features
+
+* apply rpc timeout to event subscription setup ([2552fd2](https://github.com/Silvenga/deluge-rpc/commit/2552fd2177d935591764b29a9b6d66fee0ec8841))
+* **models:** default missing session status metrics to zero ([d0f2129](https://github.com/Silvenga/deluge-rpc/commit/d0f21290ed03ce211c2953ec3fcaca8cc012ea37))
+* **models:** preserve unknown torrent status and filter fields ([3bb4545](https://github.com/Silvenga/deluge-rpc/commit/3bb4545a55f321fe2a3d6d58af7ea19a41b09a88))
+* replace create_torrent positional args with CreateTorrentRequest builder ([2dc33a3](https://github.com/Silvenga/deluge-rpc/commit/2dc33a367203366238a529587bd68e4e8dadb74d))
+* support custom TLS certificate verification ([92db779](https://github.com/Silvenga/deluge-rpc/commit/92db7790db402afd503c2aa8cef45e8243978fef))
+
 ## [0.3.0](https://github.com/Silvenga/deluge-rpc/compare/v0.2.0...v0.3.0) (2026-08-04)
 
 
