@@ -1,7 +1,9 @@
 use crate::helpers::{rencode_from_json_value, rencode_to_plain_json};
 use clap::Subcommand;
 use deluge_rpc_client::DelugeClient;
-use deluge_rpc_client::models::{AddTorrentOptions, FilterDict, SetTorrentOptions, TrackerInfo};
+use deluge_rpc_client::models::{
+    AddTorrentOptions, CreateTorrentRequest, FilterDict, SetTorrentOptions, TrackerInfo,
+};
 use serde_json::Value as JsonValue;
 use std::collections::BTreeMap;
 
@@ -811,22 +813,12 @@ impl CoreMiscCommand {
                 tracker,
                 piece_length,
             } => {
-                let result = client
-                    .core
-                    .misc
-                    .create_torrent(
-                        path,
-                        tracker,
-                        piece_length.unwrap_or(DEFAULT_PIECE_LENGTH),
-                        None,
-                        None,
-                        None,
-                        false,
-                        None,
-                        None,
-                        false,
-                    )
-                    .await?;
+                let request = CreateTorrentRequest::new(
+                    path,
+                    tracker,
+                    piece_length.unwrap_or(DEFAULT_PIECE_LENGTH),
+                );
+                let result = client.core.misc.create_torrent(&request).await?;
                 let mut map = serde_json::Map::new();
                 map.insert(
                     "filename".to_owned(),

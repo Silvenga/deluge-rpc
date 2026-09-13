@@ -1,9 +1,9 @@
 use crate::DelugeRpcError;
 use crate::RencodeValue;
 use crate::client::dispatcher::DelugeClientDispatcher;
-use crate::models::{CompletionPaths, CreateTorrentResult, GlobResult};
+use crate::models::{CompletionPaths, CreateTorrentRequest, CreateTorrentResult, GlobResult};
 use crate::protocol::{DelugeRpcRequest, extract_single};
-
+use crate::to_rencode_value;
 use serde::Deserialize;
 use std::collections::BTreeMap;
 
@@ -27,75 +27,12 @@ impl Clone for CoreMiscClient {
 }
 
 impl CoreMiscClient {
-    /// Creates a torrent file from `path`. Returns `(filename, filedump)`.
-    #[expect(
-        clippy::too_many_arguments,
-        reason = "create_torrent has many optional params per Deluge API"
-    )]
+    /// Creates a torrent file from `request.path`. Returns the filename and base64-encoded filedump.
     pub async fn create_torrent(
         &self,
-        path: &str,
-        tracker: &str,
-        piece_length: i64,
-        comment: Option<String>,
-        target: Option<String>,
-        web_seeds: Option<Vec<String>>,
-        private: bool,
-        created_by: Option<String>,
-        trackers: Option<Vec<Vec<String>>>,
-        add_to_session: bool,
+        request: &CreateTorrentRequest,
     ) -> Result<CreateTorrentResult, DelugeRpcError> {
-        let mut kwargs = BTreeMap::new();
-        if let Some(c) = comment {
-            kwargs.insert(RencodeValue::Str("comment".into()), RencodeValue::Str(c));
-        }
-        if let Some(t) = target {
-            kwargs.insert(RencodeValue::Str("target".into()), RencodeValue::Str(t));
-        }
-        if let Some(ws) = web_seeds {
-            let ws_values: Vec<RencodeValue> = ws.into_iter().map(RencodeValue::Str).collect();
-            kwargs.insert(
-                RencodeValue::Str("webseeds".into()),
-                RencodeValue::List(ws_values),
-            );
-        }
-        kwargs.insert(
-            RencodeValue::Str("private".into()),
-            RencodeValue::Bool(private),
-        );
-        if let Some(cb) = created_by {
-            kwargs.insert(
-                RencodeValue::Str("created_by".into()),
-                RencodeValue::Str(cb),
-            );
-        }
-        if let Some(tr) = trackers {
-            let tr_values: Vec<RencodeValue> = tr
-                .into_iter()
-                .map(|tier| RencodeValue::List(tier.into_iter().map(RencodeValue::Str).collect()))
-                .collect();
-            kwargs.insert(
-                RencodeValue::Str("trackers".into()),
-                RencodeValue::List(tr_values),
-            );
-        }
-        kwargs.insert(
-            RencodeValue::Str("add_to_session".into()),
-            RencodeValue::Bool(add_to_session),
-        );
-
-        let result = self
-            .dispatcher
-            .dispatch(
-                DelugeRpcRequest::new("core.create_torrent")
-                    .with_args(vec![
-                        RencodeValue::Str(path.to_owned()),
-                        RencodeValue::Str(tracker.to_owned()),
-                        RencodeValue::Int(piece_length),
-                    ])
-                    .with_kwargs(kwargs),
-            )
-            .await?;
+        let result = self.dispatcher.dispatch(build_request(request)?).await?;
         let value = extract_single(&result)?;
         Ok(CreateTorrentResult::deserialize(&value)?)
     }
@@ -139,10 +76,32 @@ impl CoreMiscClient {
     }
 }
 
+fn build_request(request: &CreateTorrentRequest) -> Result<DelugeRpcRequest, DelugeRpcError> {
+    let kwargs = to_rencode_value(request)?;
+    let kwargs = match kwargs {
+        RencodeValue::Dict(map) => map,
+        other => {
+            return Err(DelugeRpcError::UnexpectedResponseType {
+                method: "core.create_torrent".into(),
+                value: other,
+            });
+        }
+    };
+
+    Ok(DelugeRpcRequest::new("core.create_torrent")
+        .with_args(vec![
+            RencodeValue::Str(request.path.clone()),
+            RencodeValue::Str(request.tracker.clone()),
+            RencodeValue::Int(request.piece_length),
+        ])
+        .with_kwargs(kwargs))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::RencodeValue;
+    use crate::models::TorrentFormat;
 
     #[test]
     fn when_core_glob_then_vec_string() {
@@ -167,5 +126,90 @@ mod tests {
             CreateTorrentResult::deserialize(&value).expect("deserialize");
         assert_eq!(result.filename, "my.torrent");
         assert_eq!(result.file_dump, "base64data");
+    }
+
+    #[test]
+    fn when_create_torrent_request_minimal_then_kwargs_empty() {
+        let request =
+            CreateTorrentRequest::new("/data/file.txt", "http://tracker/announce", 262144);
+
+        let built = build_request(&request).expect("build request");
+
+        assert_eq!(built.method, "core.create_torrent");
+        assert_eq!(
+            built.args,
+            vec![
+                RencodeValue::Str("/data/file.txt".into()),
+                RencodeValue::Str("http://tracker/announce".into()),
+                RencodeValue::Int(262144),
+            ]
+        );
+        assert!(
+            built.kwargs.is_empty(),
+            "kwargs should be empty, got {:?}",
+            built.kwargs
+        );
+    }
+
+    #[test]
+    fn when_create_torrent_request_full_then_kwargs_serialized() {
+        let request =
+            CreateTorrentRequest::new("/data/file.txt", "http://tracker/announce", 262144)
+                .with_comment("a comment")
+                .with_target("/out/file.torrent")
+                .with_webseeds(vec!["http://seed/".into()])
+                .with_private(true)
+                .with_created_by("deluge-rpc")
+                .with_trackers(vec![vec!["http://tier1/announce".into()]])
+                .with_add_to_session(true)
+                .with_torrent_format(TorrentFormat::Hybrid)
+                .with_ca_cert("-----BEGIN CERTIFICATE-----");
+
+        let built = build_request(&request).expect("build request");
+
+        assert_eq!(
+            built.kwargs.get(&RencodeValue::Str("comment".into())),
+            Some(&RencodeValue::Str("a comment".into()))
+        );
+        assert_eq!(
+            built.kwargs.get(&RencodeValue::Str("target".into())),
+            Some(&RencodeValue::Str("/out/file.torrent".into()))
+        );
+        assert_eq!(
+            built.kwargs.get(&RencodeValue::Str("webseeds".into())),
+            Some(&RencodeValue::List(vec![RencodeValue::Str(
+                "http://seed/".into()
+            )]))
+        );
+        assert_eq!(
+            built.kwargs.get(&RencodeValue::Str("private".into())),
+            Some(&RencodeValue::Bool(true))
+        );
+        assert_eq!(
+            built.kwargs.get(&RencodeValue::Str("created_by".into())),
+            Some(&RencodeValue::Str("deluge-rpc".into()))
+        );
+        assert_eq!(
+            built.kwargs.get(&RencodeValue::Str("trackers".into())),
+            Some(&RencodeValue::List(vec![RencodeValue::List(vec![
+                RencodeValue::Str("http://tier1/announce".into())
+            ])]))
+        );
+        assert_eq!(
+            built
+                .kwargs
+                .get(&RencodeValue::Str("add_to_session".into())),
+            Some(&RencodeValue::Bool(true))
+        );
+        assert_eq!(
+            built
+                .kwargs
+                .get(&RencodeValue::Str("torrent_format".into())),
+            Some(&RencodeValue::Str("hybrid".into()))
+        );
+        assert_eq!(
+            built.kwargs.get(&RencodeValue::Str("ca_cert".into())),
+            Some(&RencodeValue::Str("-----BEGIN CERTIFICATE-----".into()))
+        );
     }
 }

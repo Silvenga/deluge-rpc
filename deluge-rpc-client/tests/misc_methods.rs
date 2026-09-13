@@ -2,6 +2,8 @@
 
 mod common;
 
+use deluge_rpc_client::models::CreateTorrentRequest;
+
 const FIXTURE: &str = "misc-methods.json";
 
 #[tokio::test(flavor = "multi_thread")]
@@ -43,21 +45,15 @@ async fn when_misc_methods_cassette_then_create_torrent_returns_filename_and_dum
     let server = common::start_replay(common::load_fixture(FIXTURE)).await;
     let client = common::build_client(&server).await;
 
+    let request = CreateTorrentRequest::new(
+        "/config/testfile.txt",
+        "http://example.com/announce",
+        262144,
+    );
     let result = client
         .core
         .misc
-        .create_torrent(
-            "/config/testfile.txt",
-            "http://example.com/announce",
-            262144,
-            None,
-            None,
-            None,
-            false,
-            None,
-            None,
-            false,
-        )
+        .create_torrent(&request)
         .await
         .expect("core.create_torrent");
 
