@@ -7,6 +7,8 @@ rencode implementation (Deluge's `bencode`-like binary message format).
 A CLI tool (`deluge-cli`) is also available for interacting with Deluge instances - for scripting or general testing
 `deluge-rpc-client`.
 
+See [`deluge-maintain`](https://github.com/Silvenga/deluge-maintain) for another project using this library.
+
 ## CLI
 
 The CLI is a thin wrapper across the `deluge-rpc-client` library, with some quality of life improves.
