@@ -4,6 +4,7 @@ mod config;
 mod events;
 mod misc;
 mod plugins;
+mod raw;
 mod sentinels;
 mod session;
 mod torrents;

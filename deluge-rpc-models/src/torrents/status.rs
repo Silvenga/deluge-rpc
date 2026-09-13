@@ -1,8 +1,12 @@
 use super::sub_dicts::{FileInfo, PeerInfo, TrackerInfo};
+use crate::raw::RawRencode;
 use crate::sentinels::{
     deserialize_never_i64, deserialize_ratio, deserialize_unlimited_f64, deserialize_unlimited_i64,
 };
-use serde::{Deserialize, Serialize};
+use deluge_rpc_rencode::RencodeValue;
+use serde::ser::{Error as _, SerializeMap};
+use serde::{Deserialize, Serialize, Serializer};
+use std::collections::BTreeMap;
 
 /// Status of a single torrent, returned by `core.get_torrent_status` / `core.get_torrents_status`.
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
@@ -192,6 +196,104 @@ pub struct TorrentStatus {
     pub stop_at_ratio: bool,
     /// The stop ratio.
     pub stop_ratio: f64,
+
+    /// Untyped status fields not captured by the named fields, e.g. plugin-provided keys.
+    /// Keys colliding with a named field are rejected on serialization.
+    #[serde(flatten, serialize_with = "serialize_extra")]
+    pub extra: BTreeMap<String, RencodeValue>,
+}
+
+/// Keys owned by the named fields. `extra` entries using these keys are rejected on serialization
+/// to avoid emitting duplicate keys.
+const RESERVED_KEYS: &[&str] = &[
+    "active_time",
+    "all_time_download",
+    "completed_time",
+    "finished_time",
+    "last_seen_complete",
+    "seeding_time",
+    "time_added",
+    "time_since_download",
+    "time_since_transfer",
+    "time_since_upload",
+    "total_done",
+    "total_payload_download",
+    "total_payload_upload",
+    "total_remaining",
+    "total_uploaded",
+    "total_wanted",
+    "download_payload_rate",
+    "upload_payload_rate",
+    "eta",
+    "distributed_copies",
+    "ratio",
+    "seed_rank",
+    "seeds_peers_ratio",
+    "num_peers",
+    "num_seeds",
+    "total_peers",
+    "total_seeds",
+    "peers",
+    "state",
+    "paused",
+    "progress",
+    "is_seed",
+    "is_finished",
+    "seed_mode",
+    "super_seeding",
+    "message",
+    "queue",
+    "storage_mode",
+    "hash",
+    "name",
+    "comment",
+    "creator",
+    "private",
+    "num_files",
+    "num_pieces",
+    "piece_length",
+    "total_size",
+    "files",
+    "orig_files",
+    "pieces",
+    "file_priorities",
+    "file_progress",
+    "tracker",
+    "tracker_host",
+    "tracker_status",
+    "trackers",
+    "auto_managed",
+    "is_auto_managed",
+    "download_location",
+    "max_connections",
+    "max_download_speed",
+    "max_upload_slots",
+    "max_upload_speed",
+    "move_completed",
+    "move_completed_path",
+    "owner",
+    "prioritize_first_last_pieces",
+    "remove_at_ratio",
+    "sequential_download",
+    "shared",
+    "stop_at_ratio",
+    "stop_ratio",
+];
+
+fn serialize_extra<S: Serializer>(
+    extra: &BTreeMap<String, RencodeValue>,
+    serializer: S,
+) -> Result<S::Ok, S::Error> {
+    let mut map = serializer.serialize_map(Some(extra.len()))?;
+    for (key, value) in extra {
+        if RESERVED_KEYS.contains(&key.as_str()) {
+            return Err(S::Error::custom(format!(
+                "extra key `{key}` collides with a named TorrentStatus field"
+            )));
+        }
+        map.serialize_entry(key, &RawRencode(value))?;
+    }
+    map.end()
 }
 
 impl Default for TorrentStatus {
@@ -269,14 +371,16 @@ impl Default for TorrentStatus {
             shared: false,
             stop_at_ratio: false,
             stop_ratio: 0.0,
+            extra: BTreeMap::new(),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use super::super::entry::TorrentEntry;
     use super::*;
-    use deluge_rpc_rencode::RencodeValue;
+    use deluge_rpc_rencode::{RencodeValue, to_rencode_value};
     use std::collections::BTreeMap;
 
     fn make_full_status_dict() -> RencodeValue {
@@ -747,5 +851,162 @@ mod tests {
         assert_eq!(result.move_completed_path, "");
         assert_eq!(result.owner, "");
         assert_eq!(result.message, "");
+    }
+
+    #[test]
+    fn when_plugin_keys_present_then_extra_preserves_nested_values() {
+        let mut map = BTreeMap::new();
+        map.insert(
+            RencodeValue::Str("name".into()),
+            RencodeValue::Str("test-torrent".into()),
+        );
+        map.insert(
+            RencodeValue::Str("label".into()),
+            RencodeValue::Str("movies".into()),
+        );
+        map.insert(
+            RencodeValue::Str("plugin.nested".into()),
+            RencodeValue::Dict(BTreeMap::from([(
+                RencodeValue::Str("enabled".into()),
+                RencodeValue::Bool(true),
+            )])),
+        );
+        let value = RencodeValue::Dict(map);
+
+        let result: TorrentStatus = TorrentStatus::deserialize(&value).expect("deserialize");
+
+        assert_eq!(result.name, "test-torrent");
+        assert_eq!(
+            result.extra.get("label"),
+            Some(&RencodeValue::Str("movies".into()))
+        );
+        assert_eq!(
+            result.extra.get("plugin.nested"),
+            Some(&RencodeValue::Dict(BTreeMap::from([(
+                RencodeValue::Str("enabled".into()),
+                RencodeValue::Bool(true),
+            )])))
+        );
+    }
+
+    #[test]
+    fn when_status_serialized_then_extra_emitted_as_plain_values() {
+        let mut status = TorrentStatus {
+            name: "test-torrent".into(),
+            ..Default::default()
+        };
+        status.extra.insert(
+            "plugin.nested".into(),
+            RencodeValue::List(vec![RencodeValue::Int(1), RencodeValue::Int(2)]),
+        );
+
+        let value = to_rencode_value(&status).expect("serialize");
+
+        let RencodeValue::Dict(map) = value else {
+            panic!("expected dict");
+        };
+        assert_eq!(
+            map.get(&RencodeValue::Str("plugin.nested".into())),
+            Some(&RencodeValue::List(vec![
+                RencodeValue::Int(1),
+                RencodeValue::Int(2)
+            ]))
+        );
+    }
+
+    #[test]
+    fn when_status_deserialized_then_serialized_extra_retains_plugin_value() {
+        let mut map = BTreeMap::new();
+        map.insert(
+            RencodeValue::Str("name".into()),
+            RencodeValue::Str("test-torrent".into()),
+        );
+        map.insert(
+            RencodeValue::Str("plugin.nested".into()),
+            RencodeValue::Dict(BTreeMap::from([(
+                RencodeValue::Str("count".into()),
+                RencodeValue::Int(7),
+            )])),
+        );
+        let status = TorrentStatus::deserialize(&RencodeValue::Dict(map)).expect("deserialize");
+
+        let value = to_rencode_value(&status).expect("serialize");
+
+        let RencodeValue::Dict(serialized) = value else {
+            panic!("expected dict");
+        };
+        assert_eq!(
+            serialized.get(&RencodeValue::Str("plugin.nested".into())),
+            Some(&RencodeValue::Dict(BTreeMap::from([(
+                RencodeValue::Str("count".into()),
+                RencodeValue::Int(7),
+            )])))
+        );
+    }
+
+    #[test]
+    fn when_default_then_extra_empty() {
+        let status = TorrentStatus::default();
+
+        assert!(status.extra.is_empty());
+    }
+
+    #[test]
+    fn when_extra_key_collides_with_named_field_then_serialization_rejected() {
+        let mut status = TorrentStatus::default();
+        status
+            .extra
+            .insert("name".into(), RencodeValue::Str("duplicate".into()));
+
+        let result = to_rencode_value(&status);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn when_extra_key_collides_with_named_field_then_json_serialization_rejected() {
+        let mut status = TorrentStatus::default();
+        status
+            .extra
+            .insert("name".into(), RencodeValue::Str("duplicate".into()));
+
+        let result = serde_json::to_value(&status);
+
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn when_torrent_entry_deserialized_then_plugin_keys_land_in_status_extra() {
+        let mut map = BTreeMap::new();
+        map.insert(
+            RencodeValue::Str("name".into()),
+            RencodeValue::Str("test-torrent".into()),
+        );
+        map.insert(
+            RencodeValue::Str("state".into()),
+            RencodeValue::Str("Seeding".into()),
+        );
+        map.insert(
+            RencodeValue::Str("progress".into()),
+            RencodeValue::Float(100.0),
+        );
+        map.insert(
+            RencodeValue::Str("plugin.nested".into()),
+            RencodeValue::Dict(BTreeMap::from([(
+                RencodeValue::Str("count".into()),
+                RencodeValue::Int(7),
+            )])),
+        );
+
+        let entry = TorrentEntry::deserialize(&RencodeValue::Dict(map)).expect("deserialize");
+
+        assert_eq!(entry.status.name, "test-torrent");
+        assert_eq!(
+            entry.status.extra.get("plugin.nested"),
+            Some(&RencodeValue::Dict(BTreeMap::from([(
+                RencodeValue::Str("count".into()),
+                RencodeValue::Int(7),
+            )])))
+        );
     }
 }
