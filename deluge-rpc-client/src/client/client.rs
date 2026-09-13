@@ -48,10 +48,10 @@ impl DelugeClient {
         self.dispatcher.dispatch(request).await
     }
 
-    /// Opens a dedicated connection for event streaming and subscribes to the given event names.
+    /// Opens a dedicated connection for event streaming and subscribes to the given event.
+    /// Connection failures will yield an error. Consumers should drop the
+    /// [EventStream] to reconnect on error.
     /// The connection is closed when the returned stream is dropped.
-    /// If the connection dies, the stream yields an error and then ends — the caller is
-    /// responsible for re-subscribing.
     pub async fn subscribe_events(
         &self,
         event_names: &[impl AsRef<str>],
@@ -62,7 +62,7 @@ impl DelugeClient {
     }
 }
 
-/// Provides access to `core.*` RPC sub-clients (torrents, session, config, plugins, accounts, misc).
+/// Provides access to `core.*` RPC sub-clients.
 pub struct CoreClient {
     /// Access to `core.*` torrent methods.
     pub torrents: CoreTorrentClient,
@@ -91,7 +91,7 @@ impl CoreClient {
     }
 }
 
-/// Provides access to plugin RPC sub-clients (auto_add, blocklist, execute, extractor, label, etc.).
+/// Provides access to plugin RPC sub-clients.
 pub struct PluginsClient {
     /// Access to `AutoAdd*` plugin RPC methods.
     pub auto_add: AutoAddClient,

@@ -16,7 +16,7 @@ debugging and quick scripting.
 ## Usage
 
 Build `DelugeClient` using `DelugeClientBuilder`. Like, HTTP clients, it's best to share the same `DelugeClient`
-instance across threads. Connecting and re-connecting are lazy. If the client disconnects mid call, that call will raise
+instance across threads. Connecting and re-connecting are lazy. If the client disconnects mid-call, that call will raise
 an error. The next call will attempt to connect and login using a new connection.
 
 All models are re-exported from [`deluge-rpc-models`](https://crates.io/crates/deluge-rpc-models).
@@ -93,7 +93,7 @@ async fn main() -> anyhow::Result<()> {
 
     let request = DelugeRpcRequest::new("label.set_torrent")
         .with_args(vec![
-            RencodeValue::Str("a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2".into()),
+            RencodeValue::Str("7acf8fb590b2060dd9c3146ef770169d593433b0".into()),
             RencodeValue::Str("my-label".into()),
         ])
         .with_kwargs(kwargs);
