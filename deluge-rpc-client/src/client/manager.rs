@@ -3,6 +3,7 @@ use crate::client::info::DelugeConnectionInfo;
 use crate::{DelugeRpcError, DelugeRpcRequest, RencodeValue};
 use std::collections::BTreeMap;
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::Mutex;
 
 pub struct ConnectionManager {
@@ -28,6 +29,10 @@ impl ConnectionManager {
 
     pub(crate) fn event_queue_size(&self) -> usize {
         self.info.event_queue_size
+    }
+
+    pub(crate) fn rpc_timeout(&self) -> Duration {
+        self.info.rpc_timeout
     }
 
     // Acquire a connection, re-using an existing one if possible.

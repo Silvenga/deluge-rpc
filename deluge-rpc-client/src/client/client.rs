@@ -9,6 +9,7 @@ use crate::{
     RencodeValue, SchedulerClient, StatsClient, ToggleClient, WebUiClient,
 };
 use std::sync::Arc;
+use tokio::time::timeout;
 
 /// The top-level Deluge RPC client providing access to daemon, core, and plugin sub-clients.
 /// See [crate::DelugeClientBuilder].
@@ -52,13 +53,17 @@ impl DelugeClient {
     /// Connection failures will yield an error. Consumers should drop the
     /// [EventStream] to reconnect on error.
     /// The connection is closed when the returned stream is dropped.
+    /// The configured RPC timeout covers connecting, login, and subscribing.
     pub async fn subscribe_events(
         &self,
         event_names: &[impl AsRef<str>],
     ) -> Result<EventStream, DelugeRpcError> {
-        let connection = self.manager.create().await?;
         let names: Vec<String> = event_names.iter().map(|n| n.as_ref().to_owned()).collect();
-        EventStream::subscribe(connection, &names, self.manager.event_queue_size()).await
+        let deadline = timeout(self.manager.rpc_timeout(), async {
+            let connection = self.manager.create().await?;
+            EventStream::subscribe(connection, &names, self.manager.event_queue_size()).await
+        });
+        deadline.await.map_err(|_| DelugeRpcError::Timeout)?
     }
 }
 
@@ -150,7 +155,6 @@ mod tests {
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::{TcpListener, TcpStream};
     use tokio::time;
-    use tokio::time::timeout;
     use tokio_rustls::server::TlsStream;
 
     const HEADER_LEN: usize = 5;
@@ -216,12 +220,29 @@ mod tests {
         frame
     }
 
+    #[derive(Clone, Copy)]
+    enum ConnectionBehavior {
+        Respond { drop_after_requests: u32 },
+        Silent,
+    }
+
     struct MockServer {
         addr: SocketAddr,
     }
 
     impl MockServer {
         async fn new(drop_after_requests: u32) -> Self {
+            Self::start(ConnectionBehavior::Respond {
+                drop_after_requests,
+            })
+            .await
+        }
+
+        async fn new_silent() -> Self {
+            Self::start(ConnectionBehavior::Silent).await
+        }
+
+        async fn start(behavior: ConnectionBehavior) -> Self {
             ensure_crypto_provider();
             let listener = TcpListener::bind("127.0.0.1:0").await.expect("bind");
             let addr = listener.local_addr().expect("local addr");
@@ -239,12 +260,31 @@ mod tests {
                         Err(_) => continue,
                     };
                     tokio::spawn(async move {
-                        handle_connection(tls, drop_after_requests).await;
+                        match behavior {
+                            ConnectionBehavior::Respond {
+                                drop_after_requests,
+                            } => {
+                                handle_connection(tls, drop_after_requests).await;
+                            }
+                            ConnectionBehavior::Silent => {
+                                handle_silent_connection(tls).await;
+                            }
+                        }
                     });
                 }
             });
 
             MockServer { addr }
+        }
+    }
+
+    async fn handle_silent_connection(mut tls: TlsStream<TcpStream>) {
+        let mut buf = [0u8; 1024];
+        loop {
+            match tls.read(&mut buf).await {
+                Ok(0) | Err(_) => break,
+                Ok(_) => {}
+            }
         }
     }
 
@@ -399,4 +439,26 @@ mod tests {
             "call should fail (connection dropped): {result:?}"
         );
     }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn when_subscribe_login_unanswered_then_timeout_returned() {
+        let server = MockServer::new_silent().await;
+
+        let client = DelugeClientBuilder::new(
+            "127.0.0.1".to_owned(),
+            server.addr.port(),
+            "testuser".to_owned(),
+            "testpass".to_owned(),
+        )
+        .with_rpc_timeout(Duration::from_millis(100))
+        .build();
+
+        let result = client.subscribe_events(&["TorrentAddedEvent"]).await;
+        assert!(
+            matches!(&result, Err(DelugeRpcError::Timeout)),
+            "subscribe should time out when login is unanswered: {:?}",
+            result.as_ref().map(|_| ())
+        );
+    }
+
 }
