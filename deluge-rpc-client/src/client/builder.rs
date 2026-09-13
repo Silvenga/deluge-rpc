@@ -2,6 +2,8 @@ use crate::DelugeClient;
 use crate::client::info::DelugeConnectionInfo;
 #[cfg(feature = "recorder")]
 use crate::recorder::RecordedInteraction;
+use rustls::client::danger::ServerCertVerifier;
+use std::sync::Arc;
 use std::time::Duration;
 #[cfg(feature = "recorder")]
 use tokio::sync::mpsc;
@@ -19,6 +21,7 @@ pub struct DelugeClientBuilder {
     rpc_timeout: Duration,
     message_queue_size: usize,
     event_queue_size: usize,
+    verifier: Option<Arc<dyn ServerCertVerifier>>,
     #[cfg(feature = "recorder")]
     recorder_tx: Option<mpsc::Sender<RecordedInteraction>>,
 }
@@ -39,6 +42,7 @@ impl DelugeClientBuilder {
             rpc_timeout: DEFAULT_RPC_TIMEOUT,
             message_queue_size: MAX_MESSAGE_QUEUE_SIZE,
             event_queue_size: DEFAULT_EVENT_QUEUE_SIZE,
+            verifier: None,
             #[cfg(feature = "recorder")]
             recorder_tx: None,
         }
@@ -65,6 +69,15 @@ impl DelugeClientBuilder {
         self
     }
 
+    /// Sets a custom TLS certificate verifier, applied to every connection
+    /// (including reconnects and event streams).
+    /// Defaults to accepting any certificate, since the Deluge daemon uses
+    /// self-signed certificates.
+    pub fn with_certificate_verifier(mut self, verifier: Arc<dyn ServerCertVerifier>) -> Self {
+        self.verifier = Some(verifier);
+        self
+    }
+
     /// Enable recording of request-response interactions (requires `recorder` feature).
     #[cfg(feature = "recorder")]
     pub fn with_recorder(mut self, tx: mpsc::Sender<RecordedInteraction>) -> Self {
@@ -82,6 +95,7 @@ impl DelugeClientBuilder {
             rpc_timeout: self.rpc_timeout,
             message_queue_size: self.message_queue_size,
             event_queue_size: self.event_queue_size,
+            verifier: self.verifier,
             #[cfg(feature = "recorder")]
             recorder_tx: self.recorder_tx,
         })

@@ -3,6 +3,7 @@ use crate::transport::reader::DelugeReader;
 use crate::transport::verifier::NoVerifier;
 use crate::transport::writer::DelugeWriter;
 use rustls::ClientConfig;
+use rustls::client::danger::ServerCertVerifier;
 use rustls::crypto;
 use rustls::pki_types::ServerName;
 use std::io;
@@ -23,8 +24,18 @@ pub struct DelugeTransport {
 impl DelugeTransport {
     /// Establish a TLS connection to the Deluge daemon at `host:port`.
     pub async fn connect(host: &str, port: u16) -> Result<Self, TransportError> {
+        Self::connect_with_verifier(host, port, None).await
+    }
+
+    /// Establish a TLS connection using the given certificate verifier.
+    /// `None` accepts any certificate.
+    pub async fn connect_with_verifier(
+        host: &str,
+        port: u16,
+        verifier: Option<Arc<dyn ServerCertVerifier>>,
+    ) -> Result<Self, TransportError> {
         ensure_crypto_provider();
-        let config = client_config();
+        let config = client_config(verifier);
         let connector = TlsConnector::from(Arc::new(config));
         let domain = server_name(host)?;
         let tcp = timeout(Duration::from_secs(10), TcpStream::connect((host, port)))
@@ -43,10 +54,11 @@ impl DelugeTransport {
     }
 }
 
-fn client_config() -> ClientConfig {
+fn client_config(verifier: Option<Arc<dyn ServerCertVerifier>>) -> ClientConfig {
+    let verifier = verifier.unwrap_or_else(|| Arc::new(NoVerifier));
     ClientConfig::builder()
         .dangerous()
-        .with_custom_certificate_verifier(Arc::new(NoVerifier))
+        .with_custom_certificate_verifier(verifier)
         .with_no_client_auth()
 }
 
@@ -180,5 +192,22 @@ mod tests {
         drop(listener);
         let result = DelugeTransport::connect("127.0.0.1", addr.port()).await;
         assert!(result.is_err());
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn when_custom_verifier_rejects_then_connect_fails() {
+        use crate::transport::verifier::test_verifiers::RejectingVerifier;
+
+        let addr = spawn_echo_server().await;
+        let result = DelugeTransport::connect_with_verifier(
+            "127.0.0.1",
+            addr.port(),
+            Some(Arc::new(RejectingVerifier)),
+        )
+        .await;
+        assert!(
+            result.is_err(),
+            "custom verifier should reject the handshake"
+        );
     }
 }

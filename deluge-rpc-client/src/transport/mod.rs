@@ -9,3 +9,6 @@ pub use error::TransportError;
 pub use reader::DelugeReader;
 pub use transport::DelugeTransport;
 pub use writer::DelugeWriter;
+
+#[cfg(test)]
+pub(crate) use verifier::test_verifiers::RejectingVerifier;

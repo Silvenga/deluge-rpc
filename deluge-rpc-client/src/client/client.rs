@@ -461,4 +461,26 @@ mod tests {
         );
     }
 
+    #[tokio::test(flavor = "multi_thread")]
+    async fn when_custom_verifier_rejects_then_call_fails() {
+        use crate::transport::RejectingVerifier;
+
+        let server = MockServer::new(u32::MAX).await;
+
+        let client = DelugeClientBuilder::new(
+            "127.0.0.1".to_owned(),
+            server.addr.port(),
+            "testuser".to_owned(),
+            "testpass".to_owned(),
+        )
+        .with_certificate_verifier(Arc::new(RejectingVerifier))
+        .build();
+
+        let result = client.daemon.info().await;
+        assert!(
+            matches!(&result, Err(DelugeRpcError::Transport(_))),
+            "custom verifier should reject the handshake: {:?}",
+            result.as_ref().map(|_| ())
+        );
+    }
 }

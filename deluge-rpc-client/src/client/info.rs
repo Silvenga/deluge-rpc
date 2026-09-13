@@ -1,5 +1,7 @@
 #[cfg(feature = "recorder")]
 use crate::recorder::RecordedInteraction;
+use rustls::client::danger::ServerCertVerifier;
+use std::sync::Arc;
 use std::time::Duration;
 #[cfg(feature = "recorder")]
 use tokio::sync::mpsc;
@@ -22,6 +24,8 @@ pub(crate) struct DelugeConnectionInfo {
     pub message_queue_size: usize,
     /// The maximum numbers of events received that will be buffered before being dropped.
     pub event_queue_size: usize,
+    /// Custom TLS certificate verifier. `None` accepts any certificate.
+    pub verifier: Option<Arc<dyn ServerCertVerifier>>,
     /// Channel to send recorded request-response interactions to (requires `recorder` feature).
     #[cfg(feature = "recorder")]
     pub recorder_tx: Option<mpsc::Sender<RecordedInteraction>>,

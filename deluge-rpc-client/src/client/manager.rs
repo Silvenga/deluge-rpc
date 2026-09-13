@@ -61,6 +61,7 @@ impl ConnectionManager {
             &self.info.host,
             self.info.port,
             self.info.message_queue_size,
+            self.info.verifier.clone(),
         )
         .await?;
 

@@ -1,5 +1,6 @@
 use crate::transport::{DelugeTransport, DelugeWriter, TransportError};
 use crate::{DelugeRpcError, DelugeRpcMessage, DelugeRpcRequest, RencodeValue};
+use rustls::client::danger::ServerCertVerifier;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicU32, Ordering};
 use tokio::sync::broadcast::error::RecvError;
@@ -90,8 +91,9 @@ impl Connection {
         host: &str,
         port: u16,
         message_queue_size: usize,
+        verifier: Option<Arc<dyn ServerCertVerifier>>,
     ) -> Result<Self, TransportError> {
-        let transport = DelugeTransport::connect(host, port).await?;
+        let transport = DelugeTransport::connect_with_verifier(host, port, verifier).await?;
         let (mut transport_reader, transport_writer) = transport.split();
 
         let writer = Arc::from(Mutex::new(transport_writer));
@@ -158,7 +160,7 @@ mod tests {
             .await
             .expect("start replay server");
 
-        let conn = Connection::connect(&server.host(), server.port(), 16)
+        let conn = Connection::connect(&server.host(), server.port(), 16, None)
             .await
             .expect("connect to replay server");
 
