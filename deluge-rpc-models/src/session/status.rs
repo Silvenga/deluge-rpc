@@ -3,7 +3,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Session status returned by `core.get_session_status(keys)`.
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+///
+/// The daemon only returns metrics for the keys requested by the caller, so
+/// any named metric that was not requested deserializes to `0.0`. Unknown
+/// keys are preserved in [`extra`](Self::extra).
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
+#[serde(default)]
 pub struct SessionStatus {
     /// Total download rate.
     pub download_rate: f64,
@@ -156,5 +161,59 @@ mod tests {
         let peer_count: i64 = i64::deserialize(&result.extra["peer.num_peers_connected"])
             .expect("deserialize peer count");
         assert_eq!(peer_count, 42);
+    }
+
+    #[test]
+    fn when_partial_response_with_extra_then_missing_metrics_default_to_zero() {
+        let mut map = BTreeMap::new();
+        map.insert(
+            RencodeValue::Str("download_rate".into()),
+            RencodeValue::Float(1024.0),
+        );
+        map.insert(
+            RencodeValue::Str("peer.num_peers_connected".into()),
+            RencodeValue::Int(42),
+        );
+
+        let result: SessionStatus =
+            SessionStatus::deserialize(&RencodeValue::Dict(map)).expect("deserialize");
+
+        assert_eq!(result.download_rate, 1024.0);
+        assert_eq!(result.upload_rate, 0.0);
+        assert_eq!(result.payload_download_rate, 0.0);
+        assert_eq!(result.payload_upload_rate, 0.0);
+        assert_eq!(result.ip_overhead_download_rate, 0.0);
+        assert_eq!(result.ip_overhead_upload_rate, 0.0);
+        assert_eq!(result.tracker_download_rate, 0.0);
+        assert_eq!(result.tracker_upload_rate, 0.0);
+        assert_eq!(result.dht_download_rate, 0.0);
+        assert_eq!(result.dht_upload_rate, 0.0);
+        assert_eq!(result.write_hit_ratio, 0.0);
+        assert_eq!(result.read_hit_ratio, 0.0);
+        assert_eq!(
+            result.extra.get("peer.num_peers_connected"),
+            Some(&RencodeValue::Int(42))
+        );
+    }
+
+    #[test]
+    fn when_empty_response_then_all_metrics_default_to_zero() {
+        let result: SessionStatus =
+            SessionStatus::deserialize(&RencodeValue::Dict(BTreeMap::new())).expect("deserialize");
+
+        assert_eq!(result, SessionStatus::default());
+    }
+
+    #[test]
+    fn when_present_metric_is_malformed_then_deserialize_fails() {
+        let mut map = BTreeMap::new();
+        map.insert(
+            RencodeValue::Str("download_rate".into()),
+            RencodeValue::Str("fast".into()),
+        );
+
+        let result = SessionStatus::deserialize(&RencodeValue::Dict(map));
+
+        assert!(result.is_err());
     }
 }
